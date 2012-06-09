@@ -10,7 +10,7 @@ public class ReflectedThisExpression extends Expression {
 	private final String mMethodName;
 	private final List<Expression> mArguments;
 
-	public ReflectedThisExpression(Expression aThis, String aMethodName, List<Expression> aArguments) {
+	public ReflectedThisExpression(final Expression aThis, final String aMethodName, final List<Expression> aArguments) {
 		mThis = aThis;
 		mMethodName = aMethodName;
 		mArguments = aArguments;

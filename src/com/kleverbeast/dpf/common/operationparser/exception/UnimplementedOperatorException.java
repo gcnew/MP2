@@ -5,15 +5,15 @@ public class UnimplementedOperatorException extends ParsingException {
 		super();
 	}
 
-	public UnimplementedOperatorException(String aMessage, Throwable aCause) {
+	public UnimplementedOperatorException(final String aMessage, final Throwable aCause) {
 		super(aMessage, aCause);
 	}
 
-	public UnimplementedOperatorException(String aMessage) {
+	public UnimplementedOperatorException(final String aMessage) {
 		super(aMessage);
 	}
 
-	public UnimplementedOperatorException(Throwable aCause) {
+	public UnimplementedOperatorException(final Throwable aCause) {
 		super(aCause);
 	}
 }

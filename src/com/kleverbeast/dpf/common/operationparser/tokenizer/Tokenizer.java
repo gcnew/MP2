@@ -50,7 +50,7 @@ public class Tokenizer {
 	}
 
 	private Token next0() throws ParsingException {
-		char c = mSource.charAt(mIndex);
+		final char c = mSource.charAt(mIndex);
 
 		switch (c) {
 		case '.':

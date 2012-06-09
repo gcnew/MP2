@@ -154,7 +154,7 @@ public class OperationParser {
 		return parsePrecedenced(0);
 	}
 
-	private Expression parsePrecedenced(int aIndex) throws ParsingException {
+	private Expression parsePrecedenced(final int aIndex) throws ParsingException {
 		if (aIndex == PRECEDENCES.length) {
 			return parseCast();
 		}

@@ -12,10 +12,10 @@ public class FunctionExpression extends Expression {
 		mArgs = aArgs;
 	}
 
-	public Object execute(Scope aScope) throws Exception {
+	public Object execute(final Scope aScope) throws Exception {
 		final List<Object> args = new ArrayList<Object>(mArgs.size());
 
-		for (Expression e : mArgs) {
+		for (final Expression e : mArgs) {
 			args.add(e.execute(aScope));
 		}
 

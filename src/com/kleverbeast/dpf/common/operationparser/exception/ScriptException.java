@@ -5,15 +5,15 @@ public class ScriptException extends Exception {
 		super();
 	}
 
-	public ScriptException(String aMessage, Throwable aCause) {
+	public ScriptException(final String aMessage, final Throwable aCause) {
 		super(aMessage, aCause);
 	}
 
-	public ScriptException(String aMessage) {
+	public ScriptException(final String aMessage) {
 		super(aMessage);
 	}
 
-	public ScriptException(Throwable aCause) {
+	public ScriptException(final Throwable aCause) {
 		super(aCause);
 	}
 }

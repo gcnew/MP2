@@ -2,7 +2,6 @@ package com.kleverbeast.dpf.common.operationparser.internal.operators.unary;
 
 import static com.kleverbeast.dpf.common.operationparser.Util.getClassString;
 
-
 import com.kleverbeast.dpf.common.operationparser.exception.ScriptException;
 import com.kleverbeast.dpf.common.operationparser.internal.Expression;
 import com.kleverbeast.dpf.common.operationparser.internal.Scope;
@@ -13,7 +12,7 @@ public class Negate extends UnaryOperatorExpression {
 		super(aRight);
 	}
 
-	public Object execute(Scope aScope) throws Exception {
+	public Object execute(final Scope aScope) throws Exception {
 		final Object o = mRight.execute(aScope);
 
 		if (!(o instanceof Number)) {

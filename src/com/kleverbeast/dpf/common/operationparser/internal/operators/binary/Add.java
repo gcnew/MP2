@@ -16,7 +16,7 @@ public class Add extends BinaryOperatorExpression {
 		super(aLeft, aRight);
 	}
 
-	public Object execute(Scope aScope) throws Exception {
+	public Object execute(final Scope aScope) throws Exception {
 		final Object left = mLeft.execute(aScope);
 		final Object right = mRight.execute(aScope);
 

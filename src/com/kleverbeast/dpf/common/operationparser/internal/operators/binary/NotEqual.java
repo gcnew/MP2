@@ -1,6 +1,5 @@
 package com.kleverbeast.dpf.common.operationparser.internal.operators.binary;
 
-
 import com.kleverbeast.dpf.common.operationparser.internal.BinaryOperatorExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.Expression;
 import com.kleverbeast.dpf.common.operationparser.internal.Scope;

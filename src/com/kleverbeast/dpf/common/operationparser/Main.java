@@ -14,7 +14,7 @@ public class Main {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		try {
 			// final OperationParser parser = new OperationParser("$q = (boolean) 1; $l = $a.l(); for ($i = 32; $i; $i = $i - 1) { $l <<= 1; $a.print($l); }");
 			final OperationParser parser = new OperationParser("$z = ((1 + 2).toString() + 12) + (string) null + 'qwerty'");
@@ -25,7 +25,7 @@ public class Main {
 			s.execute(scope);
 
 			scope.containsKey("");
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}

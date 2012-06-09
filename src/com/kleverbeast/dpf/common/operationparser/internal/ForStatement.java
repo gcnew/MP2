@@ -2,7 +2,6 @@ package com.kleverbeast.dpf.common.operationparser.internal;
 
 import static com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil.isTrue;
 
-
 public class ForStatement extends Statement {
 	private final Expression mExpr1;
 	private final Expression mExpr2;
@@ -16,8 +15,7 @@ public class ForStatement extends Statement {
 		mBody = aBody;
 	}
 
-	@Override
-	public void execute(Scope aScope) throws Exception {
+	public void execute(final Scope aScope) throws Exception {
 		mExpr1.execute(aScope);
 
 		while (isTrue(mExpr2.execute(aScope))) {

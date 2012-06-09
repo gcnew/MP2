@@ -2,7 +2,6 @@ package com.kleverbeast.dpf.common.operationparser.internal;
 
 import static com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil.isTrue;
 
-
 public class IfElseStatement extends Statement {
 	private final Expression mCondition;
 	private final Statement mTrueStatement;
@@ -19,7 +18,7 @@ public class IfElseStatement extends Statement {
 	}
 
 	@Override
-	public void execute(Scope aScope) throws Exception {
+	public void execute(final Scope aScope) throws Exception {
 		if (isTrue(mCondition.execute(aScope))) {
 			mTrueStatement.execute(aScope);
 		} else {

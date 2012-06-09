@@ -2,7 +2,6 @@ package com.kleverbeast.dpf.common.operationparser.internal.operators.binary;
 
 import static com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType.MODULO;
 
-
 import com.kleverbeast.dpf.common.operationparser.internal.BinaryOperatorExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil;
 import com.kleverbeast.dpf.common.operationparser.internal.Expression;
@@ -13,7 +12,7 @@ public class Modulo extends BinaryOperatorExpression {
 		super(aLeft, aRight);
 	}
 
-	public Object execute(Scope aScope) throws Exception {
+	public Object execute(final Scope aScope) throws Exception {
 		final Object left = mLeft.execute(aScope);
 		final Object right = mRight.execute(aScope);
 

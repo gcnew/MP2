@@ -3,7 +3,7 @@ package com.kleverbeast.dpf.common.operationparser.internal;
 import java.util.List;
 
 public class Block extends Statement {
-	private List<Statement> mStatements;
+	private final List<Statement> mStatements;
 
 	public Block(final List<Statement> aStatements) {
 		mStatements = aStatements;

@@ -2,7 +2,6 @@ package com.kleverbeast.dpf.common.operationparser.internal.operators.binary;
 
 import static com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil.isFloating;
 
-
 import com.kleverbeast.dpf.common.operationparser.internal.BinaryOperatorExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.Expression;
 import com.kleverbeast.dpf.common.operationparser.internal.Scope;
