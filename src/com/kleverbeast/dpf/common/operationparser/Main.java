@@ -1,7 +1,7 @@
 package com.kleverbeast.dpf.common.operationparser;
 
 import com.kleverbeast.dpf.common.operationparser.internal.Scope;
-import com.kleverbeast.dpf.common.operationparser.internal.Statement;
+import com.kleverbeast.dpf.common.operationparser.internal.statements.Statement;
 
 public class Main {
 	public static class ABC {
