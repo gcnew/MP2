@@ -1,7 +1,9 @@
-package com.kleverbeast.dpf.common.operationparser.internal;
+package com.kleverbeast.dpf.common.operationparser.internal.expressions;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.kleverbeast.dpf.common.operationparser.internal.Scope;
 
 public class FunctionExpression extends Expression {
 	private final String mFunctionName;

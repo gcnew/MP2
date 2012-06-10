@@ -1,6 +1,8 @@
-package com.kleverbeast.dpf.common.operationparser.internal;
+package com.kleverbeast.dpf.common.operationparser.internal.statements;
 
 import java.util.List;
+
+import com.kleverbeast.dpf.common.operationparser.internal.Scope;
 
 public class Block extends Statement {
 	private final List<Statement> mStatements;

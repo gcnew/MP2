@@ -3,6 +3,7 @@ package com.kleverbeast.dpf.common.operationparser.internal;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.ConstantExpression;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.Token;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.TokenConstants;
 

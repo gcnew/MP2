@@ -1,4 +1,7 @@
-package com.kleverbeast.dpf.common.operationparser.internal;
+package com.kleverbeast.dpf.common.operationparser.internal.statements;
+
+import com.kleverbeast.dpf.common.operationparser.internal.Scope;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
 
 public class ExpressionStatement extends Statement {
 	private final Expression mExpression;

@@ -1,6 +1,9 @@
-package com.kleverbeast.dpf.common.operationparser.internal;
+package com.kleverbeast.dpf.common.operationparser.internal.statements;
 
 import static com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil.isTrue;
+
+import com.kleverbeast.dpf.common.operationparser.internal.Scope;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
 
 public class IfElseStatement extends Statement {
 	private final Expression mCondition;

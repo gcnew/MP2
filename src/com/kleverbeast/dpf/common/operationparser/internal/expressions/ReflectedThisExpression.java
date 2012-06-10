@@ -1,9 +1,10 @@
-package com.kleverbeast.dpf.common.operationparser.internal;
+package com.kleverbeast.dpf.common.operationparser.internal.expressions;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
 import com.kleverbeast.dpf.common.operationparser.Util;
+import com.kleverbeast.dpf.common.operationparser.internal.Scope;
 
 public class ReflectedThisExpression extends Expression {
 	private final Expression mThis;
