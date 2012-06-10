@@ -8,6 +8,6 @@ public class AccessExpression extends Expression {
 	}
 
 	public Object execute(final Scope aScope) throws Exception {
-		return aScope.get(mVariableName);
+		return aScope.getVariable(mVariableName);
 	}
 }

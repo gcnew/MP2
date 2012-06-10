@@ -20,11 +20,11 @@ public class Main {
 			final OperationParser parser = new OperationParser("$z = ((1 + 2).toString() + 12) + (string) null + 'qwerty'");
 			final Statement s = parser.parse();
 
-			final Scope scope = new Scope();
-			scope.put("$a", new ABC());
+			final Scope scope = new Scope(null, null);
+			scope.setVariable("$a", new ABC());
 			s.execute(scope);
 
-			scope.containsKey("");
+			scope.getVariable("");
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}

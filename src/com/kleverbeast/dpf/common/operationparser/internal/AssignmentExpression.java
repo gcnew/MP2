@@ -12,7 +12,7 @@ public class AssignmentExpression extends Expression {
 	public Object execute(final Scope aScope) throws Exception {
 		final Object retval = mExpression.execute(aScope);
 
-		aScope.put(mVariableName, retval);
+		aScope.setVariable(mVariableName, retval);
 		return retval;
 	}
 }
