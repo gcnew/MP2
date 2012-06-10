@@ -8,7 +8,7 @@ import com.kleverbeast.dpf.common.operationparser.tokenizer.Token;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.TokenConstants;
 
 public class ConstantExpressionFactory {
-	private static final ConstantExpression mNull = new ConstantExpression(TokenConstants.getKeywordToken("null"));
+	private static final ConstantExpression NULL = new ConstantExpression(TokenConstants.getKeywordToken("null"));
 	private final Map<Object, ConstantExpression> mCache = new HashMap<Object, ConstantExpression>();
 
 	public ConstantExpression getExpression(final Token aToken) {
@@ -17,7 +17,7 @@ public class ConstantExpressionFactory {
 
 	public ConstantExpression getExpression(final Object aObject) {
 		if (aObject == null) {
-			return mNull;
+			return NULL;
 		}
 
 		ConstantExpression retval = mCache.get(aObject);

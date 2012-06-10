@@ -17,7 +17,8 @@ public class Main {
 	public static void main(final String[] args) {
 		try {
 			// final OperationParser parser = new OperationParser("$q = (boolean) 1; $l = $a.l(); for ($i = 32; $i; $i = $i - 1) { $l <<= 1; $a.print($l); }");
-			final OperationParser parser = new OperationParser("$z = ((1 + 2).toString() + 12) + (string) null + 'qwerty'");
+			// final OperationParser parser = new OperationParser("$z = ((1 + 2).toString() + 12) + (string) null + 'qwerty'");
+			final OperationParser parser = new OperationParser("$z = (long) 0; for (;true;) if ($z == 3) break; else { $z = $z + 1; $a.print(null); } ");
 			final Statement s = parser.parse();
 
 			final Scope scope = new Scope(null, null);

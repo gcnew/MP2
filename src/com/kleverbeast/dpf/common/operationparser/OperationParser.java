@@ -36,6 +36,8 @@ import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expressio
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.FunctionExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.ReflectedThisExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.Block;
+import com.kleverbeast.dpf.common.operationparser.internal.statements.BreakStatement;
+import com.kleverbeast.dpf.common.operationparser.internal.statements.ContinueStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.EmptyStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.ExpressionStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.ForStatement;
@@ -50,8 +52,11 @@ import com.kleverbeast.dpf.common.operationparser.tokenizer.Tokenizer;
 
 public class OperationParser {
 	private final Tokenizer mTokenizer;
-	private static final Statement EMPTY_STATEMENT = new EmptyStatement();
 	private final ConstantExpressionFactory mConstantFactory = new ConstantExpressionFactory();
+
+	private static final Statement EMPTY_STATEMENT = new EmptyStatement();
+	private static final Statement BREAK_STATEMENT = new BreakStatement();
+	private static final Statement CONTINUE_STATEMENT = new ContinueStatement();
 
 	private static final OperatorType PRECEDENCES[][] = {
 	/*		*/{ OR },
@@ -306,6 +311,12 @@ public class OperationParser {
 			case FOR:
 				retval = parseFor();
 				break;
+			case BREAK:
+				retval = BREAK_STATEMENT;
+				break;
+			case CONTINUE:
+				retval = CONTINUE_STATEMENT;
+				break;
 			default:
 				throw new ParsingException("Keyword not yet implemented" + token);
 			}
@@ -340,7 +351,7 @@ public class OperationParser {
 
 		final Expression expr1;
 		if (advanceIfNext(TokenConstants.SEMICOL)) {
-			expr1 = mConstantFactory.getExpression(null);
+			expr1 = mConstantFactory.getExpression((Object) null);
 		} else {
 			expr1 = parseAssignment();
 			checkAndAdvance(TokenConstants.SEMICOL);
@@ -348,7 +359,7 @@ public class OperationParser {
 
 		final Expression expr2;
 		if (advanceIfNext(TokenConstants.SEMICOL)) {
-			expr2 = mConstantFactory.getExpression(null);
+			expr2 = mConstantFactory.getExpression((Object) null);
 		} else {
 			expr2 = parseAssignment();
 			checkAndAdvance(TokenConstants.SEMICOL);
@@ -356,7 +367,7 @@ public class OperationParser {
 
 		final Expression expr3;
 		if (advanceIfNext(TokenConstants.C_BRACK)) {
-			expr3 = mConstantFactory.getExpression(null);
+			expr3 = mConstantFactory.getExpression((Object) null);
 		} else {
 			expr3 = parseAssignment();
 			checkAndAdvance(TokenConstants.C_BRACK);

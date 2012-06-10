@@ -23,6 +23,20 @@ public class ForStatement extends Statement {
 
 		while (isTrue(mExpr2.execute(aScope))) {
 			mBody.execute(aScope);
+
+			if (aScope.getControlFlow() != null) {
+				switch (aScope.getControlFlow()) {
+				case BREAK:
+					aScope.setControlFlow(null);
+					return;
+				case CONTINUE:
+					aScope.setControlFlow(null);
+					break;
+				case RETURN:
+					return;
+				}
+			}
+
 			mExpr3.execute(aScope);
 		}
 	}

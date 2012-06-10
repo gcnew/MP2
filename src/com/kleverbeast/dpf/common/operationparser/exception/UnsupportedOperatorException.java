@@ -1,6 +1,6 @@
 package com.kleverbeast.dpf.common.operationparser.exception;
 
-import static com.kleverbeast.dpf.common.operationparser.Util.getClassString;
+import static com.kleverbeast.dpf.common.operationparser.util.Util.getClassString;
 
 import com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType;
 

@@ -7,9 +7,9 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.kleverbeast.dpf.common.operationparser.Util;
 import com.kleverbeast.dpf.common.operationparser.exception.UnsupportedOperatorException;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType;
+import com.kleverbeast.dpf.common.operationparser.util.Util;
 
 public class CoercionUtil {
 	public enum CoercionType {

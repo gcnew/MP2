@@ -1,10 +1,9 @@
 package com.kleverbeast.dpf.common.operationparser.internal.expressions;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
-import com.kleverbeast.dpf.common.operationparser.Util;
 import com.kleverbeast.dpf.common.operationparser.internal.Scope;
+import com.kleverbeast.dpf.common.operationparser.util.ReflectionUtil;
 
 public class ReflectedThisExpression extends Expression {
 	private final Expression mThis;
@@ -13,7 +12,7 @@ public class ReflectedThisExpression extends Expression {
 
 	public ReflectedThisExpression(final Expression aThis, final String aMethodName, final List<Expression> aArguments) {
 		mThis = aThis;
-		mMethodName = aMethodName;
+		mMethodName = aMethodName.intern();
 		mArguments = aArguments;
 	}
 
@@ -22,15 +21,10 @@ public class ReflectedThisExpression extends Expression {
 
 		int i = 0;
 		final Object args[] = new Object[mArguments.size()];
-		final Class<?> argTypes[] = new Class<?>[args.length];
 		for (final Expression e : mArguments) {
-			args[i] = e.execute(aScope);
-			argTypes[i] = args[i].getClass();
-
-			++i;
+			args[i++] = e.execute(aScope);
 		}
 
-		final Method m = Util.getMethod(_this, mMethodName, argTypes);
-		return m.invoke(_this, args);
+		return ReflectionUtil.invokeMethod(_this, mMethodName, args);
 	}
 }

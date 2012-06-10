@@ -14,6 +14,11 @@ public class Block extends Statement {
 	public void execute(final Scope aScope) throws Exception {
 		for (final Statement s : mStatements) {
 			s.execute(aScope);
+
+			if (aScope.getControlFlow() != null) {
+				// either break, continue or return - any of them terminates this block evaluation
+				return;
+			}
 		}
 	}
 }
