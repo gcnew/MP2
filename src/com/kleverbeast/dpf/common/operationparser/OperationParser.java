@@ -287,7 +287,7 @@ public class OperationParser {
 				break;
 			}
 
-			args.add(parseExpression());
+			args.add(parseAssignment());
 			advanceIfNext(TokenConstants.COMMA);
 		}
 

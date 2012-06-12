@@ -4,6 +4,10 @@ import static com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil.g
 
 import java.lang.reflect.Method;
 
+import com.kleverbeast.dpf.common.operationparser.exception.AmbiguousException;
+import com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil;
+import com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil.CoercionType;
+
 public class ReflectionUtil {
 
 	public static Object invokeMethod(final Object aThis, final String aInternedName, final Object aArgs[])
@@ -17,36 +21,74 @@ public class ReflectionUtil {
 		}
 
 		final Method exactMethod = getExactMethod(aInternedName, methods, types);
-
 		if (exactMethod != null) {
 			return exactMethod.invoke(aThis, aArgs);
 		}
 
-		/*Node<Method> mAmbiguous = null;
+		final MethodSearchRetval convertedMethod = getConvertedMethod(aInternedName, aArgs, _class, methods, types);
+		if (convertedMethod.method != null) {
+			return convertedMethod.method.invoke(aThis, convertedMethod.convertedArgs);
+		}
+
+		throw new NoSuchMethodException("Method " + getSignature(_class, aInternedName, types) + " not found");
+	}
+
+	private static MethodSearchRetval getConvertedMethod(final String aInternedName,
+			final Object[] aArgs,
+			final Class<?> _class,
+			final Method[] methods,
+			final Class<?>[] types) throws AmbiguousException {
+		Node<Method> mAmbiguous = null;
 		Node<Method> varArgsMethods = null;
+
+		final Object[] convertedArgs = new Object[aArgs.length];
 		for (final Method m : methods) {
 			if (m.getName() == aInternedName) {
 				final Class<?> methodArgs[] = m.getParameterTypes();
 
-				if (aArgTypes.length != methodArgs.length) {
-					varArgsMethods = new Node<Method>(m, varArgsMethods);
+				if (types.length != methodArgs.length) {
+					if (m.isVarArgs()) {
+						varArgsMethods = new Node<Method>(m, varArgsMethods);
+					}
+
+					continue;
 				}
 
 				int i;
-				for (i = 0; i < aArgTypes.length; i++) {
-					final Class<?> normClass = getNormalizedClass(methodArgs[i]);
+				for (i = 0; i < types.length; i++) {
+					final Class<?> methType;
+					final Class<?> type = types[i];
 
-					if (normClass != aArgTypes[i]) {
-						final CoercionType type1 = CoercionUtil.getCoercionType(_class);
-						final CoercionType type2 = CoercionUtil.getCoercionType(normClass);
-
-						if ((type1.ordinal() < BYTE.ordinal()) || (type2.ordinal() < BYTE.ordinal()))
-
+					if (methodArgs[i].isPrimitive()) {
+						if (type == null) {
 							break;
+						}
+
+						methType = getWrapperClass(methodArgs[i]);
+					} else {
+						if (type == null) {
+							convertedArgs[i] = null;
+							continue;
+						}
+
+						methType = methodArgs[i];
+					}
+
+					if ((methType != type) && !methType.isAssignableFrom(type)) {
+						final CoercionType type1 = CoercionUtil.getCoercionType(type);
+						final CoercionType type2 = CoercionUtil.getCoercionType(methType);
+
+						if (CoercionUtil.isNumber(type1) && CoercionUtil.isNumber(type2)) {
+							convertedArgs[i] = CoercionUtil.cast(aArgs[i], type2);
+						} else {
+							break;
+						}
+					} else {
+						convertedArgs[i] = aArgs[i];
 					}
 				}
 
-				if (i == aArgTypes.length) {
+				if (i == types.length) {
 					mAmbiguous = new Node<Method>(m, mAmbiguous);
 				}
 			}
@@ -57,11 +99,17 @@ public class ReflectionUtil {
 				final String signatures = getSignatures(_class, mAmbiguous);
 				throw new AmbiguousException("Multiple methods satisfying signutere found", signatures);
 			} else {
-				return mAmbiguous.getValue();
+				return new MethodSearchRetval(mAmbiguous.getValue(), convertedArgs);
 			}
-		}*/
+		}
 
-		throw new NoSuchMethodException("Method " + getSignature(_class, aInternedName, types) + " not found");
+		return getVarArgMethod(varArgsMethods, aArgs, types);
+	}
+
+	private static MethodSearchRetval getVarArgMethod(final Node<Method> aMethods,
+			final Object aArgs[],
+			final Class<?> aTypes[]) {
+		return new MethodSearchRetval(null, null);
 	}
 
 	private static Method getExactMethod(final String aInternedName, final Method[] aMethods, final Class<?> aTypes[]) {
@@ -95,10 +143,6 @@ public class ReflectionUtil {
 		return null;
 	}
 
-	private static Class<?> getNormalizedClass(final Class<?> aClass) {
-		return (aClass.isPrimitive()) ? getWrapperClass(aClass) : aClass;
-	}
-
 	private static String getSignature(final Class<?> aClass, final String aMethod, final Class<?> aArgTypes[]) {
 		final StringBuilder sb = new StringBuilder(128);
 
@@ -119,7 +163,9 @@ public class ReflectionUtil {
 
 		boolean first = true;
 		for (final Method m : aMethods) {
-			if (!first) {
+			if (first) {
+				first = false;
+			} else {
 				retval.append("\n");
 			}
 
@@ -127,5 +173,15 @@ public class ReflectionUtil {
 		}
 
 		return retval.toString();
+	}
+
+	private static class MethodSearchRetval {
+		final Method method;
+		final Object[] convertedArgs;
+
+		public MethodSearchRetval(final Method aMethod, final Object[] aConvertedArgs) {
+			method = aMethod;
+			convertedArgs = aConvertedArgs;
+		}
 	}
 }

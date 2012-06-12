@@ -119,6 +119,10 @@ public class CoercionUtil {
 		return !isFloating(aNumber);
 	}
 
+	public static boolean isNumber(final CoercionType aType) {
+		return (aType.ordinal() > CoercionType.BOOLEAN.ordinal()) && (aType.ordinal() < CoercionType.STRING.ordinal());
+	}
+
 	public static boolean isTrue(final Object aObject) {
 		return ((Boolean) cast(aObject, CoercionType.BOOLEAN)).booleanValue();
 	}
