@@ -15,18 +15,26 @@ public class ReflectionUtil {
 		final Class<?> _class = aThis.getClass();
 		final Method methods[] = _class.getMethods();
 
+		boolean noNull = true;
 		final Class<?> types[] = new Class<?>[aArgs.length];
 		for (int i = 0; i < aArgs.length; ++i) {
-			types[i] = (aArgs[i] != null) ? aArgs[i].getClass() : null;
+			if (aArgs[i] != null) {
+				types[i] = aArgs[i].getClass();
+			} else {
+				noNull = false;
+				types[i] = null;
+			}
 		}
 
-		final Method exactMethod = getExactMethod(aInternedName, methods, types);
-		if (exactMethod != null) {
-			return exactMethod.invoke(aThis, aArgs);
+		if (noNull) {
+			final Method exactMethod = getExactMethod(aInternedName, methods, types);
+			if (exactMethod != null) {
+				return exactMethod.invoke(aThis, aArgs);
+			}
 		}
 
 		final MethodSearchRetval convertedMethod = getConvertedMethod(aInternedName, aArgs, _class, methods, types);
-		if (convertedMethod.method != null) {
+		if (convertedMethod != null) {
 			return convertedMethod.method.invoke(aThis, convertedMethod.convertedArgs);
 		}
 
@@ -35,18 +43,18 @@ public class ReflectionUtil {
 
 	private static MethodSearchRetval getConvertedMethod(final String aInternedName,
 			final Object[] aArgs,
-			final Class<?> _class,
-			final Method[] methods,
-			final Class<?>[] types) throws AmbiguousException {
-		Node<Method> mAmbiguous = null;
+			final Class<?> aClass,
+			final Method[] aMethods,
+			final Class<?>[] aTypes) throws AmbiguousException {
+		Node<Method> ambiguous = null;
 		Node<Method> varArgsMethods = null;
 
 		final Object[] convertedArgs = new Object[aArgs.length];
-		for (final Method m : methods) {
+		for (final Method m : aMethods) {
 			if (m.getName() == aInternedName) {
-				final Class<?> methodArgs[] = m.getParameterTypes();
+				final Class<?> methTypes[] = m.getParameterTypes();
 
-				if (types.length != methodArgs.length) {
+				if (aTypes.length != methTypes.length) {
 					if (m.isVarArgs()) {
 						varArgsMethods = new Node<Method>(m, varArgsMethods);
 					}
@@ -55,61 +63,108 @@ public class ReflectionUtil {
 				}
 
 				int i;
-				for (i = 0; i < types.length; i++) {
-					final Class<?> methType;
-					final Class<?> type = types[i];
-
-					if (methodArgs[i].isPrimitive()) {
-						if (type == null) {
-							break;
-						}
-
-						methType = getWrapperClass(methodArgs[i]);
-					} else {
-						if (type == null) {
-							convertedArgs[i] = null;
-							continue;
-						}
-
-						methType = methodArgs[i];
-					}
-
-					if ((methType != type) && !methType.isAssignableFrom(type)) {
-						final CoercionType type1 = CoercionUtil.getCoercionType(type);
-						final CoercionType type2 = CoercionUtil.getCoercionType(methType);
-
-						if (CoercionUtil.isNumber(type1) && CoercionUtil.isNumber(type2)) {
-							convertedArgs[i] = CoercionUtil.cast(aArgs[i], type2);
-						} else {
-							break;
-						}
-					} else {
-						convertedArgs[i] = aArgs[i];
+				for (i = 0; i < aTypes.length; i++) {
+					if (!convertArg(i, aArgs[i], aTypes[i], convertedArgs, methTypes[i])) {
+						break;
 					}
 				}
 
-				if (i == types.length) {
-					mAmbiguous = new Node<Method>(m, mAmbiguous);
+				if (i == aTypes.length) {
+					ambiguous = new Node<Method>(m, ambiguous);
 				}
 			}
 		}
 
-		if (mAmbiguous != null) {
-			if (mAmbiguous.hasNext()) {
-				final String signatures = getSignatures(_class, mAmbiguous);
+		if (ambiguous != null) {
+			if (ambiguous.hasNext()) {
+				final String signatures = getSignatures(aClass, ambiguous);
 				throw new AmbiguousException("Multiple methods satisfying signutere found", signatures);
 			} else {
-				return new MethodSearchRetval(mAmbiguous.getValue(), convertedArgs);
+				return new MethodSearchRetval(ambiguous.getValue(), convertedArgs);
 			}
 		}
 
-		return getVarArgMethod(varArgsMethods, aArgs, types);
+		return (varArgsMethods != null) ? getVarArgMethod(aClass, varArgsMethods, aArgs, aTypes) : null;
 	}
 
-	private static MethodSearchRetval getVarArgMethod(final Node<Method> aMethods,
+	private static boolean convertArg(final int aIndex,
+			final Object aArg,
+			final Class<?> aType,
+			final Object[] aConvertedArgs,
+			final Class<?> aMethodArg) {
+		final Class<?> methType;
+
+		if (aMethodArg.isPrimitive()) {
+			if (aType == null) {
+				return false;
+			}
+
+			methType = getWrapperClass(aMethodArg);
+		} else {
+			if (aType == null) {
+				aConvertedArgs[aIndex] = null;
+				return true;
+			}
+
+			methType = aMethodArg;
+		}
+
+		if ((methType != aType) && !methType.isAssignableFrom(aType)) {
+			final CoercionType type1 = CoercionUtil.getCoercionType(aType);
+			final CoercionType type2 = CoercionUtil.getCoercionType(methType);
+
+			if (CoercionUtil.isNumber(type1) && CoercionUtil.isNumber(type2)) {
+				aConvertedArgs[aIndex] = CoercionUtil.cast(aArg, type2);
+			} else {
+				return false;
+			}
+		} else {
+			aConvertedArgs[aIndex] = aArg;
+		}
+
+		return true;
+	}
+
+	private static MethodSearchRetval getVarArgMethod(final Class<?> aClass,
+			final Node<Method> aMethods,
 			final Object aArgs[],
-			final Class<?> aTypes[]) {
-		return new MethodSearchRetval(null, null);
+			final Class<?> aTypes[]) throws AmbiguousException {
+		Node<Method> ambiguous = null;
+
+		Object[] convertedArgs = null;
+		for (final Method m : aMethods) {
+			final Class<?> methTypes[] = m.getParameterTypes();
+
+			if (aTypes.length < (methTypes.length - 1)) {
+				continue;
+			}
+
+			int i;
+			final int nonVarArgsCount = methTypes.length - 1;
+			convertedArgs = new Object[methTypes.length];
+			for (i = 0; i < nonVarArgsCount; i++) {
+				if (!convertArg(i, aArgs[i], aTypes[i], convertedArgs, methTypes[i])) {
+					break;
+				}
+			}
+
+			if (i == nonVarArgsCount) {
+				// TODO: create variable argument object
+				ambiguous = new Node<Method>(m, ambiguous);
+			}
+
+		}
+
+		if (ambiguous != null) {
+			if (ambiguous.hasNext()) {
+				final String signatures = getSignatures(aClass, ambiguous);
+				throw new AmbiguousException("Multiple methods satisfying signutere found", signatures);
+			} else {
+				return new MethodSearchRetval(ambiguous.getValue(), convertedArgs);
+			}
+		}
+
+		return null;
 	}
 
 	private static Method getExactMethod(final String aInternedName, final Method[] aMethods, final Class<?> aTypes[]) {
@@ -124,11 +179,11 @@ public class ReflectionUtil {
 				int i;
 				for (i = 0; i < aTypes.length; i++) {
 					if (methodArgs[i].isPrimitive()) {
-						if ((aTypes[i] == null) || (aTypes[i] != getWrapperClass(methodArgs[i]))) {
+						if (aTypes[i] != getWrapperClass(methodArgs[i])) {
 							break;
 						}
 					} else {
-						if ((aTypes[i] != null) && (aTypes[i] != methodArgs[i])) {
+						if (aTypes[i] != methodArgs[i]) {
 							break;
 						}
 					}
