@@ -1,12 +1,11 @@
 package com.kleverbeast.dpf.common.operationparser.util;
 
-import static com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil.getWrapperClass;
+import static com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.getWrapperClass;
 
 import java.lang.reflect.Method;
 
 import com.kleverbeast.dpf.common.operationparser.exception.AmbiguousException;
-import com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil;
-import com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil.CoercionType;
+import com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.CoercionType;
 
 public class ReflectionUtil {
 

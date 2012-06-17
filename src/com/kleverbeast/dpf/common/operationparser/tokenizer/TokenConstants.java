@@ -1,11 +1,11 @@
 package com.kleverbeast.dpf.common.operationparser.tokenizer;
 
-import static com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil.getCoercionType;
 import static com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes.CONSTANT;
 import static com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes.GRAMMAR_TOKEN;
 import static com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes.KEYWORD;
 import static com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes.OPERATOR;
 import static com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes.TYPE;
+import static com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.getCoercionType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

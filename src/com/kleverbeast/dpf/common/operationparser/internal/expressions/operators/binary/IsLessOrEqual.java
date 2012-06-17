@@ -2,10 +2,10 @@ package com.kleverbeast.dpf.common.operationparser.internal.expressions.operator
 
 import static com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType.IS_LESS_OR_EQ;
 
-import com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil;
 import com.kleverbeast.dpf.common.operationparser.internal.Scope;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.BinaryOperatorExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
+import com.kleverbeast.dpf.common.operationparser.util.CoercionUtil;
 
 public class IsLessOrEqual extends BinaryOperatorExpression {
 	public IsLessOrEqual(final Expression aLeft, final Expression aRight) {

@@ -1,8 +1,8 @@
 package com.kleverbeast.dpf.common.operationparser.internal.expressions;
 
-import com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil;
-import com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil.CoercionType;
 import com.kleverbeast.dpf.common.operationparser.internal.Scope;
+import com.kleverbeast.dpf.common.operationparser.util.CoercionUtil;
+import com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.CoercionType;
 
 public class CastExpression extends Expression {
 	private final CoercionType mType;

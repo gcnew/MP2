@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.kleverbeast.dpf.common.operationparser.exception.ParsingException;
-import com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil.CoercionType;
 import com.kleverbeast.dpf.common.operationparser.internal.ConstantExpressionFactory;
 import com.kleverbeast.dpf.common.operationparser.internal.OperatorFactory;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.AccessExpression;
@@ -52,6 +51,7 @@ import com.kleverbeast.dpf.common.operationparser.tokenizer.Token;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.TokenConstants;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.Tokenizer;
+import com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.CoercionType;
 
 public class OperationParser {
 	private final Tokenizer mTokenizer;

@@ -1,6 +1,6 @@
 package com.kleverbeast.dpf.common.operationparser.internal.expressions.operators.binary;
 
-import static com.kleverbeast.dpf.common.operationparser.internal.CoercionUtil.isTrue;
+import static com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.isTrue;
 
 import com.kleverbeast.dpf.common.operationparser.internal.Scope;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.BinaryOperatorExpression;
