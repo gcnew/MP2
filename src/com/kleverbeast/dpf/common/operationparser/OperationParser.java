@@ -38,11 +38,14 @@ import com.kleverbeast.dpf.common.operationparser.internal.expressions.Reflected
 import com.kleverbeast.dpf.common.operationparser.internal.statements.Block;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.BreakStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.ContinueStatement;
+import com.kleverbeast.dpf.common.operationparser.internal.statements.DoStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.EmptyStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.ExpressionStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.ForStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.IfElseStatement;
+import com.kleverbeast.dpf.common.operationparser.internal.statements.ReturnStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.Statement;
+import com.kleverbeast.dpf.common.operationparser.internal.statements.WhileStatement;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.Keywords;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.Token;
@@ -57,6 +60,7 @@ public class OperationParser {
 	private static final Statement EMPTY_STATEMENT = new EmptyStatement();
 	private static final Statement BREAK_STATEMENT = new BreakStatement();
 	private static final Statement CONTINUE_STATEMENT = new ContinueStatement();
+	private static final Statement EMPTY_RETURN_STATEMENT = new ReturnStatement(ConstantExpressionFactory.getNull());
 
 	private static final OperatorType PRECEDENCES[][] = {
 	/*		*/{ OR },
@@ -311,12 +315,20 @@ public class OperationParser {
 			case FOR:
 				retval = parseFor();
 				break;
+			case WHILE:
+				retval = parseWhile();
+				break;
+			case DO:
+				retval = parseDo();
+				break;
 			case BREAK:
 				retval = BREAK_STATEMENT;
 				break;
 			case CONTINUE:
 				retval = CONTINUE_STATEMENT;
 				break;
+			case RETURN:
+				retval = parseReturn();
 			default:
 				throw new ParsingException("Keyword not yet implemented" + token);
 			}
@@ -376,6 +388,35 @@ public class OperationParser {
 		final Statement body = parseStatementOrBlock();
 
 		return new ForStatement(expr1, expr2, expr3, body);
+	}
+
+	private Statement parseWhile() throws ParsingException {
+		checkAndAdvance(TokenConstants.O_BRACK);
+		final Expression condition = parseAssignment();
+		checkAndAdvance(TokenConstants.C_BRACK);
+
+		final Statement body = parseStatementOrBlock();
+		return new WhileStatement(condition, body);
+	}
+
+	private Statement parseDo() throws ParsingException {
+		final Statement body = parseStatementOrBlock();
+
+		checkAndAdvance(TokenConstants.WHILE);
+		checkAndAdvance(TokenConstants.O_BRACK);
+		final Expression condition = parseAssignment();
+		checkAndAdvance(TokenConstants.C_BRACK);
+
+		return new DoStatement(condition, body);
+	}
+
+	private Statement parseReturn() throws ParsingException {
+		if (advanceIfNext(TokenConstants.SEMICOL)) {
+			return EMPTY_RETURN_STATEMENT;
+		}
+
+		final Expression expression = parseAssignment();
+		return new ReturnStatement(expression);
 	}
 
 	private Statement parseStatementOrBlock() throws ParsingException {

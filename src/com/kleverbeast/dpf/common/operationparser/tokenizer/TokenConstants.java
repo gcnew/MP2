@@ -28,11 +28,17 @@ public class TokenConstants {
 	public static final Token FOR = new Token(KEYWORD, Keywords.FOR);
 	public static final Token BREAK = new Token(KEYWORD, Keywords.BREAK);
 	public static final Token CONTINUE = new Token(KEYWORD, Keywords.CONTINUE);
+	public static final Token RETURN = new Token(KEYWORD, Keywords.RETURN);
 	public static final Token DO = new Token(KEYWORD, Keywords.DO);
 	public static final Token WHILE = new Token(KEYWORD, Keywords.WHILE);
+	public static final Token SWITCH = new Token(KEYWORD, Keywords.SWITCH);
+	public static final Token CASE = new Token(KEYWORD, Keywords.CASE);
 	public static final Token TRY = new Token(KEYWORD, Keywords.TRY);
 	public static final Token CATCH = new Token(KEYWORD, Keywords.CATCH);
 	public static final Token FINALLY = new Token(KEYWORD, Keywords.FINALLY);
+	public static final Token LOCAL = new Token(KEYWORD, Keywords.LOCAL);
+	public static final Token GLOBAL = new Token(KEYWORD, Keywords.GLOBAL);
+	public static final Token THIS = new Token(KEYWORD, Keywords.THIS);
 	public static final Token FUNCTION = new Token(KEYWORD, Keywords.FUNCTION);
 	public static final Token CLASS = new Token(KEYWORD, Keywords.CLASS);
 
@@ -126,7 +132,7 @@ public class TokenConstants {
 		OPERATOR_TOKEN_MAP.put(">>=", SHIFT_RIGHT_EQ);
 	}
 
-	private static final int KEYWORD_HASH_SIZE = 32;
+	private static final int KEYWORD_HASH_SIZE = 64;
 	private static final Map<String, Token> KEYWORD_TOKEN_MAP = new HashMap<String, Token>(KEYWORD_HASH_SIZE);
 
 	static {
@@ -139,11 +145,17 @@ public class TokenConstants {
 		KEYWORD_TOKEN_MAP.put("for", FOR);
 		KEYWORD_TOKEN_MAP.put("break", BREAK);
 		KEYWORD_TOKEN_MAP.put("continue", CONTINUE);
+		KEYWORD_TOKEN_MAP.put("return", RETURN);
 		KEYWORD_TOKEN_MAP.put("do", DO);
 		KEYWORD_TOKEN_MAP.put("while", WHILE);
+		KEYWORD_TOKEN_MAP.put("switch", SWITCH);
+		KEYWORD_TOKEN_MAP.put("case", CASE);
 		KEYWORD_TOKEN_MAP.put("try", TRY);
 		KEYWORD_TOKEN_MAP.put("catch", CATCH);
 		KEYWORD_TOKEN_MAP.put("finally", FINALLY);
+		KEYWORD_TOKEN_MAP.put("local", LOCAL);
+		KEYWORD_TOKEN_MAP.put("global", GLOBAL);
+		KEYWORD_TOKEN_MAP.put("this", THIS);
 		KEYWORD_TOKEN_MAP.put("function", FUNCTION);
 		KEYWORD_TOKEN_MAP.put("class", CLASS);
 

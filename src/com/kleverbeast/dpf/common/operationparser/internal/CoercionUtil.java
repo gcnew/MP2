@@ -86,6 +86,14 @@ public class CoercionUtil {
 			case LONG:
 				return Long.valueOf(number.longValue());
 			case BIG_INTEGER:
+				if (aObject instanceof BigDecimal) {
+					return ((BigDecimal) aObject).toBigInteger();
+				}
+
+				if (aObject instanceof BigInteger) {
+					return aObject;
+				}
+
 				return BigInteger.valueOf(number.longValue());
 			case FLOAT:
 				return Float.valueOf(number.floatValue());
@@ -94,6 +102,10 @@ public class CoercionUtil {
 			case BIG_DECIMAL:
 				if (aObject instanceof BigInteger) {
 					return new BigDecimal((BigInteger) aObject);
+				}
+
+				if (aObject instanceof BigDecimal) {
+					return aObject;
 				}
 
 				return BigDecimal.valueOf(number.doubleValue());

@@ -28,4 +28,8 @@ public class ConstantExpressionFactory {
 
 		return retval;
 	}
+
+	public static final ConstantExpression getNull() {
+		return NULL;
+	}
 }
