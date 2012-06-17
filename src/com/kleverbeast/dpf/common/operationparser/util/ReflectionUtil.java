@@ -41,6 +41,37 @@ public class ReflectionUtil {
 		throw new NoSuchMethodException("Method " + getSignature(_class, aInternedName, types) + " not found");
 	}
 
+	private static Method getExactMethod(final String aInternedName, final Method[] aMethods, final Class<?> aTypes[]) {
+		for (final Method m : aMethods) {
+			if (m.getName() == aInternedName) {
+				final Class<?> methodArgs[] = m.getParameterTypes();
+
+				if (aTypes.length != methodArgs.length) {
+					continue;
+				}
+
+				int i;
+				for (i = 0; i < aTypes.length; i++) {
+					if (methodArgs[i].isPrimitive()) {
+						if (aTypes[i] != getWrapperClass(methodArgs[i])) {
+							break;
+						}
+					} else {
+						if (aTypes[i] != methodArgs[i]) {
+							break;
+						}
+					}
+				}
+
+				if (i == methodArgs.length) {
+					return m;
+				}
+			}
+		}
+
+		return null;
+	}
+
 	private static MethodSearchRetval getConvertedMethod(final String aInternedName,
 			final Object[] aArgs,
 			final Class<?> aClass,
@@ -161,37 +192,6 @@ public class ReflectionUtil {
 				throw new AmbiguousException("Multiple methods satisfying signutere found", signatures);
 			} else {
 				return new MethodSearchRetval(ambiguous.getValue(), convertedArgs);
-			}
-		}
-
-		return null;
-	}
-
-	private static Method getExactMethod(final String aInternedName, final Method[] aMethods, final Class<?> aTypes[]) {
-		for (final Method m : aMethods) {
-			if (m.getName() == aInternedName) {
-				final Class<?> methodArgs[] = m.getParameterTypes();
-
-				if (aTypes.length != methodArgs.length) {
-					continue;
-				}
-
-				int i;
-				for (i = 0; i < aTypes.length; i++) {
-					if (methodArgs[i].isPrimitive()) {
-						if (aTypes[i] != getWrapperClass(methodArgs[i])) {
-							break;
-						}
-					} else {
-						if (aTypes[i] != methodArgs[i]) {
-							break;
-						}
-					}
-				}
-
-				if (i == methodArgs.length) {
-					return m;
-				}
 			}
 		}
 
