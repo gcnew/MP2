@@ -12,6 +12,18 @@ public class Util {
 		return retval.toString();
 	}
 
+	public static boolean isLegacyVariable(final String aVarName) {
+		return aVarName.charAt(0) == '$';
+	}
+
+	public static String stripVariableName(final String aVarName) {
+		if (isLegacyVariable(aVarName)) {
+			return aVarName.substring(1);
+		}
+
+		return aVarName;
+	}
+
 	public static void arrayJoin(final String aSeparator, final Object aArray[], final StringBuilder aSb) {
 		if ((aArray != null) && (aArray.length != 0)) {
 			final Object first = aArray[0];

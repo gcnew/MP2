@@ -153,7 +153,7 @@ public class Tokenizer {
 		}
 
 		final int endIndex = findLiteralEnd();
-		final Token retval = new Token(TokenTypes.VARIABLE, mSource.substring(--mIndex, endIndex));
+		final Token retval = new Token(TokenTypes.LITERAL, mSource.substring(--mIndex, endIndex));
 		mIndex = endIndex;
 
 		return retval;

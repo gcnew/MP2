@@ -23,15 +23,18 @@ import static com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType.
 import static com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType.SUBSTRACT;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.kleverbeast.dpf.common.operationparser.exception.ParsingException;
-import com.kleverbeast.dpf.common.operationparser.internal.ConstantExpressionFactory;
+import com.kleverbeast.dpf.common.operationparser.internal.ExpressionFactory;
 import com.kleverbeast.dpf.common.operationparser.internal.OperatorFactory;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.AccessExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.AssignmentExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.CastExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.FunctionCallExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.FunctionExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.ReflectedThisExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.Block;
@@ -43,6 +46,7 @@ import com.kleverbeast.dpf.common.operationparser.internal.statements.Expression
 import com.kleverbeast.dpf.common.operationparser.internal.statements.ForStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.IfElseStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.ReturnStatement;
+import com.kleverbeast.dpf.common.operationparser.internal.statements.SequenceStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.Statement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.WhileStatement;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.Keywords;
@@ -55,12 +59,14 @@ import com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.CoercionType
 
 public class OperationParser {
 	private final Tokenizer mTokenizer;
-	private final ConstantExpressionFactory mConstantFactory = new ConstantExpressionFactory();
+	private/*   */LexicalScope mLexicalScope = new LexicalScope();
+	private final ExpressionFactory mExpressionFactory = new ExpressionFactory();
+	private final Map<String, FunctionExpression> mFunctions = new HashMap<String, FunctionExpression>();
 
 	private static final Statement EMPTY_STATEMENT = new EmptyStatement();
 	private static final Statement BREAK_STATEMENT = new BreakStatement();
 	private static final Statement CONTINUE_STATEMENT = new ContinueStatement();
-	private static final Statement EMPTY_RETURN_STATEMENT = new ReturnStatement(ConstantExpressionFactory.getNull());
+	private static final Statement EMPTY_RETURN_STATEMENT = new ReturnStatement(ExpressionFactory.getNull());
 
 	private static final OperatorType PRECEDENCES[][] = {
 	/*		*/{ OR },
@@ -80,17 +86,21 @@ public class OperationParser {
 		mTokenizer = new Tokenizer(aSource);
 	}
 
-	public Statement parse() throws ParsingException {
+	public ParsedScript parse() throws ParsingException {
 		mTokenizer.tokenize();
-		return parseBlock();
+
+		return new ParsedScript(parseBlock(), mFunctions);
 	}
 
 	private Block parseBlock() throws ParsingException {
 		final ArrayList<Statement> statements = new ArrayList<Statement>();
 
 		while (mTokenizer.hasNext()) {
-			final Statement statement = parseStatement();
+			if (parseDefinitionStatement()) {
+				continue;
+			}
 
+			final Statement statement = parseStatement();
 			if (statement != EMPTY_STATEMENT) {
 				statements.add(statement);
 			}
@@ -139,28 +149,48 @@ public class OperationParser {
 		final Token token = mTokenizer.next();
 
 		// TODO: handle index ($a[$i] = X)
-		if (token.getType() == TokenTypes.VARIABLE) {
-			final Token token2 = mTokenizer.next();
+		if (token.getType() == TokenTypes.LITERAL) {
+			final Expression assignment = parseAssignment0(token.getStringValue());
 
-			if (token2.getType() == TokenTypes.OPERATOR) {
-				final OperatorType operator = token2.getValue();
-
-				if (operator.hasAssignment()) {
-					Expression right = parseAssignment();
-					final String varName = token.getStringValue();
-
-					if (operator != ASSIGN) {
-						final OperatorType basicOperator = operator.getBasicOperator();
-						right = OperatorFactory.getBinaryOperator(basicOperator, new AccessExpression(varName), right);
-					}
-
-					return new AssignmentExpression(varName, right);
-				}
+			if (assignment != null) {
+				return assignment;
 			}
 		}
 
 		mTokenizer.restorePosition(position);
 		return parsePrecedenced(0);
+	}
+
+	private Expression parseAssignment0(final String aVarName) throws ParsingException {
+		final Token token2 = mTokenizer.next();
+
+		if (token2.getType() == TokenTypes.OPERATOR) {
+			final OperatorType operator = token2.getValue();
+
+			if (operator.hasAssignment()) {
+				Expression right = parseAssignment();
+
+				if (operator != ASSIGN) {
+					final OperatorType basicOperator = operator.getBasicOperator();
+					right = OperatorFactory.getBinaryOperator(basicOperator, new AccessExpression(aVarName), right);
+				}
+
+				int index = mLexicalScope.getArgumentIndex(aVarName);
+				if (index >= 0) {
+					return mExpressionFactory.getArgumentAssignmentExpression(index, right);
+				}
+
+				index = mLexicalScope.getLocalVariableIndex(aVarName);
+				if (index >= 0) {
+					mLexicalScope.setAssigned(aVarName);
+					return mExpressionFactory.getLocalAssignmentExpression(index, right);
+				}
+
+				return new AssignmentExpression(aVarName, right);
+			}
+		}
+
+		return null;
 	}
 
 	private Expression parsePrecedenced(final int aIndex) throws ParsingException {
@@ -245,13 +275,15 @@ public class OperationParser {
 			checkAndAdvance(TokenConstants.C_BRACK);
 			break;
 		case CONSTANT:
-			retval = mConstantFactory.getExpression(token);
-			break;
-		case VARIABLE:
-			retval = new AccessExpression(token.getStringValue());
+			retval = mExpressionFactory.getConstantExpression(token);
 			break;
 		case LITERAL:
-			retval = parseFunctionCall(token.getStringValue());
+			if (mTokenizer.hasNext() && advanceIfNext(TokenConstants.O_BRACK)) {
+				retval = parseFunctionCall(token.getStringValue());
+			} else {
+				retval = parseAccessExpression(token.getStringValue());
+			}
+
 			break;
 		}
 
@@ -266,6 +298,24 @@ public class OperationParser {
 		return retval;
 	}
 
+	private Expression parseAccessExpression(final String aVarName) throws ParsingException {
+		int index = mLexicalScope.getArgumentIndex(aVarName);
+		if (index >= 0) {
+			return mExpressionFactory.getArgumentAccessExpression(index);
+		}
+
+		index = mLexicalScope.getLocalVariableIndex(aVarName);
+		if (index >= 0) {
+			if (!mLexicalScope.isAssigned(aVarName)) {
+				throw new ParsingException("Local variable '" + aVarName + "' is used without being initialized");
+			}
+
+			return mExpressionFactory.getLocalAccessExpression(index);
+		}
+
+		return new AccessExpression(aVarName);
+	}
+
 	private Expression parseThisExpression(final Expression aThis) throws ParsingException {
 		final Token token = mTokenizer.next();
 
@@ -273,18 +323,19 @@ public class OperationParser {
 			throwExpectedFound(TokenTypes.LITERAL, token);
 		}
 
+		checkAndAdvance(TokenConstants.O_BRACK);
 		final List<Expression> args = parseFunctionArgs();
 		return new ReflectedThisExpression(aThis, token.getStringValue(), args);
 	}
 
 	private Expression parseFunctionCall(final String aFunctionName) throws ParsingException {
 		final List<Expression> args = parseFunctionArgs();
-		return new FunctionExpression(aFunctionName, args);
+		final Expression functionAccessor = parseAccessExpression(aFunctionName);
+
+		return new FunctionCallExpression(functionAccessor, args);
 	}
 
 	private List<Expression> parseFunctionArgs() throws ParsingException {
-		checkAndAdvance(TokenConstants.O_BRACK);
-
 		final List<Expression> args = new ArrayList<Expression>(4);
 		while (true) {
 			if (advanceIfNext(TokenConstants.C_BRACK)) {
@@ -296,6 +347,62 @@ public class OperationParser {
 		}
 
 		return args;
+	}
+
+	private boolean parseDefinitionStatement() throws ParsingException {
+		final int position = mTokenizer.getPostion();
+		final Token token = mTokenizer.next();
+
+		if (token.getType() == TokenTypes.KEYWORD) {
+			switch (token.<Keywords> getValue()) {
+			case FUNCTION:
+				parseFunctionDefinition();
+				return true;
+			case CLASS:
+				throw new ParsingException("Classes are not yet implemented");
+			}
+		}
+
+		mTokenizer.restorePosition(position);
+		return false;
+	}
+
+	private LexicalScope newLexicalScope() {
+		final LexicalScope oldScope = mLexicalScope;
+
+		mLexicalScope = new LexicalScope();
+		return oldScope;
+	}
+
+	private void restoreLexicalScope(final LexicalScope aLexicalScope) {
+		mLexicalScope = aLexicalScope;
+	}
+
+	private void parseFunctionDefinition() throws ParsingException {
+		final Token nameToken = mTokenizer.next();
+		if (nameToken.getType() != TokenTypes.LITERAL) {
+			throwExpectedFound(TokenTypes.LITERAL, nameToken);
+		}
+
+		checkAndAdvance(TokenConstants.O_BRACK);
+		final LexicalScope oldScope = newLexicalScope();
+		while (!advanceIfNext(TokenConstants.C_BRACK)) {
+			final Token argName = mTokenizer.next();
+
+			if (argName.getType() != TokenTypes.LITERAL) {
+				throwExpectedFound(TokenTypes.LITERAL, argName);
+			}
+
+			mLexicalScope.addArgument(argName.getStringValue());
+			advanceIfNext(TokenConstants.COMMA);
+		}
+
+		final Statement body = parseStatementOrBlock();
+		final int localsCount = mLexicalScope.getLocalsCount();
+		final List<String> argsArray = mLexicalScope.getArgumentsArray();
+		mFunctions.put(nameToken.getStringValue(), new FunctionExpression(body, localsCount, argsArray));
+
+		restoreLexicalScope(oldScope);
 	}
 
 	private Statement parseStatement() throws ParsingException {
@@ -329,6 +436,10 @@ public class OperationParser {
 				break;
 			case RETURN:
 				retval = parseReturn();
+				break;
+			case LOCAL:
+				retval = parseLocalStatement();
+				break;
 			default:
 				throw new ParsingException("Keyword not yet implemented" + token);
 			}
@@ -363,7 +474,7 @@ public class OperationParser {
 
 		final Expression expr1;
 		if (advanceIfNext(TokenConstants.SEMICOL)) {
-			expr1 = mConstantFactory.getExpression((Object) null);
+			expr1 = mExpressionFactory.getConstantExpression((Object) null);
 		} else {
 			expr1 = parseAssignment();
 			checkAndAdvance(TokenConstants.SEMICOL);
@@ -371,7 +482,7 @@ public class OperationParser {
 
 		final Expression expr2;
 		if (advanceIfNext(TokenConstants.SEMICOL)) {
-			expr2 = mConstantFactory.getExpression((Object) null);
+			expr2 = mExpressionFactory.getConstantExpression((Object) null);
 		} else {
 			expr2 = parseAssignment();
 			checkAndAdvance(TokenConstants.SEMICOL);
@@ -379,7 +490,7 @@ public class OperationParser {
 
 		final Expression expr3;
 		if (advanceIfNext(TokenConstants.C_BRACK)) {
-			expr3 = mConstantFactory.getExpression((Object) null);
+			expr3 = mExpressionFactory.getConstantExpression((Object) null);
 		} else {
 			expr3 = parseAssignment();
 			checkAndAdvance(TokenConstants.C_BRACK);
@@ -417,6 +528,41 @@ public class OperationParser {
 
 		final Expression expression = parseAssignment();
 		return new ReturnStatement(expression);
+	}
+
+	private Statement parseLocalStatement() throws ParsingException {
+		final List<Expression> expressions = new ArrayList<Expression>(4);
+
+		do {
+			final Token token = mTokenizer.next();
+
+			if (token.getType() != TokenTypes.LITERAL) {
+				throwExpectedFound(TokenTypes.LITERAL, token);
+			}
+
+			final String varName = token.getStringValue();
+			mLexicalScope.addLocalVariable(varName);
+
+			if (mTokenizer.hasNext()) {
+				final int position = mTokenizer.getPostion();
+				final Expression assignment = parseAssignment0(varName);
+
+				if (assignment != null) {
+					expressions.add(assignment);
+				} else {
+					mTokenizer.restorePosition(position);
+				}
+			}
+		} while (mTokenizer.hasNext() && advanceIfNext(TokenConstants.COMMA));
+
+		switch (expressions.size()) {
+		case 0:
+			return EMPTY_STATEMENT;
+		case 1:
+			return new ExpressionStatement(expressions.get(0));
+		default:
+			return new SequenceStatement(expressions);
+		}
 	}
 
 	private Statement parseStatementOrBlock() throws ParsingException {

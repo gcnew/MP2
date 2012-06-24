@@ -1,7 +1,7 @@
 package com.kleverbeast.dpf.common.operationparser;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
-import com.kleverbeast.dpf.common.operationparser.internal.statements.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
 	public static class ABC {
@@ -9,10 +9,10 @@ public class Main {
 			System.out.println(l);
 		}
 
-		public void doop(final int o, final long a) {
+		public void doop(final int o, final Long a) {
 		}
 
-		public void doop(final long o, final int a) {
+		public void doop(final int o, final Integer a) {
 		}
 
 		public void qq(final Long... args) {
@@ -32,20 +32,14 @@ public class Main {
 
 	public static void main(final String[] args) {
 		try {
-			// final OperationParser parser = new OperationParser("$q = (boolean) 1; $l = $a.l(); for ($i = 32; $i; $i = $i - 1) { $l <<= 1; $a.print($l); }");
-			// final OperationParser parser = new OperationParser("$z = ((1 + 2).toString() + 12) + (string) null + 'qwerty'");
-			final OperationParser parser = new OperationParser("$z = 0; for (;true;) if ($z === 3) break; else { $z += 1; $a.print((short) $z); $a.doop(0, (long) 0); } ");
-			final Statement s = parser.parse();
+			final Map<String, Object> vars = new HashMap<String, Object>();
+			vars.put("a", new ABC());
 
-			final Scope scope = new Scope(null, null);
-			scope.setVariable("$a", new ABC());
-			s.execute(scope);
+			final Interpreter interpreter = InterpreterFactory.createInterpreter("function add3(a) { return a + 3; } function ex(f, a) { return f(a); } a.print(ex(add3, 4))",
+					vars);
+			final Object retval = interpreter.eval();
 
-			new ABC().qq();
-			ABC.class.getMethod("qq", Long[].class).invoke(new ABC(),
-					new Object[] { new Long[] { Long.valueOf(1), 2l } });
-
-			scope.getVariable("");
+			String.valueOf(retval);
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}
