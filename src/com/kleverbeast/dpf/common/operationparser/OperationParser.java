@@ -337,13 +337,17 @@ public class OperationParser {
 
 	private List<Expression> parseFunctionArgs() throws ParsingException {
 		final List<Expression> args = new ArrayList<Expression>(4);
-		while (true) {
-			if (advanceIfNext(TokenConstants.C_BRACK)) {
-				break;
-			}
 
-			args.add(parseAssignment());
-			advanceIfNext(TokenConstants.COMMA);
+		if (!advanceIfNext(TokenConstants.C_BRACK)) {
+			while (true) {
+				args.add(parseAssignment());
+
+				if (advanceIfNext(TokenConstants.C_BRACK)) {
+					break;
+				}
+
+				checkAndAdvance(TokenConstants.COMMA);
+			}
 		}
 
 		return args;
@@ -386,15 +390,20 @@ public class OperationParser {
 
 		checkAndAdvance(TokenConstants.O_BRACK);
 		final LexicalScope oldScope = newLexicalScope();
-		while (!advanceIfNext(TokenConstants.C_BRACK)) {
-			final Token argName = mTokenizer.next();
+		if (!advanceIfNext(TokenConstants.C_BRACK)) {
+			while (true) {
+				final Token argName = mTokenizer.next();
+				if (argName.getType() != TokenTypes.LITERAL) {
+					throwExpectedFound(TokenTypes.LITERAL, argName);
+				}
 
-			if (argName.getType() != TokenTypes.LITERAL) {
-				throwExpectedFound(TokenTypes.LITERAL, argName);
+				mLexicalScope.addArgument(argName.getStringValue());
+				if (advanceIfNext(TokenConstants.C_BRACK)) {
+					break;
+				}
+
+				checkAndAdvance(TokenConstants.COMMA);
 			}
-
-			mLexicalScope.addArgument(argName.getStringValue());
-			advanceIfNext(TokenConstants.COMMA);
 		}
 
 		final Statement body = parseStatementOrBlock();
