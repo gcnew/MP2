@@ -3,41 +3,67 @@ package com.kleverbeast.dpf.common.operationparser.util;
 import static com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.getWrapperClass;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import com.kleverbeast.dpf.common.operationparser.exception.AmbiguousException;
+import com.kleverbeast.dpf.common.operationparser.internal.Scope;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.CastExpression;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
 import com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.CoercionType;
 
 public class ReflectionUtil {
 
-	public static Object invokeMethod(final Object aThis, final String aInternedName, final Object aArgs[])
-			throws Exception {
+	public static Object invokeMethod(final Object aThis,
+			final String aInternedName,
+			final Scope aScope,
+			final List<Expression> aArgs) throws Exception {
+		int i = 0;
+		boolean noNull = true;
+		final Class<?> types[] = new Class<?>[aArgs.size()];
+		final Object args[] = new Object[aArgs.size()];
+
+		for (final Expression e : aArgs) {
+			final Object value = e.execute(aScope);
+
+			if (value != null) {
+				types[i] = value.getClass();
+			} else {
+				if (e instanceof CastExpression) {
+					final CoercionType castType = ((CastExpression) e).getType();
+					types[i] = CoercionUtil.getJavaType(castType);
+				} else {
+					types[i] = null;
+					noNull = false;
+				}
+			}
+
+			args[i++] = value;
+		}
+
+		return invokeMethod(aThis, aInternedName, args, types, noNull);
+	}
+
+	public static Object invokeMethod(final Object aThis,
+			final String aInternedName,
+			final Object aArgs[],
+			final Class<?> aTypes[],
+			final boolean aNoNull) throws Exception {
 		final Class<?> _class = aThis.getClass();
 		final Method methods[] = _class.getMethods();
 
-		boolean noNull = true;
-		final Class<?> types[] = new Class<?>[aArgs.length];
-		for (int i = 0; i < aArgs.length; ++i) {
-			if (aArgs[i] != null) {
-				types[i] = aArgs[i].getClass();
-			} else {
-				noNull = false;
-				types[i] = null;
-			}
-		}
-
-		if (noNull) {
-			final Method exactMethod = getExactMethod(aInternedName, methods, types);
+		if (aNoNull) {
+			final Method exactMethod = getExactMethod(aInternedName, methods, aTypes);
 			if (exactMethod != null) {
 				return exactMethod.invoke(aThis, aArgs);
 			}
 		}
 
-		final MethodSearchRetval convertedMethod = getConvertedMethod(aInternedName, aArgs, _class, methods, types);
+		final MethodSearchRetval convertedMethod = getConvertedMethod(aInternedName, aArgs, _class, methods, aTypes);
 		if (convertedMethod != null) {
 			return convertedMethod.method.invoke(aThis, convertedMethod.convertedArgs);
 		}
 
-		throw new NoSuchMethodException("Method " + getSignature(_class, aInternedName, types) + " not found");
+		throw new NoSuchMethodException("Method " + getSignature(_class, aInternedName, aTypes) + " not found");
 	}
 
 	private static Method getExactMethod(final String aInternedName, final Method[] aMethods, final Class<?> aTypes[]) {
@@ -108,7 +134,7 @@ public class ReflectionUtil {
 		if (ambiguous != null) {
 			if (ambiguous.hasNext()) {
 				final String signatures = getSignatures(aClass, ambiguous);
-				throw new AmbiguousException("Multiple methods satisfying signutere found", signatures);
+				throw new AmbiguousException("Multiple methods satisfying signature found", signatures);
 			} else {
 				return new MethodSearchRetval(ambiguous.getValue(), convertedArgs);
 			}
@@ -188,7 +214,7 @@ public class ReflectionUtil {
 		if (ambiguous != null) {
 			if (ambiguous.hasNext()) {
 				final String signatures = getSignatures(aClass, ambiguous);
-				throw new AmbiguousException("Multiple methods satisfying signutere found", signatures);
+				throw new AmbiguousException("Multiple methods satisfying signature found", signatures);
 			} else {
 				return new MethodSearchRetval(ambiguous.getValue(), convertedArgs);
 			}

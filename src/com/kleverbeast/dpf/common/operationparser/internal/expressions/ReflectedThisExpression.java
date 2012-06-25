@@ -19,12 +19,6 @@ public class ReflectedThisExpression extends Expression {
 	public Object execute(final Scope aScope) throws Exception {
 		final Object _this = mThis.execute(aScope);
 
-		int i = 0;
-		final Object args[] = new Object[mArguments.size()];
-		for (final Expression e : mArguments) {
-			args[i++] = e.execute(aScope);
-		}
-
-		return ReflectionUtil.invokeMethod(_this, mMethodName, args);
+		return ReflectionUtil.invokeMethod(_this, mMethodName, aScope, mArguments);
 	}
 }

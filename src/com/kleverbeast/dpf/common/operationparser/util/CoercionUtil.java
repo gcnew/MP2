@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.kleverbeast.dpf.common.operationparser.exception.UnsupportedOperatorException;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType;
@@ -55,6 +56,16 @@ public class CoercionUtil {
 		}
 
 		return getCoercionType(aObject.getClass());
+	}
+
+	public static Class<?> getJavaType(final CoercionType aType) {
+		for (final Entry<Class<?>, CoercionType> e : mTypesMap.entrySet()) {
+			if (e.getValue() == aType) {
+				return e.getKey();
+			}
+		}
+
+		throw new IllegalArgumentException("Provided type cannot be " + aType);
 	}
 
 	public static Class<?> getWrapperClass(final Class<?> aType) {
@@ -117,6 +128,10 @@ public class CoercionUtil {
 
 		if (aType == CoercionType.STRING) {
 			return String.valueOf(aObject);
+		}
+
+		if (aObject == null) {
+			return null;
 		}
 
 		throw new IllegalArgumentException("Unexpected type: " + Util.getClassString(aObject));

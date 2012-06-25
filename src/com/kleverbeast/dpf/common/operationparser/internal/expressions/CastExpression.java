@@ -16,4 +16,8 @@ public class CastExpression extends Expression {
 	public Object execute(final Scope aScope) throws Exception {
 		return CoercionUtil.cast(mExpression.execute(aScope), mType);
 	}
+
+	public CoercionType getType() {
+		return mType;
+	}
 }
