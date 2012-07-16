@@ -41,7 +41,7 @@ public class LexicalScope {
 	public void addLocalVariable(final String aVarName) throws VariableAlreadyDeclared {
 		final String varName = Util.stripVariableName(aVarName);
 
-		if (mLocalVars.containsKey(varName)) {
+		if (mLocalVars.containsKey(varName) || mArgsArray.contains(varName)) {
 			throw new VariableAlreadyDeclared(aVarName);
 		}
 

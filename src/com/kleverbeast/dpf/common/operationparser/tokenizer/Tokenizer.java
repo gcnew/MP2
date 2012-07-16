@@ -76,7 +76,7 @@ public class Tokenizer {
 			return parseOneOrEqual();
 		case '!':
 		case '=':
-			return parseRefOrEqual();
+			return parseRefEqualOrLambda();
 		case '&':
 		case '|':
 		case '>':
@@ -192,7 +192,13 @@ public class Tokenizer {
 		return parseOneOrEqual();
 	}
 
-	private Token parseRefOrEqual() {
+	private Token parseRefEqualOrLambda() {
+		if (isCharAtOffset(0, '=') && isCharAtOffset(1, '>')) {
+			mIndex += 2;
+
+			return TokenConstants.LAMBDA;
+		}
+
 		if (isCharAtOffset(2, '=') && isCharAtOffset(1, '=')) {
 			mIndex += 3;
 

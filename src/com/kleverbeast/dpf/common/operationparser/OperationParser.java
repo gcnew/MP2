@@ -27,12 +27,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.kleverbeast.dpf.common.operationparser.exception.ArgumentAlreadyExists;
 import com.kleverbeast.dpf.common.operationparser.exception.ParsingException;
 import com.kleverbeast.dpf.common.operationparser.internal.ExpressionFactory;
 import com.kleverbeast.dpf.common.operationparser.internal.OperatorFactory;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.AccessExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.AssignmentExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.CastExpression;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.ConstantExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.FunctionCallExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.FunctionExpression;
@@ -266,13 +268,18 @@ public class OperationParser {
 		final Token token = mTokenizer.next();
 
 		switch (token.getType()) {
-		case GRAMMAR_TOKEN:
+		case GRAMMAR_TOKEN: {
 			if (token != TokenConstants.O_BRACK) {
 				throwExpectedFound(TokenConstants.O_BRACK, token);
 			}
 
-			retval = parseAssignment();
-			checkAndAdvance(TokenConstants.C_BRACK);
+			if (isLambda()) {
+				retval = new ConstantExpression(parseFunctionDefinition0(true));
+			} else {
+				retval = parseAssignment();
+				checkAndAdvance(TokenConstants.C_BRACK);
+			}
+		}
 			break;
 		case CONSTANT:
 			retval = mExpressionFactory.getConstantExpression(token);
@@ -291,9 +298,44 @@ public class OperationParser {
 			throwUnexpected(token);
 		}
 
-		while (mTokenizer.hasNext() && advanceIfNext(TokenConstants.SCOPE)) {
-			retval = parseThisExpression(retval);
+		while (mTokenizer.hasNext()) {
+			if (advanceIfNext(TokenConstants.SCOPE)) {
+				retval = parseThisExpression(retval);
+
+				continue;
+			}
+
+			if (advanceIfNext(TokenConstants.O_BRACK)) {
+				final List<Expression> args = parseFunctionArgs();
+				retval = new FunctionCallExpression(retval, args);
+
+				continue;
+			}
+
+			break;
 		}
+
+		return retval;
+	}
+
+	private boolean isLambda() throws ParsingException {
+		int balance = 1;
+		final int position = mTokenizer.getPostion();
+		do {
+			final Token token = mTokenizer.next();
+
+			if (token == TokenConstants.O_BRACK) {
+				++balance;
+				continue;
+			}
+
+			if (token == TokenConstants.C_BRACK) {
+				--balance;
+			}
+		} while (balance != 0);
+
+		final boolean retval = mTokenizer.hasNext() && (mTokenizer.next() == TokenConstants.LAMBDA);
+		mTokenizer.restorePosition(position);
 
 		return retval;
 	}
@@ -389,6 +431,12 @@ public class OperationParser {
 		}
 
 		checkAndAdvance(TokenConstants.O_BRACK);
+		final FunctionExpression function = parseFunctionDefinition0(false);
+		mFunctions.put(nameToken.getStringValue(), function);
+	}
+
+	private FunctionExpression parseFunctionDefinition0(final boolean aLambda) throws ParsingException,
+			ArgumentAlreadyExists {
 		final LexicalScope oldScope = newLexicalScope();
 		if (!advanceIfNext(TokenConstants.C_BRACK)) {
 			while (true) {
@@ -406,12 +454,16 @@ public class OperationParser {
 			}
 		}
 
+		if (aLambda) {
+			checkAndAdvance(TokenConstants.LAMBDA);
+		}
+
 		final Statement body = parseStatementOrBlock();
 		final int localsCount = mLexicalScope.getLocalsCount();
 		final List<String> argsArray = mLexicalScope.getArgumentsArray();
-		mFunctions.put(nameToken.getStringValue(), new FunctionExpression(body, localsCount, argsArray));
 
 		restoreLexicalScope(oldScope);
+		return new FunctionExpression(body, localsCount, argsArray);
 	}
 
 	private Statement parseStatement() throws ParsingException {

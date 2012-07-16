@@ -10,9 +10,11 @@ public class Main {
 		}
 
 		public void doop(final int o, final Long a) {
+			System.out.println(1);
 		}
 
 		public void doop(final int o, final Integer a) {
+			System.out.println(2);
 		}
 
 		public void qq(final Long... args) {
@@ -35,7 +37,9 @@ public class Main {
 			final Map<String, Object> vars = new HashMap<String, Object>();
 			vars.put("a", new ABC());
 
-			final Interpreter interpreter = InterpreterFactory.createInterpreter("function add3(a) { return a + 3; } function ex(f, a) { return f(a); } a.print(ex(add3, 4))",
+			// final Interpreter interpreter = InterpreterFactory.createInterpreter("a.doop(3, (Long) null)", vars);
+			// final Interpreter interpreter = InterpreterFactory.createInterpreter("function add3(a) { return a + 3; } function ex(f, a) { return f(a); } a.print(ex(add3, 4))",  vars);
+			final Interpreter interpreter = InterpreterFactory.createInterpreter("function q() { (() => a.print('lambda'))(); } q()",
 					vars);
 			final Object retval = interpreter.eval();
 

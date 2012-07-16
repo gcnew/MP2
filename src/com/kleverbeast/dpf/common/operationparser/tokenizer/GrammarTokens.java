@@ -3,6 +3,7 @@ package com.kleverbeast.dpf.common.operationparser.tokenizer;
 public enum GrammarTokens {
 	SCOPE, // the . operator
 	COMMA, // the comma operator ','
+	LAMBDA, // the => operator
 	SEMICOL, // end of statement ';'
 	O_BRACK, // opening bracket '('
 	C_BRACK, // closing bracket ')'

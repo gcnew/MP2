@@ -15,6 +15,7 @@ import java.util.Map;
 public class TokenConstants {
 	public static final Token SCOPE = new Token(GRAMMAR_TOKEN, GrammarTokens.SCOPE);
 	public static final Token COMMA = new Token(GRAMMAR_TOKEN, GrammarTokens.COMMA);
+	public static final Token LAMBDA = new Token(GRAMMAR_TOKEN, GrammarTokens.LAMBDA);
 	public static final Token SEMICOL = new Token(GRAMMAR_TOKEN, GrammarTokens.SEMICOL);
 	public static final Token O_BRACK = new Token(GRAMMAR_TOKEN, GrammarTokens.O_BRACK);
 	public static final Token C_BRACK = new Token(GRAMMAR_TOKEN, GrammarTokens.C_BRACK);
@@ -124,7 +125,6 @@ public class TokenConstants {
 		OPERATOR_TOKEN_MAP.put("==", IS_EQUAL);
 		OPERATOR_TOKEN_MAP.put("===", IS_REF_EQUAL);
 		OPERATOR_TOKEN_MAP.put("!==", IS_REF_NOT_EQUAL);
-		OPERATOR_TOKEN_MAP.put("=", ASSIGN);
 		OPERATOR_TOKEN_MAP.put("!=", IS_NOT_EQUAL);
 		OPERATOR_TOKEN_MAP.put("<<", SHIFT_LEFT);
 		OPERATOR_TOKEN_MAP.put("<<=", SHIFT_LEFT_EQ);
