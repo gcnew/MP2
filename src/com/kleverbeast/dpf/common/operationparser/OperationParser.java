@@ -38,6 +38,7 @@ import com.kleverbeast.dpf.common.operationparser.internal.expressions.ConstantE
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.FunctionCallExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.FunctionExpression;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.IndexExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.ReflectedThisExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.Block;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.BreakStatement;
@@ -305,6 +306,12 @@ public class OperationParser {
 				continue;
 			}
 
+			if (advanceIfNext(TokenConstants.O_INDEX)) {
+				retval = parseIndexExpression(retval);
+
+				continue;
+			}
+
 			if (advanceIfNext(TokenConstants.O_BRACK)) {
 				final List<Expression> args = parseFunctionArgs();
 				retval = new FunctionCallExpression(retval, args);
@@ -368,6 +375,13 @@ public class OperationParser {
 		checkAndAdvance(TokenConstants.O_BRACK);
 		final List<Expression> args = parseFunctionArgs();
 		return new ReflectedThisExpression(aThis, token.getStringValue(), args);
+	}
+
+	private Expression parseIndexExpression(final Expression aThis) throws ParsingException {
+		final Expression index = parseAssignment();
+
+		checkAndAdvance(TokenConstants.C_INDEX);
+		return new IndexExpression(aThis, index);
 	}
 
 	private Expression parseFunctionCall(final String aFunctionName) throws ParsingException {
