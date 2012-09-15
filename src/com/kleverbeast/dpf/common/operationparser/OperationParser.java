@@ -23,6 +23,7 @@ import static com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType.
 import static com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType.SUBSTRACT;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,11 @@ import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expressio
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.FunctionCallExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.FunctionExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.IndexExpression;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.InlineListExpression;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.LocalAssignmentExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.ReflectedThisExpression;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.SublistExpression;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.TernaryExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.Block;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.BreakStatement;
 import com.kleverbeast.dpf.common.operationparser.internal.statements.ContinueStatement;
@@ -161,7 +166,7 @@ public class OperationParser {
 		}
 
 		mTokenizer.restorePosition(position);
-		return parsePrecedenced(0);
+		return parseTernaryConditional();
 	}
 
 	private Expression parseAssignment0(final String aVarName) throws ParsingException {
@@ -180,13 +185,13 @@ public class OperationParser {
 
 				int index = mLexicalScope.getArgumentIndex(aVarName);
 				if (index >= 0) {
-					return mExpressionFactory.getArgumentAssignmentExpression(index, right);
+					return new LocalAssignmentExpression(index, right);
 				}
 
 				index = mLexicalScope.getLocalVariableIndex(aVarName);
 				if (index >= 0) {
 					mLexicalScope.setAssigned(aVarName);
-					return mExpressionFactory.getLocalAssignmentExpression(index, right);
+					return new LocalAssignmentExpression(index, right);
 				}
 
 				return new AssignmentExpression(aVarName, right);
@@ -194,6 +199,20 @@ public class OperationParser {
 		}
 
 		return null;
+	}
+
+	private Expression parseTernaryConditional() throws ParsingException {
+		final Expression exp = parsePrecedenced(0);
+
+		if (mTokenizer.hasNext() && advanceIfNext(TokenConstants.QUEST)) {
+			final Expression t = parseAssignment();
+			checkAndAdvance(TokenConstants.COLON);
+			final Expression f = parseAssignment();
+
+			return new TernaryExpression(exp, t, f);
+		}
+
+		return exp;
 	}
 
 	private Expression parsePrecedenced(final int aIndex) throws ParsingException {
@@ -269,18 +288,8 @@ public class OperationParser {
 		final Token token = mTokenizer.next();
 
 		switch (token.getType()) {
-		case GRAMMAR_TOKEN: {
-			if (token != TokenConstants.O_BRACK) {
-				throwExpectedFound(TokenConstants.O_BRACK, token);
-			}
-
-			if (isLambda()) {
-				retval = new ConstantExpression(parseFunctionDefinition0(true));
-			} else {
-				retval = parseAssignment();
-				checkAndAdvance(TokenConstants.C_BRACK);
-			}
-		}
+		case GRAMMAR_TOKEN:
+			retval = parseGrammarExpression(token);
 			break;
 		case CONSTANT:
 			retval = mExpressionFactory.getConstantExpression(token);
@@ -323,6 +332,47 @@ public class OperationParser {
 		}
 
 		return retval;
+	}
+
+	private Expression parseGrammarExpression(final Token aCurrent) throws ParsingException {
+		if (aCurrent == TokenConstants.O_INDEX) {
+			return parseInlineList();
+		}
+
+		if (aCurrent != TokenConstants.O_BRACK) {
+			throwExpectedFound(TokenConstants.O_BRACK, aCurrent);
+		}
+
+		if (isLambda()) {
+			return new ConstantExpression(parseFunctionDefinition0(true));
+		}
+
+		final Expression retval = parseAssignment();
+		checkAndAdvance(TokenConstants.C_BRACK);
+
+		return retval;
+	}
+
+	private Expression parseInlineList() throws ParsingException {
+		final List<Expression> elements;
+
+		if (advanceIfNext(TokenConstants.C_INDEX)) {
+			elements = Collections.emptyList();
+		} else {
+			elements = new ArrayList<Expression>();
+
+			while (true) {
+				elements.add(parseAssignment());
+
+				if (advanceIfNext(TokenConstants.C_INDEX)) {
+					break;
+				}
+
+				checkAndAdvance(TokenConstants.COMMA);
+			}
+		}
+
+		return new InlineListExpression(elements);
 	}
 
 	private boolean isLambda() throws ParsingException {
@@ -379,6 +429,13 @@ public class OperationParser {
 
 	private Expression parseIndexExpression(final Expression aThis) throws ParsingException {
 		final Expression index = parseAssignment();
+
+		if (advanceIfNext(TokenConstants.ARROW)) {
+			final Expression toIndex = parseAssignment();
+
+			checkAndAdvance(TokenConstants.C_INDEX);
+			return new SublistExpression(aThis, index, toIndex);
+		}
 
 		checkAndAdvance(TokenConstants.C_INDEX);
 		return new IndexExpression(aThis, index);

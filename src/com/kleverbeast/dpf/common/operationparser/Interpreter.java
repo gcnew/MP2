@@ -14,4 +14,12 @@ public class Interpreter {
 	public Object eval() throws Exception {
 		return mScript.execute(mScope);
 	}
+
+	public Object getGlobal(final String aName) {
+		return mScope.getVariable(aName);
+	}
+
+	public void setGlobal(final String aName, final Object aValue) {
+		mScope.setVariable(aName, aValue);
+	}
 }

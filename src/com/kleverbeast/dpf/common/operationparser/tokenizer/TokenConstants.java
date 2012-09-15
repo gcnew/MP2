@@ -15,6 +15,10 @@ import java.util.Map;
 public class TokenConstants {
 	public static final Token SCOPE = new Token(GRAMMAR_TOKEN, GrammarTokens.SCOPE);
 	public static final Token COMMA = new Token(GRAMMAR_TOKEN, GrammarTokens.COMMA);
+	public static final Token COLON = new Token(GRAMMAR_TOKEN, GrammarTokens.COLON);
+	public static final Token QUEST = new Token(GRAMMAR_TOKEN, GrammarTokens.QUEST);
+	public static final Token RANGE = new Token(GRAMMAR_TOKEN, GrammarTokens.RANGE);
+	public static final Token ARROW = new Token(GRAMMAR_TOKEN, GrammarTokens.ARROW);
 	public static final Token LAMBDA = new Token(GRAMMAR_TOKEN, GrammarTokens.LAMBDA);
 	public static final Token SEMICOL = new Token(GRAMMAR_TOKEN, GrammarTokens.SEMICOL);
 	public static final Token O_BRACK = new Token(GRAMMAR_TOKEN, GrammarTokens.O_BRACK);
@@ -178,6 +182,8 @@ public class TokenConstants {
 	static {
 		GRAMMAR_TOKEN_MAP.put('.', SCOPE);
 		GRAMMAR_TOKEN_MAP.put(',', COMMA);
+		GRAMMAR_TOKEN_MAP.put(':', COLON);
+		GRAMMAR_TOKEN_MAP.put('?', QUEST);
 		GRAMMAR_TOKEN_MAP.put(';', SEMICOL);
 		GRAMMAR_TOKEN_MAP.put('(', O_BRACK);
 		GRAMMAR_TOKEN_MAP.put(')', C_BRACK);

@@ -54,13 +54,13 @@ public class ReflectionUtil {
 		if (aNoNull) {
 			final Method exactMethod = getExactMethod(aInternedName, methods, aTypes);
 			if (exactMethod != null) {
-				return exactMethod.invoke(aThis, aArgs);
+				return safeInvoke(exactMethod, aThis, aArgs);
 			}
 		}
 
 		final MethodSearchRetval convertedMethod = getConvertedMethod(aInternedName, aArgs, _class, methods, aTypes);
 		if (convertedMethod != null) {
-			return convertedMethod.method.invoke(aThis, convertedMethod.convertedArgs);
+			return safeInvoke(convertedMethod.method, aThis, convertedMethod.convertedArgs);
 		}
 
 		throw new NoSuchMethodException("Method " + getSignature(_class, aInternedName, aTypes) + " not found");
@@ -262,6 +262,16 @@ public class ReflectionUtil {
 		public MethodSearchRetval(final Method aMethod, final Object[] aConvertedArgs) {
 			method = aMethod;
 			convertedArgs = aConvertedArgs;
+		}
+	}
+
+	private static Object safeInvoke(final Method aMethod, final Object aThis, final Object[] aArgs) throws Exception {
+		try {
+			// some public methods may throw if the declaring class is [package] private
+			return aMethod.invoke(aThis, aArgs);
+		} catch (final IllegalAccessException e) {
+			aMethod.setAccessible(true);
+			return aMethod.invoke(aThis, aArgs);
 		}
 	}
 }

@@ -54,7 +54,14 @@ public class Tokenizer {
 
 		switch (c) {
 		case '.':
+			if (isCharAtOffset(1, '.')) {
+				mIndex += 2;
+				return TokenConstants.RANGE;
+			}
+			/* fall - through */
 		case ',':
+		case ':':
+		case '?':
 		case ';':
 		case '(':
 		case ')':
@@ -66,8 +73,13 @@ public class Tokenizer {
 			return TokenConstants.getGrammarToken(c);
 		case '\'':
 			return parseString();
-		case '+':
 		case '-':
+			if (isCharAtOffset(1, '>')) {
+				mIndex += 2;
+				return TokenConstants.ARROW;
+			}
+			/* fall - through */
+		case '+':
 		case '/':
 		case '*':
 		case '%':
