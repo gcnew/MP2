@@ -42,6 +42,7 @@ import com.kleverbeast.dpf.common.operationparser.internal.expressions.FunctionE
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.IndexExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.InlineListExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.LocalAssignmentExpression;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.RangeListExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.ReflectedThisExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.SublistExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.TernaryExpression;
@@ -157,7 +158,7 @@ public class OperationParser {
 		final Token token = mTokenizer.next();
 
 		// TODO: handle index ($a[$i] = X)
-		if (token.getType() == TokenTypes.LITERAL) {
+		if ((token.getType() == TokenTypes.LITERAL) && mTokenizer.hasNext()) {
 			final Expression assignment = parseAssignment0(token.getStringValue());
 
 			if (assignment != null) {
@@ -359,20 +360,37 @@ public class OperationParser {
 		if (advanceIfNext(TokenConstants.C_INDEX)) {
 			elements = Collections.emptyList();
 		} else {
-			elements = new ArrayList<Expression>();
+			final Expression first = parseAssignment();
 
-			while (true) {
-				elements.add(parseAssignment());
+			if (advanceIfNext(TokenConstants.RANGE)) {
+				return parseRangeList(first);
+			}
 
-				if (advanceIfNext(TokenConstants.C_INDEX)) {
-					break;
-				}
+			if (advanceIfNext(TokenConstants.C_INDEX)) {
+				elements = Collections.singletonList(first);
+			} else {
+				elements = new ArrayList<Expression>();
+				elements.add(first);
 
-				checkAndAdvance(TokenConstants.COMMA);
+				do {
+					checkAndAdvance(TokenConstants.COMMA);
+					elements.add(parseAssignment());
+				} while (!advanceIfNext(TokenConstants.C_INDEX));
 			}
 		}
 
 		return new InlineListExpression(elements);
+	}
+
+	private Expression parseRangeList(final Expression aFrom) throws ParsingException {
+		if (advanceIfNext(TokenConstants.C_INDEX)) {
+			return new RangeListExpression(aFrom);
+		}
+
+		final Expression to = parseExpression();
+
+		checkAndAdvance(TokenConstants.C_INDEX);
+		return new RangeListExpression(aFrom, to);
 	}
 
 	private boolean isLambda() throws ParsingException {

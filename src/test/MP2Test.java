@@ -44,4 +44,21 @@ public abstract class MP2Test extends TestCase {
 		interpreter.eval();
 		assertEquals(aExpected, interpreter.getGlobal(aScript));
 	}
+
+	protected static void assertException(final String aScript, final Class<? extends Throwable> aExpected)
+			throws Exception {
+		assertException(aScript, null, aExpected);
+	}
+
+	protected static void assertException(final String aScript,
+			final Map<String, Object> aArgs,
+			final Class<? extends Throwable> aExpected) throws Exception {
+		try {
+			final Interpreter interpreter = interpreter(aScript, aArgs);
+
+			interpreter.eval();
+		} catch (final Throwable exception) {
+			assertTrue(aExpected.isInstance(exception));
+		}
+	}
 }

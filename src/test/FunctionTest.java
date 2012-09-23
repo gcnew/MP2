@@ -5,8 +5,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class FunctionTest extends MP2Test {
-	public void testLambda() throws Exception {
+	public void testLambda0() throws Exception {
 		assertEval("x = (x) => return 1 + x return x(9)", Integer.valueOf(10));
+	}
+
+	public void testLambda1() throws Exception {
+		assertEval("return !(x) => { return 1 + x }(9)", Boolean.FALSE);
 	}
 
 	public void testLambda2() throws Exception {
@@ -29,7 +33,7 @@ public class FunctionTest extends MP2Test {
 		/**/"cons = (x, l) => { local retval = [x]; retval.addAll(l); return retval }\n" +
 		/**/"map = (l, f) => return !l && [] || cons(f(car(l)), map(cdr(l), f))\n" +
 		/**/"mul2 = (x) => return x * 2\n" +
-		/**/"return map([1, 2, 3], mul2)";
+		/**/"return map([1 .. 3], mul2)";
 
 		assertEval(script, Arrays.asList(2, 4, 6));
 	}

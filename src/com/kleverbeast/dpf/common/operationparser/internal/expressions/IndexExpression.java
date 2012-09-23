@@ -27,7 +27,7 @@ public class IndexExpression extends Expression {
 		final Object index = mIndex.execute(aScope);
 		if (_this.getClass().isArray()) {
 			if (!(index instanceof Number)) {
-				throw new ScriptException("Only numeric array indices supported but found: " + getClassString(index));
+				throw new ScriptException("Numeric index expected but found: " + getClassString(index));
 			}
 
 			// TODO: fix for float and higher than int precisions
@@ -36,7 +36,7 @@ public class IndexExpression extends Expression {
 
 		if (_this instanceof List) {
 			if (!(index instanceof Number)) {
-				throw new ScriptException("Only numeric array indices supported but found: " + getClassString(index));
+				throw new ScriptException("Numeric index expected but found: " + getClassString(index));
 			}
 
 			// TODO: fix for float
@@ -49,7 +49,7 @@ public class IndexExpression extends Expression {
 
 		if (_this instanceof CharSequence) {
 			if (!(index instanceof Number)) {
-				throw new ScriptException("Only numeric array indices supported but found: " + getClassString(index));
+				throw new ScriptException("Numeric index expected but found: " + getClassString(index));
 			}
 
 			// TODO: fix for float
