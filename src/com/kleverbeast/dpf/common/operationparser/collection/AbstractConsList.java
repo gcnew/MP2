@@ -186,9 +186,11 @@ public abstract class AbstractConsList<T> extends AbstractImmutableList<T> {
 
 	private static class ForwardOnlyListIterator<T> extends AbstractListIterator<T> {
 		private int mIndex;
+		private AbstractConsList<T> mList;
 		private AbstractConsList<T> mCurrent;
 
 		public ForwardOnlyListIterator(final AbstractConsList<T> aList) {
+			mList = aList;
 			mCurrent = aList;
 		}
 
@@ -208,12 +210,14 @@ public abstract class AbstractConsList<T> extends AbstractImmutableList<T> {
 			return retval;
 		}
 
-		public boolean hasPrevious() {
-			throw new UnsupportedOperationException();
-		}
-
 		public T previous() {
-			throw new UnsupportedOperationException();
+			if (!hasPrevious()) {
+				throw new NoSuchElementException();
+			}
+
+			--mIndex;
+			mCurrent = mList.subList0(mIndex, mIndex, -1);
+			return mCurrent.first();
 		}
 
 		public int nextIndex() {

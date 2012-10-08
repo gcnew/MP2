@@ -145,7 +145,7 @@ public class ImmutableArrayList<T> extends AbstractImmutableList<T> implements R
 				throw new NoSuchElementException();
 			}
 
-			return mList.get0(mIndex);
+			return mList.get0(--mIndex);
 		}
 	}
 }
