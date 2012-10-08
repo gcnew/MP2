@@ -2,7 +2,9 @@ package com.kleverbeast.dpf.common.operationparser.internal.expressions;
 
 import static com.kleverbeast.dpf.common.operationparser.util.Util.getClassString;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.script.ScriptException;
 
@@ -12,14 +14,16 @@ import com.kleverbeast.dpf.common.operationparser.internal.Scope;
 public class RangeListExpression extends Expression {
 	private final Expression mTo;
 	private final Expression mFrom;
+	private final boolean mLazy;
 
 	public RangeListExpression(final Expression aFrom) {
-		this(aFrom, null);
+		this(aFrom, null, true);
 	}
 
-	public RangeListExpression(final Expression aFrom, final Expression aTo) {
+	public RangeListExpression(final Expression aFrom, final Expression aTo, final boolean aLazy) {
 		mFrom = aFrom;
 		mTo = aTo;
+		mLazy = aLazy;
 	}
 
 	public Object execute(final Scope aScope) throws Exception {
@@ -43,10 +47,15 @@ public class RangeListExpression extends Expression {
 			iTo = ((Number) to).intValue();
 		}
 
-		if (iTo < iFrom) {
-			return Collections.emptyList();
+		if (mLazy) {
+			return (iTo < iFrom) ? Collections.emptyList() : new RangeList(iFrom, iTo);
 		}
 
-		return new RangeList(iFrom, iTo);
+		final List<Object> retval = new ArrayList<Object>(1 + iTo - iFrom);
+		for (int i = iFrom; i <= iTo; ++i) {
+			retval.add(Integer.valueOf(i));
+		}
+
+		return retval;
 	}
 }

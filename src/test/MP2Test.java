@@ -21,7 +21,8 @@ public abstract class MP2Test extends TestCase {
 	}
 
 	protected static Object eval(final String aScript, final Map<String, Object> aArgs) throws Exception {
-		return interpreter(aScript, aArgs).eval();
+		final Object retval = interpreter(aScript, aArgs).eval();
+		return retval;
 	}
 
 	protected static void assertEval(final String aScript, final Object aExpected) throws Exception {
@@ -54,11 +55,13 @@ public abstract class MP2Test extends TestCase {
 			final Map<String, Object> aArgs,
 			final Class<? extends Throwable> aExpected) throws Exception {
 		try {
-			final Interpreter interpreter = interpreter(aScript, aArgs);
-
-			interpreter.eval();
+			eval(aScript, aArgs);
 		} catch (final Throwable exception) {
 			assertTrue(aExpected.isInstance(exception));
+
+			return;
 		}
+
+		fail();
 	}
 }

@@ -1,5 +1,6 @@
 package test;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class InlineListTest extends MP2Test {
@@ -17,5 +18,13 @@ public class InlineListTest extends MP2Test {
 
 	public void testInlineList3() throws Exception {
 		assertEval("return [].isEmpty()", Boolean.TRUE);
+	}
+
+	public void testInlineList4() throws Exception {
+		assertEval("return (1, ).first()", Integer.valueOf(1));
+	}
+
+	public void testInlineList5() throws Exception {
+		assertEval("return (1, 2, 3).rest()", Arrays.asList(2, 3));
 	}
 }

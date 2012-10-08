@@ -65,6 +65,7 @@ import com.kleverbeast.dpf.common.operationparser.tokenizer.TokenConstants;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.Tokenizer;
 import com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.CoercionType;
+import com.kleverbeast.dpf.common.operationparser.util.Util;
 
 public class OperationParser {
 	private final Tokenizer mTokenizer;
@@ -115,7 +116,7 @@ public class OperationParser {
 			}
 		}
 
-		return new Block(statements);
+		return new Block(Util.immutableList(statements));
 	}
 
 	private void checkAndAdvance(final Token aToken) throws ParsingException {
@@ -337,7 +338,7 @@ public class OperationParser {
 
 	private Expression parseGrammarExpression(final Token aCurrent) throws ParsingException {
 		if (aCurrent == TokenConstants.O_INDEX) {
-			return parseInlineList();
+			return parseInlineList(false);
 		}
 
 		if (aCurrent != TokenConstants.O_BRACK) {
@@ -348,49 +349,103 @@ public class OperationParser {
 			return new ConstantExpression(parseFunctionDefinition0(true));
 		}
 
-		final Expression retval = parseAssignment();
-		checkAndAdvance(TokenConstants.C_BRACK);
+		final int position = mTokenizer.getPostion();
+		final Expression simpleExpression = parseAssignment();
+		if (advanceIfNext(TokenConstants.C_BRACK)) {
+			return simpleExpression;
+		}
 
-		return retval;
+		mTokenizer.restorePosition(position);
+		return parseInlineList(true);
 	}
 
-	private Expression parseInlineList() throws ParsingException {
+	private Expression parseInlineList(final boolean aImmutable) throws ParsingException {
 		final List<Expression> elements;
+		final Token expected = aImmutable ? TokenConstants.C_BRACK : TokenConstants.C_INDEX;
 
-		if (advanceIfNext(TokenConstants.C_INDEX)) {
+		if (advanceIfNext(expected)) {
 			elements = Collections.emptyList();
 		} else {
 			final Expression first = parseAssignment();
 
 			if (advanceIfNext(TokenConstants.RANGE)) {
-				return parseRangeList(first);
+				return parseRangeList(first, aImmutable);
 			}
 
-			if (advanceIfNext(TokenConstants.C_INDEX)) {
+			if (advanceIfNext(expected)) {
 				elements = Collections.singletonList(first);
 			} else {
-				elements = new ArrayList<Expression>();
-				elements.add(first);
+				final int position = mTokenizer.getPostion();
+				final Token separator = mTokenizer.next();
 
-				do {
-					checkAndAdvance(TokenConstants.COMMA);
-					elements.add(parseAssignment());
-				} while (!advanceIfNext(TokenConstants.C_INDEX));
+				mTokenizer.restorePosition(position);
+				final List<Expression> temp;
+				if (separator == TokenConstants.COLON) {
+					temp = parseConsList(first);
+				} else {
+					temp = parseInlineList0(first, aImmutable);
+				}
+
+				elements = Util.immutableList(temp);
 			}
 		}
 
-		return new InlineListExpression(elements);
+		return new InlineListExpression(elements, aImmutable);
 	}
 
-	private Expression parseRangeList(final Expression aFrom) throws ParsingException {
-		if (advanceIfNext(TokenConstants.C_INDEX)) {
+	private List<Expression> parseInlineList0(final Expression aFirst, final boolean aImmutable)
+			throws ParsingException {
+		final Token expected = aImmutable ? TokenConstants.C_BRACK : TokenConstants.C_INDEX;
+
+		final ArrayList<Expression> retval = new ArrayList<Expression>();
+		retval.add(aFirst);
+
+		while (true) {
+			if (!advanceIfNext(TokenConstants.COMMA)) {
+				checkAndAdvance(expected);
+				break;
+			}
+
+			if (advanceIfNext(expected)) {
+				break;
+			}
+
+			retval.add(parseAssignment());
+		}
+
+		if (aImmutable) {
+			retval.add(ExpressionFactory.getNull());
+		}
+
+		return retval;
+	}
+
+	private List<Expression> parseConsList(final Expression aFirst) throws ParsingException {
+		final ArrayList<Expression> retval = new ArrayList<Expression>();
+		retval.add(aFirst);
+
+		do {
+			checkAndAdvance(TokenConstants.COLON);
+			retval.add(parseAssignment());
+		} while (!advanceIfNext(TokenConstants.C_BRACK));
+
+		return retval;
+	}
+
+	private Expression parseRangeList(final Expression aFrom, final boolean aConsList) throws ParsingException {
+		final Token expected = aConsList ? TokenConstants.C_BRACK : TokenConstants.C_INDEX;
+		if (advanceIfNext(expected)) {
+			if (!aConsList) {
+				throw new ParsingException("Infinite strict list found");
+			}
+
 			return new RangeListExpression(aFrom);
 		}
 
 		final Expression to = parseExpression();
+		checkAndAdvance(expected);
 
-		checkAndAdvance(TokenConstants.C_INDEX);
-		return new RangeListExpression(aFrom, to);
+		return new RangeListExpression(aFrom, to, aConsList);
 	}
 
 	private boolean isLambda() throws ParsingException {
@@ -481,7 +536,7 @@ public class OperationParser {
 			}
 		}
 
-		return args;
+		return Util.immutableList(args);
 	}
 
 	private boolean parseDefinitionStatement() throws ParsingException {
@@ -681,7 +736,7 @@ public class OperationParser {
 	}
 
 	private Statement parseLocalStatement() throws ParsingException {
-		final List<Expression> expressions = new ArrayList<Expression>(4);
+		final ArrayList<Expression> expressions = new ArrayList<Expression>(4);
 
 		do {
 			final Token token = mTokenizer.next();
@@ -711,7 +766,7 @@ public class OperationParser {
 		case 1:
 			return new ExpressionStatement(expressions.get(0));
 		default:
-			return new SequenceStatement(expressions);
+			return new SequenceStatement(Util.immutableList(expressions));
 		}
 	}
 
@@ -719,7 +774,7 @@ public class OperationParser {
 		final int position = mTokenizer.getPostion();
 
 		if (advanceIfNext(TokenConstants.O_BLOCK)) {
-			final List<Statement> statements = new ArrayList<Statement>();
+			final ArrayList<Statement> statements = new ArrayList<Statement>();
 
 			while (!advanceIfNext(TokenConstants.C_BLOCK)) {
 				final Statement statement = parseStatement();
@@ -733,7 +788,7 @@ public class OperationParser {
 				return EMPTY_STATEMENT;
 			}
 
-			return new Block(statements);
+			return new Block(Util.immutableList(statements));
 		}
 
 		mTokenizer.restorePosition(position);

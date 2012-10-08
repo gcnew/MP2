@@ -38,6 +38,19 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Arrays.asList(2, 4, 6));
 	}
 
+	public void testRecursiveMap2() throws Exception {
+		final String script = //
+		/**/"car = (l) => return l === null ? null : l.first()\n" +
+		/**/"cdr = (l) => return l === null ? null : l.rest()\n" +
+		/**/"cons = (x, l) => return (x : l)\n" +
+		/**/"tcl = (l) => return (null : l).rest()\n" +
+		/**/"map = (l, f) => return l === null ? null : cons(f(car(l)), map(cdr(l), f))\n" +
+		/**/"mul2 = (x) => return x * 2\n" +
+		/**/"return map(tcl((1 .. 3)), mul2)";
+
+		assertEval(script, Arrays.asList(2, 4, 6));
+	}
+
 	@SuppressWarnings("unchecked")
 	public void testFilter() throws Exception {
 		final String script = //

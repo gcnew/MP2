@@ -1,5 +1,9 @@
 package com.kleverbeast.dpf.common.operationparser.util;
 
+import java.util.List;
+
+import com.kleverbeast.dpf.common.operationparser.collection.ImmutableArrayList;
+
 public class Util {
 	public static <T> String getClassString(final T aObject) {
 		return (aObject != null) ? aObject.getClass().toString() : "(null)";
@@ -45,5 +49,9 @@ public class Util {
 				}
 			}
 		}
+	}
+
+	public static <T> ImmutableArrayList<T> immutableList(final List<T> aList) {
+		return new ImmutableArrayList<T>(aList);
 	}
 }

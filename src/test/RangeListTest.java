@@ -2,6 +2,8 @@ package test;
 
 import java.util.Arrays;
 
+import com.kleverbeast.dpf.common.operationparser.exception.ParsingException;
+
 public class RangeListTest extends MP2Test {
 	public void testRangeList0() throws Exception {
 		assertEval("return [0 .. 3]", Arrays.asList(0, 1, 2, 3));
@@ -20,15 +22,19 @@ public class RangeListTest extends MP2Test {
 	}
 
 	public void testRangeList4() throws Exception {
-		// currently the list cap is (Integer.MAX_VALUE - 1) because of overflow issues
-		assertEval("return [0 .. ].size()", Integer.MAX_VALUE);
+		assertException("return [0 .. ].size()", ParsingException.class);
 	}
 
 	public void testRangeList5() throws Exception {
-		assertEval("return [ -2 .. 2] == [ -2, -1, 0, 1, 2 ]", Boolean.TRUE);
+		// currently the list cap is (Integer.MAX_VALUE - 1) because of overflow issues
+		assertEval("return (0 .. ).size()", Integer.MAX_VALUE);
 	}
 
 	public void testRangeList6() throws Exception {
+		assertEval("return [ -2 .. 2] == [ -2, -1, 0, 1, 2 ]", Boolean.TRUE);
+	}
+
+	public void testRangeList7() throws Exception {
 		final String script = //
 		/**/"l = [ -2 .. 2]\n" +
 		/**/"i = l.iterator()\n\n" +
@@ -37,5 +43,9 @@ public class RangeListTest extends MP2Test {
 		/**/"	retval += i.next()\n\n" +
 		/**/"return retval";
 		assertEval(script, "-2-1012");
+	}
+
+	public void testRangeList8() throws Exception {
+		assertEval("return ( -2 .. 2 ) == ( -2, -1, 0, 1, 2 )", Boolean.TRUE);
 	}
 }

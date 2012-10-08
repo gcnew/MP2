@@ -4,6 +4,7 @@ import static com.kleverbeast.dpf.common.operationparser.util.Util.getClassStrin
 
 import java.util.List;
 
+import com.kleverbeast.dpf.common.operationparser.collection.AbstractConsList;
 import com.kleverbeast.dpf.common.operationparser.exception.ScriptException;
 import com.kleverbeast.dpf.common.operationparser.internal.Scope;
 
@@ -35,12 +36,16 @@ public class SublistExpression extends Expression {
 		final int fromIdx = ((Number) from).intValue();
 		final int toIdx = ((Number) to).intValue();
 
-		if (toIdx < 0) {
-			throw new ScriptException("Sublist: Negative to index");
-		}
-
 		if (fromIdx < 0) {
 			throw new ScriptException("Sublist: Negative from index");
+		}
+
+		if (_this instanceof AbstractConsList) {
+			return ((AbstractConsList<?>) _this).subList2(fromIdx, toIdx);
+		}
+
+		if (toIdx < 0) {
+			throw new ScriptException("Sublist: Negative to index");
 		}
 
 		if (toIdx < fromIdx) {
