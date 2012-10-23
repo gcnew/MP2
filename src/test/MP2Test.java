@@ -29,9 +29,21 @@ public abstract class MP2Test extends TestCase {
 		assertEval(aScript, null, aExpected);
 	}
 
+	protected static void assertEval(final String aScript, final Object aExpected, final EqualsTest aEquals)
+			throws Exception {
+		assertEval(aScript, null, aExpected, aEquals);
+	}
+
 	protected static void assertEval(final String aScript, final Map<String, Object> aArgs, final Object aExpected)
 			throws Exception {
 		assertEquals(aExpected, eval(aScript, aArgs));
+	}
+
+	protected static void assertEval(final String aScript,
+			final Map<String, Object> aArgs,
+			final Object aExpected,
+			final EqualsTest aEquals) throws Exception {
+		assertTrue(aEquals.areEqual(aExpected, eval(aScript, aArgs)));
 	}
 
 	protected static void assertGlobal(final String aScript, final Object aExpected) throws Exception {
@@ -63,5 +75,9 @@ public abstract class MP2Test extends TestCase {
 		}
 
 		fail();
+	}
+
+	public interface EqualsTest {
+		public boolean areEqual(final Object aFirst, final Object aSecond);
 	}
 }
