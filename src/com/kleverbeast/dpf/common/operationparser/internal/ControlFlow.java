@@ -5,7 +5,7 @@ public class ControlFlow {
 		RETURN, // return
 		BREAK, // break 
 		CONTINUE; // continue
-	};
+	}
 
 	public static final ControlFlow BREAK = new ControlFlow(Type.BREAK, null);
 	public static final ControlFlow CONTINUE = new ControlFlow(Type.CONTINUE, null);

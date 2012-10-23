@@ -53,7 +53,7 @@ public class IndexExpression extends Expression {
 			}
 
 			// TODO: fix for float
-			return ((CharSequence) _this).charAt(((Number) index).intValue());
+			return Character.valueOf(((CharSequence) _this).charAt(((Number) index).intValue()));
 		}
 
 		throw new ScriptException("Operator [] not applicable for types(" + getClassString(_this) + ", "

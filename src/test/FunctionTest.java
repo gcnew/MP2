@@ -14,7 +14,7 @@ public class FunctionTest extends MP2Test {
 	}
 
 	public void testLambda2() throws Exception {
-		assertEval("return ((x) => return 1 + x)(9)", 10);
+		assertEval("return ((x) => return 1 + x)(9)", Integer.valueOf(10));
 	}
 
 	public void testHigherOrder() throws Exception {
@@ -23,9 +23,10 @@ public class FunctionTest extends MP2Test {
 		/**/"higherOrder = (x, f) => return f(x)\n" +
 		/**/"return higherOrder(9, addOne)";
 
-		assertEval(script, 10);
+		assertEval(script, Integer.valueOf(10));
 	}
 
+	@SuppressWarnings("boxing")
 	public void testRecursiveMap() throws Exception {
 		final String script = //
 		/**/"car = (l) => return !l || l.isEmpty() ? null : l[0]\n" +
@@ -38,6 +39,7 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Arrays.asList(2, 4, 6));
 	}
 
+	@SuppressWarnings("boxing")
 	public void testRecursiveMap2() throws Exception {
 		final String script = //
 		/**/"car = (l) => return l === null ? null : l.first()\n" +
@@ -51,7 +53,7 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Arrays.asList(2, 4, 6));
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "boxing" })
 	public void testFilter() throws Exception {
 		final String script = //
 		/**/"function filter(l, f) {\n" +

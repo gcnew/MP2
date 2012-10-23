@@ -135,9 +135,9 @@ public class ReflectionUtil {
 			if (ambiguous.hasNext()) {
 				final String signatures = getSignatures(aClass, ambiguous);
 				throw new AmbiguousException("Multiple methods satisfying signature found", signatures);
-			} else {
-				return new MethodSearchRetval(ambiguous.getValue(), convertedArgs);
 			}
+
+			return new MethodSearchRetval(ambiguous.getValue(), convertedArgs);
 		}
 
 		return (varArgsMethods != null) ? getVarArgMethod(aClass, varArgsMethods, aArgs, aTypes) : null;
@@ -215,9 +215,9 @@ public class ReflectionUtil {
 			if (ambiguous.hasNext()) {
 				final String signatures = getSignatures(aClass, ambiguous);
 				throw new AmbiguousException("Multiple methods satisfying signature found", signatures);
-			} else {
-				return new MethodSearchRetval(ambiguous.getValue(), convertedArgs);
 			}
+
+			return new MethodSearchRetval(ambiguous.getValue(), convertedArgs);
 		}
 
 		return null;

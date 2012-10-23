@@ -220,13 +220,13 @@ public class CoercionUtil {
 		case SHIFT_RIGHT:
 			return Byte.valueOf((byte) (aLeft.intValue() >> aRight.intValue()));
 		case IS_LESS:
-			return aLeft.intValue() < aRight.intValue();
+			return Boolean.valueOf(aLeft.intValue() < aRight.intValue());
 		case IS_LESS_OR_EQ:
-			return aLeft.intValue() <= aRight.intValue();
+			return Boolean.valueOf(aLeft.intValue() <= aRight.intValue());
 		case IS_GREATER:
-			return aLeft.intValue() > aRight.intValue();
+			return Boolean.valueOf(aLeft.intValue() > aRight.intValue());
 		case IS_GREATER_OR_EQ:
-			return aLeft.intValue() >= aRight.intValue();
+			return Boolean.valueOf(aLeft.intValue() >= aRight.intValue());
 		}
 
 		throw new UnsupportedOperatorException(aOp, aLeft, aRight);
@@ -250,13 +250,13 @@ public class CoercionUtil {
 		case SHIFT_RIGHT:
 			return Short.valueOf((short) (aLeft.intValue() >> aRight.intValue()));
 		case IS_LESS:
-			return aLeft.intValue() < aRight.intValue();
+			return Boolean.valueOf(aLeft.intValue() < aRight.intValue());
 		case IS_LESS_OR_EQ:
-			return aLeft.intValue() <= aRight.intValue();
+			return Boolean.valueOf(aLeft.intValue() <= aRight.intValue());
 		case IS_GREATER:
-			return aLeft.intValue() > aRight.intValue();
+			return Boolean.valueOf(aLeft.intValue() > aRight.intValue());
 		case IS_GREATER_OR_EQ:
-			return aLeft.intValue() >= aRight.intValue();
+			return Boolean.valueOf(aLeft.intValue() >= aRight.intValue());
 		}
 
 		throw new UnsupportedOperatorException(aOp, aLeft, aRight);
@@ -266,27 +266,27 @@ public class CoercionUtil {
 			throws UnsupportedOperatorException {
 		switch (aOp) {
 		case ADD:
-			return Integer.valueOf(aLeft + aRight);
+			return Integer.valueOf(aLeft.intValue() + aRight.intValue());
 		case SUBSTRACT:
-			return Integer.valueOf(aLeft - aRight);
+			return Integer.valueOf(aLeft.intValue() - aRight.intValue());
 		case MULTIPLY:
-			return Integer.valueOf(aLeft * aRight);
+			return Integer.valueOf(aLeft.intValue() * aRight.intValue());
 		case DIVIDE:
-			return Integer.valueOf(aLeft / aRight);
+			return Integer.valueOf(aLeft.intValue() / aRight.intValue());
 		case MODULO:
-			return Integer.valueOf(aLeft % aRight);
+			return Integer.valueOf(aLeft.intValue() % aRight.intValue());
 		case SHIFT_LEFT:
-			return Integer.valueOf(aLeft << aRight);
+			return Integer.valueOf(aLeft.intValue() << aRight.intValue());
 		case SHIFT_RIGHT:
-			return Integer.valueOf(aLeft >> aRight);
+			return Integer.valueOf(aLeft.intValue() >> aRight.intValue());
 		case IS_LESS:
-			return aLeft < aRight;
+			return Boolean.valueOf(aLeft.intValue() < aRight.intValue());
 		case IS_LESS_OR_EQ:
-			return aLeft <= aRight;
+			return Boolean.valueOf(aLeft.intValue() <= aRight.intValue());
 		case IS_GREATER:
-			return aLeft > aRight;
+			return Boolean.valueOf(aLeft.intValue() > aRight.intValue());
 		case IS_GREATER_OR_EQ:
-			return aLeft >= aRight;
+			return Boolean.valueOf(aLeft.intValue() >= aRight.intValue());
 		}
 
 		throw new UnsupportedOperatorException(aOp, aLeft, aRight);
@@ -296,27 +296,27 @@ public class CoercionUtil {
 			throws UnsupportedOperatorException {
 		switch (aOp) {
 		case ADD:
-			return Long.valueOf(aLeft + aRight);
+			return Long.valueOf(aLeft.longValue() + aRight.longValue());
 		case SUBSTRACT:
-			return Long.valueOf(aLeft - aRight);
+			return Long.valueOf(aLeft.longValue() - aRight.longValue());
 		case MULTIPLY:
-			return Long.valueOf(aLeft * aRight);
+			return Long.valueOf(aLeft.longValue() * aRight.longValue());
 		case DIVIDE:
-			return Long.valueOf(aLeft / aRight);
+			return Long.valueOf(aLeft.longValue() / aRight.longValue());
 		case MODULO:
-			return Long.valueOf(aLeft % aRight);
+			return Long.valueOf(aLeft.longValue() % aRight.longValue());
 		case SHIFT_LEFT:
-			return Long.valueOf(aLeft << aRight);
+			return Long.valueOf(aLeft.longValue() << aRight.longValue());
 		case SHIFT_RIGHT:
-			return Long.valueOf(aLeft >> aRight);
+			return Long.valueOf(aLeft.longValue() >> aRight.longValue());
 		case IS_LESS:
-			return aLeft < aRight;
+			return Boolean.valueOf(aLeft.longValue() < aRight.longValue());
 		case IS_LESS_OR_EQ:
-			return aLeft <= aRight;
+			return Boolean.valueOf(aLeft.longValue() <= aRight.longValue());
 		case IS_GREATER:
-			return aLeft > aRight;
+			return Boolean.valueOf(aLeft.longValue() > aRight.longValue());
 		case IS_GREATER_OR_EQ:
-			return aLeft >= aRight;
+			return Boolean.valueOf(aLeft.longValue() >= aRight.longValue());
 		}
 
 		throw new UnsupportedOperatorException(aOp, aLeft, aRight);
@@ -340,13 +340,13 @@ public class CoercionUtil {
 		case SHIFT_RIGHT:
 			return aLeft.shiftRight(aRight.intValue());
 		case IS_LESS:
-			return aLeft.compareTo(aRight) < 0;
+			return Boolean.valueOf(aLeft.compareTo(aRight) < 0);
 		case IS_LESS_OR_EQ:
-			return aLeft.compareTo(aRight) <= 0;
+			return Boolean.valueOf(aLeft.compareTo(aRight) <= 0);
 		case IS_GREATER:
-			return aLeft.compareTo(aRight) > 0;
+			return Boolean.valueOf(aLeft.compareTo(aRight) > 0);
 		case IS_GREATER_OR_EQ:
-			return aLeft.compareTo(aRight) >= 0;
+			return Boolean.valueOf(aLeft.compareTo(aRight) >= 0);
 		}
 
 		throw new UnsupportedOperatorException(aOp, aLeft, aRight);
@@ -356,21 +356,21 @@ public class CoercionUtil {
 			throws UnsupportedOperatorException {
 		switch (aOp) {
 		case ADD:
-			return Float.valueOf(aLeft + aRight);
+			return Float.valueOf(aLeft.floatValue() + aRight.floatValue());
 		case SUBSTRACT:
-			return Float.valueOf(aLeft - aRight);
+			return Float.valueOf(aLeft.floatValue() - aRight.floatValue());
 		case MULTIPLY:
-			return Float.valueOf(aLeft * aRight);
+			return Float.valueOf(aLeft.floatValue() * aRight.floatValue());
 		case DIVIDE:
-			return Float.valueOf(aLeft / aRight);
+			return Float.valueOf(aLeft.floatValue() / aRight.floatValue());
 		case IS_LESS:
-			return aLeft < aRight;
+			return Boolean.valueOf(aLeft.floatValue() < aRight.floatValue());
 		case IS_LESS_OR_EQ:
-			return aLeft <= aRight;
+			return Boolean.valueOf(aLeft.floatValue() <= aRight.floatValue());
 		case IS_GREATER:
-			return aLeft > aRight;
+			return Boolean.valueOf(aLeft.floatValue() > aRight.floatValue());
 		case IS_GREATER_OR_EQ:
-			return aLeft >= aRight;
+			return Boolean.valueOf(aLeft.floatValue() >= aRight.floatValue());
 		}
 
 		throw new UnsupportedOperatorException(aOp, aLeft, aRight);
@@ -380,21 +380,21 @@ public class CoercionUtil {
 			throws UnsupportedOperatorException {
 		switch (aOp) {
 		case ADD:
-			return Double.valueOf(aLeft + aRight);
+			return Double.valueOf(aLeft.doubleValue() + aRight.doubleValue());
 		case SUBSTRACT:
-			return Double.valueOf(aLeft - aRight);
+			return Double.valueOf(aLeft.doubleValue() - aRight.doubleValue());
 		case MULTIPLY:
-			return Double.valueOf(aLeft * aRight);
+			return Double.valueOf(aLeft.doubleValue() * aRight.doubleValue());
 		case DIVIDE:
-			return Double.valueOf(aLeft / aRight);
+			return Double.valueOf(aLeft.doubleValue() / aRight.doubleValue());
 		case IS_LESS:
-			return aLeft < aRight;
+			return Boolean.valueOf(aLeft.doubleValue() < aRight.doubleValue());
 		case IS_LESS_OR_EQ:
-			return aLeft <= aRight;
+			return Boolean.valueOf(aLeft.doubleValue() <= aRight.doubleValue());
 		case IS_GREATER:
-			return aLeft > aRight;
+			return Boolean.valueOf(aLeft.doubleValue() > aRight.doubleValue());
 		case IS_GREATER_OR_EQ:
-			return aLeft >= aRight;
+			return Boolean.valueOf(aLeft.doubleValue() >= aRight.doubleValue());
 		}
 
 		throw new UnsupportedOperatorException(aOp, aLeft, aRight);
@@ -412,13 +412,13 @@ public class CoercionUtil {
 		case DIVIDE:
 			return aLeft.divide(aRight);
 		case IS_LESS:
-			return aLeft.compareTo(aRight) < 0;
+			return Boolean.valueOf(aLeft.compareTo(aRight) < 0);
 		case IS_LESS_OR_EQ:
-			return aLeft.compareTo(aRight) <= 0;
+			return Boolean.valueOf(aLeft.compareTo(aRight) <= 0);
 		case IS_GREATER:
-			return aLeft.compareTo(aRight) > 0;
+			return Boolean.valueOf(aLeft.compareTo(aRight) > 0);
 		case IS_GREATER_OR_EQ:
-			return aLeft.compareTo(aRight) >= 0;
+			return Boolean.valueOf(aLeft.compareTo(aRight) >= 0);
 		}
 
 		throw new UnsupportedOperatorException(aOp, aLeft, aRight);

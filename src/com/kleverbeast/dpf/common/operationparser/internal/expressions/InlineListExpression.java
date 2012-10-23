@@ -36,9 +36,7 @@ public class InlineListExpression extends Expression {
 
 			@SuppressWarnings("unchecked")
 			final List<Object> l = (List<Object>) last;
-			if (l.isEmpty()) {
-				retval = null;
-			} else {
+			if (!l.isEmpty()) {
 				if (!(l instanceof ImmutableList)) {
 					throw new ScriptException("Only immutable lists can be consed");
 				}

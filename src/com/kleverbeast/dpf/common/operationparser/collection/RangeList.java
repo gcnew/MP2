@@ -71,7 +71,7 @@ public class RangeList extends AbstractImmutableList<Integer> implements RandomA
 
 	public Integer get(final int aIndex) {
 		checkIndexNoSize(aIndex);
-		return aIndex + mFrom;
+		return Integer.valueOf(aIndex + mFrom);
 	}
 
 	@Override
@@ -102,7 +102,7 @@ public class RangeList extends AbstractImmutableList<Integer> implements RandomA
 	}
 
 	public String toString() {
-		return "[" + mFrom + " .. " + ((mTo == (Integer.MAX_VALUE - 1)) ? "" : mTo) + "]";
+		return "[" + mFrom + " .. " + ((mTo == (Integer.MAX_VALUE - 1)) ? "" : Integer.valueOf(mTo)) + "]";
 	}
 
 	private static class RangeIterator extends AbstractListIterator<Integer> {
@@ -125,7 +125,7 @@ public class RangeList extends AbstractImmutableList<Integer> implements RandomA
 				throw new NoSuchElementException();
 			}
 
-			return mCurrent++;
+			return Integer.valueOf(mCurrent++);
 		}
 
 		public Integer previous() {
@@ -133,7 +133,7 @@ public class RangeList extends AbstractImmutableList<Integer> implements RandomA
 				throw new NoSuchElementException();
 			}
 
-			return --mCurrent;
+			return Integer.valueOf(--mCurrent);
 		}
 
 		public int nextIndex() {

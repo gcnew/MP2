@@ -31,10 +31,10 @@ public class Equal extends BinaryOperatorExpression {
 			final boolean flt = isFloating((Number) left) || isFloating((Number) right);
 
 			if (flt) {
-				return ((Number) left).doubleValue() == ((Number) right).doubleValue();
-			} else {
-				return ((Number) left).longValue() == ((Number) right).longValue();
+				return Boolean.valueOf(((Number) left).doubleValue() == ((Number) right).doubleValue());
 			}
+
+			return Boolean.valueOf(((Number) left).longValue() == ((Number) right).longValue());
 		}
 
 		return Boolean.FALSE;

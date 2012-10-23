@@ -3,12 +3,13 @@ package test;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.kleverbeast.dpf.common.operationparser.collection.ConsList;
+import com.kleverbeast.dpf.common.operationparser.collection.AbstractConsList;
 
 public class CollectionTest extends MP2Test {
 	public void testConsBackward0() {
 		// highly inefficient.. but anyway
-		final ListIterator<Integer> it = ConsList.<Integer> list(1, 2, 3, 4, 5).listIterator();
+		@SuppressWarnings("boxing")
+		final ListIterator<Integer> it = AbstractConsList.<Integer> list(1, 2, 3, 4, 5).listIterator();
 
 		int i = 0;
 		while (it.hasNext()) {
@@ -29,7 +30,8 @@ public class CollectionTest extends MP2Test {
 
 	public void testConsBackward1() {
 		// highly inefficient.. but anyway
-		final List<Integer> list = ConsList.<Integer> list(1, 2, 3, 4, 5);
+		@SuppressWarnings("boxing")
+		final List<Integer> list = AbstractConsList.<Integer> list(1, 2, 3, 4, 5);
 		final ListIterator<Integer> it = list.listIterator(list.size());
 
 		int i = 5;

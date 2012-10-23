@@ -14,6 +14,6 @@ public class Not extends UnaryOperatorExpression {
 	public Object execute(final Scope aScope) throws Exception {
 		final Object o = mRight.execute(aScope);
 
-		return !isTrue(o);
+		return isTrue(o) ? Boolean.FALSE : Boolean.TRUE;
 	}
 }

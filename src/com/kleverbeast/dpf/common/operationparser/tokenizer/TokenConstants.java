@@ -180,17 +180,17 @@ public class TokenConstants {
 	private static final Map<Character, Token> GRAMMAR_TOKEN_MAP = new HashMap<Character, Token>(GRAMMAR_HASH_SIZE);
 
 	static {
-		GRAMMAR_TOKEN_MAP.put('.', SCOPE);
-		GRAMMAR_TOKEN_MAP.put(',', COMMA);
-		GRAMMAR_TOKEN_MAP.put(':', COLON);
-		GRAMMAR_TOKEN_MAP.put('?', QUEST);
-		GRAMMAR_TOKEN_MAP.put(';', SEMICOL);
-		GRAMMAR_TOKEN_MAP.put('(', O_BRACK);
-		GRAMMAR_TOKEN_MAP.put(')', C_BRACK);
-		GRAMMAR_TOKEN_MAP.put('[', O_INDEX);
-		GRAMMAR_TOKEN_MAP.put(']', C_INDEX);
-		GRAMMAR_TOKEN_MAP.put('{', O_BLOCK);
-		GRAMMAR_TOKEN_MAP.put('}', C_BLOCK);
+		GRAMMAR_TOKEN_MAP.put(Character.valueOf('.'), SCOPE);
+		GRAMMAR_TOKEN_MAP.put(Character.valueOf(','), COMMA);
+		GRAMMAR_TOKEN_MAP.put(Character.valueOf(':'), COLON);
+		GRAMMAR_TOKEN_MAP.put(Character.valueOf('?'), QUEST);
+		GRAMMAR_TOKEN_MAP.put(Character.valueOf(';'), SEMICOL);
+		GRAMMAR_TOKEN_MAP.put(Character.valueOf('('), O_BRACK);
+		GRAMMAR_TOKEN_MAP.put(Character.valueOf(')'), C_BRACK);
+		GRAMMAR_TOKEN_MAP.put(Character.valueOf('['), O_INDEX);
+		GRAMMAR_TOKEN_MAP.put(Character.valueOf(']'), C_INDEX);
+		GRAMMAR_TOKEN_MAP.put(Character.valueOf('{'), O_BLOCK);
+		GRAMMAR_TOKEN_MAP.put(Character.valueOf('}'), C_BLOCK);
 	}
 
 	public static Token getOperationToken(final String aString) {

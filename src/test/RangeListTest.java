@@ -5,6 +5,7 @@ import java.util.Arrays;
 import com.kleverbeast.dpf.common.operationparser.exception.ParsingException;
 
 public class RangeListTest extends MP2Test {
+	@SuppressWarnings("boxing")
 	public void testRangeList0() throws Exception {
 		assertEval("return [0 .. 3]", Arrays.asList(0, 1, 2, 3));
 	}
@@ -27,7 +28,7 @@ public class RangeListTest extends MP2Test {
 
 	public void testRangeList5() throws Exception {
 		// currently the list cap is (Integer.MAX_VALUE - 1) because of overflow issues
-		assertEval("return (0 .. ).size()", Integer.MAX_VALUE);
+		assertEval("return (0 .. ).size()", Integer.valueOf(Integer.MAX_VALUE));
 	}
 
 	public void testRangeList6() throws Exception {

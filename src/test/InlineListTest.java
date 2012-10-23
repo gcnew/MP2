@@ -5,7 +5,7 @@ import java.util.List;
 
 public class InlineListTest extends MP2Test {
 	public void testInlineList0() throws Exception {
-		assertEval("return [1, 2, 3][1]", 2);
+		assertEval("return [1, 2, 3][1]", Integer.valueOf(2));
 	}
 
 	public void testInlineList1() throws Exception {
@@ -24,6 +24,7 @@ public class InlineListTest extends MP2Test {
 		assertEval("return (1, ).first()", Integer.valueOf(1));
 	}
 
+	@SuppressWarnings("boxing")
 	public void testInlineList5() throws Exception {
 		assertEval("return (1, 2, 3).rest()", Arrays.asList(2, 3));
 	}

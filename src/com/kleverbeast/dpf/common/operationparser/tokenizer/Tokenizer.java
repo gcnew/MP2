@@ -58,7 +58,7 @@ public class Tokenizer {
 				mIndex += 2;
 				return TokenConstants.RANGE;
 			}
-			/* fall - through */
+			//$FALL-THROUGH$
 		case ',':
 		case ':':
 		case '?':
@@ -70,7 +70,7 @@ public class Tokenizer {
 		case '{':
 		case '}':
 			++mIndex;
-			return TokenConstants.getGrammarToken(c);
+			return TokenConstants.getGrammarToken(Character.valueOf(c));
 		case '\'':
 			return parseString();
 		case '-':
@@ -78,7 +78,7 @@ public class Tokenizer {
 				mIndex += 2;
 				return TokenConstants.ARROW;
 			}
-			/* fall - through */
+			//$FALL-THROUGH$
 		case '+':
 		case '/':
 		case '*':
@@ -105,7 +105,7 @@ public class Tokenizer {
 		return parseLiteral();
 	}
 
-	public boolean hasNext() throws ParsingException {
+	public boolean hasNext() {
 		return mIndex < mTokens.size();
 	}
 
