@@ -23,7 +23,7 @@ public class MapComprehensionTest extends MP2Test {
 		expected.put("a", Integer.valueOf(1));
 		expected.put("b", Integer.valueOf(2));
 
-		assertEval("return ( 1 -> ( 'a' -> 1, 'b' -> '2' ), 2 -> 'b' )[1]", expected);
+		assertEval("return ( 1 -> ( 'a' -> 1, 'b' -> 2 ), 2 -> 'b' )[1]", expected);
 	}
 
 	public void testImmutable3() throws Exception {
@@ -39,7 +39,7 @@ public class MapComprehensionTest extends MP2Test {
 	}
 
 	public void testImmutable5() throws Exception {
-		assertException("( 'q' -> (1, 2, 3,), ).put('q', 0)", Exception.class);
+		assertException("( 'q' -> (1, 2, 3,), ).put('p', 0)", Exception.class);
 	}
 
 	public void testImmutable6() throws Exception {
@@ -65,7 +65,7 @@ public class MapComprehensionTest extends MP2Test {
 		expected.put("a", Integer.valueOf(1));
 		expected.put("b", Integer.valueOf(2));
 
-		assertEval("return [ 1 -> [ 'a' -> 1, 'b' -> '2' ], 2 -> 'b' ][1]", expected);
+		assertEval("return [ 1 -> [ 'a' -> 1, 'b' -> 2 ], 2 -> 'b' ][1]", expected);
 	}
 
 	public void testMutable3() throws Exception {
@@ -81,7 +81,12 @@ public class MapComprehensionTest extends MP2Test {
 	}
 
 	public void testMutable5() throws Exception {
-		assertEval("return [ 'q' -> [1, 2, 3,], ].put('q', 0).size()", Integer.valueOf(2));
+		final String script = //
+		/**/"a = [ 'q' -> [1, 2, 3,], ]\n" +
+		/**/"a.put('p', 0)\n" +
+		/**/"return a.size();";
+
+		assertEval(script, Integer.valueOf(2));
 	}
 
 	public void testMutable6() throws Exception {

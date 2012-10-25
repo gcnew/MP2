@@ -41,6 +41,8 @@ import com.kleverbeast.dpf.common.operationparser.internal.expressions.FunctionC
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.FunctionExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.IndexExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.InlineListExpression;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.InlineMapExpression;
+import com.kleverbeast.dpf.common.operationparser.internal.expressions.InlineSetExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.LocalAssignmentExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.RangeListExpression;
 import com.kleverbeast.dpf.common.operationparser.internal.expressions.ReflectedThisExpression;
@@ -64,6 +66,7 @@ import com.kleverbeast.dpf.common.operationparser.tokenizer.Token;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.TokenConstants;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes;
 import com.kleverbeast.dpf.common.operationparser.tokenizer.Tokenizer;
+import com.kleverbeast.dpf.common.operationparser.util.AssocEntry;
 import com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.CoercionType;
 import com.kleverbeast.dpf.common.operationparser.util.Util;
 
@@ -378,12 +381,31 @@ public class OperationParser {
 				final int position = mTokenizer.getPostion();
 				final Token separator = mTokenizer.next();
 
+				if (separator == TokenConstants.ARROW) {
+					if (advanceIfNext(expected)) {
+						// set with a single element
+						return new InlineSetExpression(Collections.singletonList(first), aImmutable);
+					}
+
+					if (advanceIfNext(TokenConstants.COMMA)) {
+						// parse set
+						elements = parseInlineList0(first, aImmutable, true);
+						return new InlineSetExpression(Util.immutableList(elements), aImmutable);
+					}
+
+					final Expression value = parseAssignment();
+					final AssocEntry<Expression, Expression> firstEntry = new AssocEntry<Expression, Expression>(first,
+							value);
+					final List<AssocEntry<Expression, Expression>> entries = parseInlineMap(firstEntry, aImmutable);
+					return new InlineMapExpression(entries, aImmutable);
+				}
+
 				mTokenizer.restorePosition(position);
 				final List<Expression> temp;
 				if (separator == TokenConstants.COLON) {
 					temp = parseConsList(first);
 				} else {
-					temp = parseInlineList0(first, aImmutable);
+					temp = parseInlineList0(first, aImmutable, false);
 				}
 
 				elements = Util.immutableList(temp);
@@ -393,7 +415,7 @@ public class OperationParser {
 		return new InlineListExpression(elements, aImmutable);
 	}
 
-	private List<Expression> parseInlineList0(final Expression aFirst, final boolean aImmutable)
+	private List<Expression> parseInlineList0(final Expression aFirst, final boolean aImmutable, final boolean aSet)
 			throws ParsingException {
 		final Token expected = aImmutable ? TokenConstants.C_BRACK : TokenConstants.C_INDEX;
 
@@ -411,9 +433,14 @@ public class OperationParser {
 			}
 
 			retval.add(parseAssignment());
+
+			if (aSet) {
+				checkAndAdvance(TokenConstants.ARROW);
+			}
 		}
 
-		if (aImmutable) {
+		if (aImmutable && !aSet) {
+			// add a null to reuse cons list methods
 			retval.add(ExpressionFactory.getNull());
 		}
 
@@ -446,6 +473,33 @@ public class OperationParser {
 		checkAndAdvance(expected);
 
 		return new RangeListExpression(aFrom, to, aConsList);
+	}
+
+	private List<AssocEntry<Expression, Expression>> parseInlineMap(final AssocEntry<Expression, Expression> aFirst,
+			final boolean aImmutable) throws ParsingException {
+		final Token expected = aImmutable ? TokenConstants.C_BRACK : TokenConstants.C_INDEX;
+
+		final ArrayList<AssocEntry<Expression, Expression>> retval = new ArrayList<AssocEntry<Expression, Expression>>();
+		retval.add(aFirst);
+
+		while (true) {
+			if (!advanceIfNext(TokenConstants.COMMA)) {
+				checkAndAdvance(expected);
+				break;
+			}
+
+			if (advanceIfNext(expected)) {
+				break;
+			}
+
+			final Expression key = parseAssignment();
+			checkAndAdvance(TokenConstants.ARROW);
+			final Expression value = parseAssignment();
+
+			retval.add(new AssocEntry<Expression, Expression>(key, value));
+		}
+
+		return retval;
 	}
 
 	private boolean isLambda() throws ParsingException {
