@@ -96,7 +96,11 @@ public class OperationParser {
 	/* */};
 
 	public OperationParser(final String aSource) {
-		mTokenizer = new Tokenizer(aSource);
+		this(aSource, /* legacy */true);
+	}
+
+	public OperationParser(final String aSource, final boolean aInt32) {
+		mTokenizer = new Tokenizer(aSource, aInt32);
 	}
 
 	public ParsedScript parse() throws ParsingException {
@@ -162,7 +166,7 @@ public class OperationParser {
 		final Token token = mTokenizer.next();
 
 		// TODO: handle index ($a[$i] = X)
-		if ((token.getType() == TokenTypes.LITERAL) && mTokenizer.hasNext()) {
+		if ((token.getType() == TokenTypes.IDENTIFIER) && mTokenizer.hasNext()) {
 			final Expression assignment = parseAssignment0(token.getStringValue());
 
 			if (assignment != null) {
@@ -299,7 +303,7 @@ public class OperationParser {
 		case CONSTANT:
 			retval = mExpressionFactory.getConstantExpression(token);
 			break;
-		case LITERAL:
+		case IDENTIFIER:
 			if (mTokenizer.hasNext() && advanceIfNext(TokenConstants.O_BRACK)) {
 				retval = parseFunctionCall(token.getStringValue());
 			} else {
@@ -545,8 +549,8 @@ public class OperationParser {
 	private Expression parseThisExpression(final Expression aThis) throws ParsingException {
 		final Token token = mTokenizer.next();
 
-		if (token.getType() != TokenTypes.LITERAL) {
-			throwExpectedFound(TokenTypes.LITERAL, token);
+		if (token.getType() != TokenTypes.IDENTIFIER) {
+			throwExpectedFound(TokenTypes.IDENTIFIER, token);
 		}
 
 		checkAndAdvance(TokenConstants.O_BRACK);
@@ -624,8 +628,8 @@ public class OperationParser {
 
 	private void parseFunctionDefinition() throws ParsingException {
 		final Token nameToken = mTokenizer.next();
-		if (nameToken.getType() != TokenTypes.LITERAL) {
-			throwExpectedFound(TokenTypes.LITERAL, nameToken);
+		if (nameToken.getType() != TokenTypes.IDENTIFIER) {
+			throwExpectedFound(TokenTypes.IDENTIFIER, nameToken);
 		}
 
 		checkAndAdvance(TokenConstants.O_BRACK);
@@ -639,8 +643,8 @@ public class OperationParser {
 		if (!advanceIfNext(TokenConstants.C_BRACK)) {
 			while (true) {
 				final Token argName = mTokenizer.next();
-				if (argName.getType() != TokenTypes.LITERAL) {
-					throwExpectedFound(TokenTypes.LITERAL, argName);
+				if (argName.getType() != TokenTypes.IDENTIFIER) {
+					throwExpectedFound(TokenTypes.IDENTIFIER, argName);
 				}
 
 				mLexicalScope.addArgument(argName.getStringValue());
@@ -795,8 +799,8 @@ public class OperationParser {
 		do {
 			final Token token = mTokenizer.next();
 
-			if (token.getType() != TokenTypes.LITERAL) {
-				throwExpectedFound(TokenTypes.LITERAL, token);
+			if (token.getType() != TokenTypes.IDENTIFIER) {
+				throwExpectedFound(TokenTypes.IDENTIFIER, token);
 			}
 
 			final String varName = token.getStringValue();

@@ -8,6 +8,7 @@ public class ListComprehensionTest extends MP2Test {
 		/**/"\n" +
 		/**/"return fac(5)";
 		// http://codepad.org/SL4PWd2V
+		// http://codepad.org/Gn3t9Zpz
 
 		assertEval(script, Integer.valueOf(120));
 	}

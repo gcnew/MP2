@@ -7,10 +7,12 @@ import com.kleverbeast.dpf.common.operationparser.exception.ParsingException;
 
 public class Tokenizer {
 	private int mIndex;
+	private final boolean mInt32;
 	private final String mSource;
 	private final List<Token> mTokens;
 
-	public Tokenizer(final String aSource) {
+	public Tokenizer(final String aSource, final boolean aInt32) {
+		mInt32 = aInt32;
 		mSource = aSource;
 		mTokens = new ArrayList<Token>();
 	}
@@ -30,7 +32,7 @@ public class Tokenizer {
 	}
 
 	private void skipWhiteSpaces() {
-		while ((mIndex < mSource.length()) && Character.isWhitespace(mSource.charAt(mIndex))) {
+		while (!isAtEnd() && Character.isWhitespace(mSource.charAt(mIndex))) {
 			++mIndex;
 		}
 	}
@@ -46,7 +48,7 @@ public class Tokenizer {
 	private boolean hasNext0() {
 		skipWhiteSpaces();
 
-		return mIndex != mSource.length();
+		return !isAtEnd();
 	}
 
 	private Token next0() throws ParsingException {
@@ -102,7 +104,7 @@ public class Tokenizer {
 			return parseNumber();
 		}
 
-		return parseLiteral();
+		return parseIdentifier();
 	}
 
 	public boolean hasNext() {
@@ -130,60 +132,115 @@ public class Tokenizer {
 		return retval;
 	}
 
-	private Token parseNumber() {
-		int endIndex = mIndex;
+	private Token parseNumber() throws ParsingException {
+		final int startIndex = mIndex;
+
+		int base = 0; // 0 will be normalized to 10, used to help parsing floats
+		if (isCharAtOffset(0, '0') && !isAtEnd(1)) {
+			final char next = Character.toLowerCase(mSource.charAt(mIndex + 1));
+
+			switch (next) {
+			case 'x':
+				base = 16;
+				break;
+			case 'd':
+				base = 10;
+				break;
+			case 'o':
+				base = 8;
+				break;
+			case 'b':
+				base = 2;
+				break;
+			default:
+				if (Character.isDigit(next)) {
+					// don't allow mistakes to pass through
+					throw new ParsingException("Numeral system code expected (x/o/b/d)");
+				}
+
+				mIndex -= 2;
+			}
+
+			mIndex += 2;
+		}
 
 		do {
-			++endIndex;
-		} while ((endIndex < mSource.length()) && Character.isDigit(mSource.charAt(endIndex)));
+			++mIndex;
+		} while (!isAtEnd() && Character.isDigit(mSource.charAt(mIndex)));
 
-		final String number = mSource.substring(mIndex, endIndex);
-		final Token retval = new Token(TokenTypes.CONSTANT, Integer.valueOf(number));
-		mIndex = endIndex;
+		boolean isFloat = false;
+		if (isCharAtOffset(0, '.')) {
+			if (isAtEnd(1) || Character.isDigit(mSource.charAt(mIndex + 1))) {
+				if (base != 0) {
+					throw new ParsingException("Invalid floating point syntax (cannot have numeral system specifiers)");
+				}
 
-		return retval;
+				isFloat = true;
+				do {
+					++mIndex;
+				} while (!isAtEnd() && Character.isDigit(mSource.charAt(mIndex)));
+			}
+		}
+
+		final Object constant;
+		final String number = mSource.substring(startIndex, mIndex);
+		if (isFloat) {
+			constant = Double.valueOf(number);
+		} else {
+			base = (base == 0) ? 10 : base;
+
+			if (mInt32) {
+				constant = Integer.valueOf(Integer.parseInt(number, base));
+			} else {
+				constant = Long.valueOf(Long.parseLong(number, base));
+			}
+		}
+
+		return new Token(TokenTypes.CONSTANT, constant);
 	}
 
-	private int findLiteralEnd() {
-		int endIndex = mIndex;
-
-		do {
-			++endIndex;
-		} while ((endIndex < mSource.length()) && Character.isLetterOrDigit(mSource.charAt(endIndex)));
-
-		return endIndex;
+	private boolean isIdentifierChar(final char aChar) {
+		return Character.isLetterOrDigit(aChar) || (aChar == '_');
 	}
 
 	private Token parseVariable() throws ParsingException {
-		++mIndex;
-		if (mIndex == mSource.length()) {
-			throw new ParsingException("Invalid variable sigil found at end of file");
+		final int startIndex = mIndex++;
+
+		if (isAtEnd()) {
+			throw new ParsingException("Identifier expected but end of file reached");
 		}
 
-		if (!Character.isLetter(mSource.charAt(mIndex))) {
-			throw new ParsingException("Invalid character '" + mSource.charAt(mIndex) + "' found after variable sigil");
-		}
-
-		final int endIndex = findLiteralEnd();
-		final Token retval = new Token(TokenTypes.LITERAL, mSource.substring(--mIndex, endIndex));
-		mIndex = endIndex;
-
-		return retval;
+		parseIdentifier();
+		return new Token(TokenTypes.IDENTIFIER, mSource.substring(startIndex, mIndex));
 	}
 
-	private Token parseLiteral() {
-		final int endIndex = findLiteralEnd();
-		final String literal = mSource.substring(mIndex, endIndex);
+	private Token parseIdentifier() throws ParsingException {
+		final int startIndex = mIndex;
 
-		final Token keyword = TokenConstants.getKeywordToken(literal);
-		final Token retval = (keyword != null) ? keyword : new Token(TokenTypes.LITERAL, literal);
-		mIndex = endIndex;
+		final char firstChar = mSource.charAt(mIndex);
+		if (!(Character.isLetter(firstChar) || (firstChar == '_'))) {
+			throw new ParsingException("Identifier starting character expected but found: " + firstChar);
+		}
 
-		return retval;
+		do {
+			++mIndex;
+		} while (!isAtEnd() && isIdentifierChar(mSource.charAt(mIndex)));
+
+		final String identifier = mSource.substring(startIndex, mIndex);
+		final Token keyword = TokenConstants.getKeywordToken(identifier);
+		return (keyword != null) ? keyword : new Token(TokenTypes.IDENTIFIER, identifier);
 	}
 
 	private boolean isCharAtOffset(final int aOffset, final char aChar) {
-		return ((mIndex + aOffset) < mSource.length()) && (mSource.charAt(mIndex + aOffset) == aChar);
+		return !isAtEnd(aOffset) && (mSource.charAt(mIndex + aOffset) == aChar);
+	}
+
+	private boolean isAtEnd() {
+		return isAtEnd(0);
+	}
+
+	private boolean isAtEnd(final int aOffset) {
+		return (mIndex + aOffset) >= mSource.length();
 	}
 
 	private Token parseOneOrEqual() {
