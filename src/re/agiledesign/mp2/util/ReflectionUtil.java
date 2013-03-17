@@ -5,6 +5,8 @@ import static re.agiledesign.mp2.util.CoercionUtil.getWrapperClass;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import re.agiledesign.mp2.collection.ConsList;
+import re.agiledesign.mp2.collection.SequentialList;
 import re.agiledesign.mp2.exception.AmbiguousException;
 import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.expressions.CastExpression;
@@ -102,8 +104,8 @@ public class ReflectionUtil {
 			final Class<?> aClass,
 			final Method[] aMethods,
 			final Class<?>[] aTypes) throws AmbiguousException {
-		Node<Method> ambiguous = null;
-		Node<Method> varArgsMethods = null;
+		SequentialList<Method> ambiguous = null;
+		SequentialList<Method> varArgsMethods = null;
 
 		final Object[] convertedArgs = new Object[aArgs.length];
 		for (final Method m : aMethods) {
@@ -112,7 +114,7 @@ public class ReflectionUtil {
 
 				if (aTypes.length != methTypes.length) {
 					if (m.isVarArgs()) {
-						varArgsMethods = new Node<Method>(m, varArgsMethods);
+						varArgsMethods = new ConsList<Method>(m, varArgsMethods);
 					}
 
 					continue;
@@ -126,18 +128,18 @@ public class ReflectionUtil {
 				}
 
 				if (i == aTypes.length) {
-					ambiguous = new Node<Method>(m, ambiguous);
+					ambiguous = new ConsList<Method>(m, ambiguous);
 				}
 			}
 		}
 
 		if (ambiguous != null) {
-			if (ambiguous.hasNext()) {
+			if (ambiguous.rest() != null) {
 				final String signatures = getSignatures(aClass, ambiguous);
 				throw new AmbiguousException("Multiple methods satisfying signature found", signatures);
 			}
 
-			return new MethodSearchRetval(ambiguous.getValue(), convertedArgs);
+			return new MethodSearchRetval(ambiguous.first(), convertedArgs);
 		}
 
 		return (varArgsMethods != null) ? getVarArgMethod(aClass, varArgsMethods, aArgs, aTypes) : null;
@@ -182,10 +184,10 @@ public class ReflectionUtil {
 	}
 
 	private static MethodSearchRetval getVarArgMethod(final Class<?> aClass,
-			final Node<Method> aMethods,
+			final SequentialList<Method> aMethods,
 			final Object aArgs[],
 			final Class<?> aTypes[]) throws AmbiguousException {
-		Node<Method> ambiguous = null;
+		SequentialList<Method> ambiguous = null;
 
 		Object[] convertedArgs = null;
 		for (final Method m : aMethods) {
@@ -206,18 +208,18 @@ public class ReflectionUtil {
 
 			if (i == nonVarArgsCount) {
 				// TODO: create variable argument object
-				ambiguous = new Node<Method>(m, ambiguous);
+				ambiguous = new ConsList<Method>(m, ambiguous);
 			}
 
 		}
 
 		if (ambiguous != null) {
-			if (ambiguous.hasNext()) {
+			if (ambiguous.rest() != null) {
 				final String signatures = getSignatures(aClass, ambiguous);
 				throw new AmbiguousException("Multiple methods satisfying signature found", signatures);
 			}
 
-			return new MethodSearchRetval(ambiguous.getValue(), convertedArgs);
+			return new MethodSearchRetval(ambiguous.first(), convertedArgs);
 		}
 
 		return null;
@@ -238,7 +240,7 @@ public class ReflectionUtil {
 		return sb.toString();
 	}
 
-	private static String getSignatures(final Class<?> aClass, final Node<Method> aMethods) {
+	private static String getSignatures(final Class<?> aClass, final List<Method> aMethods) {
 		final StringBuilder retval = new StringBuilder(256);
 
 		boolean first = true;

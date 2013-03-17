@@ -6,33 +6,13 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-public abstract class AbstractConsList<T> extends AbstractImmutableList<T> {
-	public abstract T first();
-
-	public abstract AbstractConsList<T> rest();
-
+public abstract class AbstractConsList<T> extends AbstractImmutableList<T> implements SequentialList<T> {
 	public int size() {
 		return (rest() == null) ? 1 : (rest().size() + 1);
 	}
 
 	public boolean isEmpty() {
 		return false;
-	}
-
-	public static <T> ConsList<T> list(final T... aO) {
-		if (aO == null) {
-			return null;
-		}
-
-		return list(0, aO);
-	}
-
-	private static <T> ConsList<T> list(final int aOffset, final T[] aO) {
-		if (aOffset == aO.length) {
-			return null;
-		}
-
-		return new ConsList<T>(aO[aOffset], list(aOffset + 1, aO));
 	}
 
 	public boolean contains(final Object aO) {
@@ -54,7 +34,7 @@ public abstract class AbstractConsList<T> extends AbstractImmutableList<T> {
 	private ArrayList<T> toArrayList() {
 		final ArrayList<T> retval = new ArrayList<T>();
 
-		AbstractConsList<T> l = this;
+		SequentialList<T> l = this;
 		do {
 			retval.add(l.first());
 			l = l.rest();
@@ -68,23 +48,19 @@ public abstract class AbstractConsList<T> extends AbstractImmutableList<T> {
 			throw new IndexOutOfBoundsException("Negative index passed");
 		}
 
-		return get0(aIndex, aIndex);
-	}
-
-	private T get0(final int aIndex, final int aOrigIndex) {
-		if (aIndex == 0) {
-			return first();
+		SequentialList<T> curr = this;
+		for (int idx = aIndex; idx != 0; --idx) {
+			curr = curr.rest();
+			if (curr == null) {
+				throw indexGtSizeEx(aIndex);
+			}
 		}
 
-		if (rest() == null) {
-			throwIndexGtSize(aOrigIndex);
-		}
-
-		return rest().get0(aIndex - 1, aOrigIndex);
+		return curr.first();
 	}
 
-	private void throwIndexGtSize(final int aIndex) {
-		throw new IndexOutOfBoundsException("Index: " + aIndex + " greater than list size");
+	private IndexOutOfBoundsException indexGtSizeEx(final int aIndex) {
+		return new IndexOutOfBoundsException("Index: " + aIndex + " greater than list size");
 	}
 
 	public int indexOf(final Object aO) {
@@ -103,9 +79,9 @@ public abstract class AbstractConsList<T> extends AbstractImmutableList<T> {
 	}
 
 	public ListIterator<T> listIterator(final int aIndex) {
-		final AbstractConsList<T> list = (aIndex == 0) ? this : subList0(aIndex, aIndex, -1);
+		final SequentialList<T> list = (aIndex == 0) ? this : subList0(aIndex, -1);
 
-		return new ForwardOnlyListIterator<T>(list);
+		return new ConsListIterator<T>(list);
 	}
 
 	public List<T> subList(final int aFromIndex, final int aToIndex) {
@@ -121,10 +97,10 @@ public abstract class AbstractConsList<T> extends AbstractImmutableList<T> {
 			throw new IndexOutOfBoundsException("From index less than To index: " + aFromIndex + " -> " + aToIndex);
 		}
 
-		return subList0(aFromIndex, aFromIndex, aToIndex);
+		return subList0(aFromIndex, aToIndex);
 	}
 
-	public AbstractConsList<T> subList2(final int aFromIndex, final int aToIndex) {
+	public SequentialList<T> subList2(final int aFromIndex, final int aToIndex) {
 		if (aFromIndex < 0) {
 			throw new IndexOutOfBoundsException("Negative From index passed");
 		}
@@ -137,38 +113,37 @@ public abstract class AbstractConsList<T> extends AbstractImmutableList<T> {
 			throw new IndexOutOfBoundsException("From index less than To index: " + aFromIndex + " -> " + aToIndex);
 		}
 
-		return subList0(aFromIndex, aFromIndex, aToIndex);
+		return subList0(aFromIndex, aToIndex);
 	}
 
-	private AbstractConsList<T> subList0(final int aFromIndex, final int aFromOrig, final int aToIndex) {
+	private SequentialList<T> subList0(final int aFromIndex, final int aToIndex) {
 		if (aToIndex < 0) {
-			if (aFromIndex == 0) {
-				return this;
+			SequentialList<T> retval = this;
+
+			for (int idx = aFromIndex; idx != 0; --idx) {
+				if (retval == null) {
+					throw indexGtSizeEx(aFromIndex);
+				}
+
+				retval = retval.rest();
 			}
 
-			if (aFromIndex == 1) {
-				return rest();
-			}
-
-			if (rest() == null) {
-				throwIndexGtSize(aFromOrig);
-			}
-
-			return rest().subList0(aFromIndex - 1, aFromOrig, aToIndex);
+			return retval;
 		}
 
-		if (aFromIndex > 0) {
-			if (rest() == null) {
+		SequentialList<T> curr = this;
+		for (int idx = aFromIndex; idx != 0; --idx) {
+			if (curr == null) {
 				throw new IllegalStateException("To index greater than list length");
 			}
 
-			return rest().subList0(aFromIndex - 1, aFromOrig, aToIndex - 1);
+			curr = curr.rest();
 		}
 
 		return copy(this, aToIndex);
 	}
 
-	private static <T> AbstractConsList<T> copy(final AbstractConsList<T> aList, final int aN) {
+	private static <T> AbstractConsList<T> copy(final SequentialList<T> aList, final int aN) {
 		if (aN == 0) {
 			return null;
 		}
@@ -184,12 +159,12 @@ public abstract class AbstractConsList<T> extends AbstractImmutableList<T> {
 		return "(" + first() + " : " + rest() + ")";
 	}
 
-	private static class ForwardOnlyListIterator<T> extends AbstractListIterator<T> {
+	private static class ConsListIterator<T> extends AbstractListIterator<T> {
 		private int mIndex;
-		private AbstractConsList<T> mList;
-		private AbstractConsList<T> mCurrent;
+		private SequentialList<T> mList;
+		private SequentialList<T> mCurrent;
 
-		public ForwardOnlyListIterator(final AbstractConsList<T> aList) {
+		public ConsListIterator(final SequentialList<T> aList) {
 			mList = aList;
 			mCurrent = aList;
 		}
@@ -216,7 +191,7 @@ public abstract class AbstractConsList<T> extends AbstractImmutableList<T> {
 			}
 
 			--mIndex;
-			mCurrent = mList.subList0(mIndex, mIndex, -1);
+			mCurrent = mList.subList2(mIndex, -1);
 			return mCurrent.first();
 		}
 

@@ -5,10 +5,10 @@ import java.util.List;
 
 import javax.script.ScriptException;
 
-import re.agiledesign.mp2.collection.AbstractConsList;
 import re.agiledesign.mp2.collection.ConsList;
 import re.agiledesign.mp2.collection.ConsListWrapper;
 import re.agiledesign.mp2.collection.ImmutableList;
+import re.agiledesign.mp2.collection.SequentialList;
 import re.agiledesign.mp2.internal.Scope;
 
 public class InlineListExpression extends Expression {
@@ -27,7 +27,7 @@ public class InlineListExpression extends Expression {
 	private List<Object> createConsList(final Scope aScope) throws Exception {
 		int idx = mElements.size() - 1;
 
-		AbstractConsList<Object> retval = null;
+		SequentialList<Object> retval = null;
 		final Object last = mElements.get(idx).execute(aScope);
 		if (last != null) {
 			if (!(last instanceof List)) {
@@ -41,8 +41,8 @@ public class InlineListExpression extends Expression {
 					throw new ScriptException("Only immutable lists can be consed");
 				}
 
-				if (l instanceof AbstractConsList) {
-					retval = (AbstractConsList<Object>) l;
+				if (l instanceof SequentialList) {
+					retval = (SequentialList<Object>) l;
 				} else {
 					retval = new ConsListWrapper<Object>((ImmutableList<Object>) l);
 				}

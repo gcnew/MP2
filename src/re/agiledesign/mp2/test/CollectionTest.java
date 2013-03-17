@@ -3,13 +3,13 @@ package re.agiledesign.mp2.test;
 import java.util.List;
 import java.util.ListIterator;
 
-import re.agiledesign.mp2.collection.AbstractConsList;
+import re.agiledesign.mp2.collection.ConsList;
 
 public class CollectionTest extends MP2Test {
 	public void testConsBackward0() {
 		// highly inefficient.. but anyway
 		@SuppressWarnings("boxing")
-		final ListIterator<Integer> it = AbstractConsList.<Integer> list(1, 2, 3, 4, 5).listIterator();
+		final ListIterator<Integer> it = ConsList.<Integer> list(1, 2, 3, 4, 5).listIterator();
 
 		int i = 0;
 		while (it.hasNext()) {
@@ -31,7 +31,7 @@ public class CollectionTest extends MP2Test {
 	public void testConsBackward1() {
 		// highly inefficient.. but anyway
 		@SuppressWarnings("boxing")
-		final List<Integer> list = AbstractConsList.<Integer> list(1, 2, 3, 4, 5);
+		final List<Integer> list = ConsList.<Integer> list(1, 2, 3, 4, 5);
 		final ListIterator<Integer> it = list.listIterator(list.size());
 
 		int i = 5;
