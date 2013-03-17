@@ -1,9 +1,8 @@
-package test;
+package re.agiledesign.mp2.test;
 
 import java.util.Arrays;
 
 import re.agiledesign.mp2.exception.ParsingException;
-
 
 public class RangeListTest extends MP2Test {
 	@SuppressWarnings("boxing")

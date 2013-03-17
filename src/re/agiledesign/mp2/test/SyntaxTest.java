@@ -1,4 +1,4 @@
-package test;
+package re.agiledesign.mp2.test;
 
 public class SyntaxTest extends MP2Test {
 	public void testTernary0() throws Exception {

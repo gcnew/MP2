@@ -1,4 +1,4 @@
-package test;
+package re.agiledesign.mp2.test;
 
 import java.util.Arrays;
 import java.util.Collections;

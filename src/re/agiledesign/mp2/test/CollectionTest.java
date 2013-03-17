@@ -1,10 +1,9 @@
-package test;
+package re.agiledesign.mp2.test;
 
 import java.util.List;
 import java.util.ListIterator;
 
 import re.agiledesign.mp2.collection.AbstractConsList;
-
 
 public class CollectionTest extends MP2Test {
 	public void testConsBackward0() {

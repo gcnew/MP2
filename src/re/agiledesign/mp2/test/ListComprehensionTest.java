@@ -1,4 +1,4 @@
-package test;
+package re.agiledesign.mp2.test;
 
 public class ListComprehensionTest extends MP2Test {
 	public void testFictorial() throws Exception {

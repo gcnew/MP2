@@ -1,12 +1,10 @@
-package test;
+package re.agiledesign.mp2.test;
 
 import java.util.Map;
 
+import junit.framework.TestCase;
 import re.agiledesign.mp2.Interpreter;
 import re.agiledesign.mp2.InterpreterFactory;
-
-import junit.framework.TestCase;
-
 
 public abstract class MP2Test extends TestCase {
 	protected static Interpreter interpreter(final String aScript) throws Exception {
