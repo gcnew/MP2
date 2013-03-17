@@ -7,6 +7,7 @@ import java.util.Map;
 
 import re.agiledesign.mp2.exception.ScriptException;
 import re.agiledesign.mp2.internal.Scope;
+import re.agiledesign.mp2.util.ArrayUtil;
 
 public class IndexExpression extends Expression {
 	private final Expression mThis;
@@ -31,7 +32,7 @@ public class IndexExpression extends Expression {
 			}
 
 			// TODO: fix for float and higher than int precisions
-			return ((Object[]) _this)[((Number) index).intValue()];
+			return ArrayUtil.atIndex(_this, ((Number) index).intValue());
 		}
 
 		if (_this instanceof List) {
