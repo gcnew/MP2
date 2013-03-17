@@ -80,46 +80,12 @@ public class CoercionUtil {
 
 	public static Object cast(final Object aObject, final CoercionType aType) {
 		if (aObject instanceof Number) {
-			final Number number = (Number) aObject;
+			return castNumber((Number) aObject, aType);
+		}
 
-			switch (aType) {
-			case BOOLEAN:
-				return Boolean.valueOf(number.intValue() != 0);
-			case BYTE:
-				return Byte.valueOf(number.byteValue());
-			case SHORT:
-				return Short.valueOf(number.shortValue());
-			case CHAR:
-				return Character.valueOf((char) number.intValue());
-			case INT:
-				return Integer.valueOf(number.intValue());
-			case LONG:
-				return Long.valueOf(number.longValue());
-			case BIG_INTEGER:
-				if (aObject instanceof BigDecimal) {
-					return ((BigDecimal) aObject).toBigInteger();
-				}
-
-				if (aObject instanceof BigInteger) {
-					return aObject;
-				}
-
-				return BigInteger.valueOf(number.longValue());
-			case FLOAT:
-				return Float.valueOf(number.floatValue());
-			case DOUBLE:
-				return Double.valueOf(number.doubleValue());
-			case BIG_DECIMAL:
-				if (aObject instanceof BigInteger) {
-					return new BigDecimal((BigInteger) aObject);
-				}
-
-				if (aObject instanceof BigDecimal) {
-					return aObject;
-				}
-
-				return BigDecimal.valueOf(number.doubleValue());
-			}
+		// parse from string
+		if (aObject instanceof String) {
+			return parseFromString((String) aObject, aType);
 		}
 
 		if (aType == CoercionType.BOOLEAN) {
@@ -127,7 +93,7 @@ public class CoercionUtil {
 		}
 
 		if (aType == CoercionType.STRING) {
-			return String.valueOf(aObject);
+			return (aObject == null) ? null : String.valueOf(aObject);
 		}
 
 		if (aObject == null) {
@@ -135,6 +101,80 @@ public class CoercionUtil {
 		}
 
 		throw new IllegalArgumentException("Unexpected type: " + Util.getClassString(aObject));
+	}
+
+	private static Object castNumber(final Number aNumber, final CoercionType aType) {
+		switch (aType) {
+		case BOOLEAN:
+			return Boolean.valueOf(aNumber.intValue() != 0);
+		case BYTE:
+			return Byte.valueOf(aNumber.byteValue());
+		case SHORT:
+			return Short.valueOf(aNumber.shortValue());
+		case CHAR:
+			return Character.valueOf((char) aNumber.intValue());
+		case INT:
+			return Integer.valueOf(aNumber.intValue());
+		case LONG:
+			return Long.valueOf(aNumber.longValue());
+		case BIG_INTEGER:
+			if (aNumber instanceof BigDecimal) {
+				return ((BigDecimal) aNumber).toBigInteger();
+			}
+
+			if (aNumber instanceof BigInteger) {
+				return aNumber;
+			}
+
+			return BigInteger.valueOf(aNumber.longValue());
+		case FLOAT:
+			return Float.valueOf(aNumber.floatValue());
+		case DOUBLE:
+			return Double.valueOf(aNumber.doubleValue());
+		case BIG_DECIMAL:
+			if (aNumber instanceof BigInteger) {
+				return new BigDecimal((BigInteger) aNumber);
+			}
+
+			if (aNumber instanceof BigDecimal) {
+				return aNumber;
+			}
+
+			return BigDecimal.valueOf(aNumber.doubleValue());
+		case STRING:
+			return aNumber.toString();
+		default:
+			throw new IllegalStateException("Unexpected type: " + aType);
+		}
+	}
+
+	private static Object parseFromString(final String aObject, final CoercionType aType) {
+		switch (aType) {
+		case BOOLEAN:
+			return "false".equalsIgnoreCase(aObject) ? Boolean.FALSE : Boolean.TRUE;
+		case BYTE:
+			return Byte.valueOf(Double.valueOf(aObject).byteValue());
+		case SHORT:
+			return Short.valueOf(Double.valueOf(aObject).shortValue());
+		case CHAR:
+			return Character.valueOf((char) Double.valueOf(aObject).intValue());
+		case INT:
+			return Integer.valueOf(Double.valueOf(aObject).intValue());
+		case LONG:
+			return Long.valueOf(Double.valueOf(aObject).longValue());
+		case BIG_INTEGER:
+			return new BigDecimal(aObject).toBigInteger();
+		case FLOAT:
+			return Float.valueOf(aObject);
+		case DOUBLE:
+			return Double.valueOf(aObject);
+		case BIG_DECIMAL:
+			return new BigDecimal(aObject);
+		case STRING:
+			return aObject;
+		default:
+			throw new IllegalStateException("Unexpected type: " + aType);
+		}
 	}
 
 	public static boolean isFloating(final Number aNumber) {
