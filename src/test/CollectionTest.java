@@ -3,7 +3,8 @@ package test;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.kleverbeast.dpf.common.operationparser.collection.AbstractConsList;
+import re.agiledesign.mp2.collection.AbstractConsList;
+
 
 public class CollectionTest extends MP2Test {
 	public void testConsBackward0() {

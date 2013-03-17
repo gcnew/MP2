@@ -2,7 +2,8 @@ package test;
 
 import java.util.Arrays;
 
-import com.kleverbeast.dpf.common.operationparser.exception.ParsingException;
+import re.agiledesign.mp2.exception.ParsingException;
+
 
 public class RangeListTest extends MP2Test {
 	@SuppressWarnings("boxing")

@@ -2,10 +2,11 @@ package test;
 
 import java.util.Map;
 
+import re.agiledesign.mp2.Interpreter;
+import re.agiledesign.mp2.InterpreterFactory;
+
 import junit.framework.TestCase;
 
-import com.kleverbeast.dpf.common.operationparser.Interpreter;
-import com.kleverbeast.dpf.common.operationparser.InterpreterFactory;
 
 public abstract class MP2Test extends TestCase {
 	protected static Interpreter interpreter(final String aScript) throws Exception {
