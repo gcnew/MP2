@@ -5,7 +5,6 @@ import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.expressions.Expression;
 import re.agiledesign.mp2.internal.expressions.UnaryOperatorExpression;
 
-
 public class Not extends UnaryOperatorExpression {
 	public Not(final Expression aRight) {
 		super(aRight);

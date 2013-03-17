@@ -6,7 +6,6 @@ import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.expressions.Expression;
 import re.agiledesign.mp2.internal.expressions.UnaryOperatorExpression;
 
-
 public class Negate extends UnaryOperatorExpression {
 	public Negate(final Expression aRight) {
 		super(aRight);

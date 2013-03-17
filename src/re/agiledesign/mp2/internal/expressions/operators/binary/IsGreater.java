@@ -6,7 +6,6 @@ import re.agiledesign.mp2.internal.expressions.BinaryOperatorExpression;
 import re.agiledesign.mp2.internal.expressions.Expression;
 import re.agiledesign.mp2.util.CoercionUtil;
 
-
 public class IsGreater extends BinaryOperatorExpression {
 	public IsGreater(final Expression aLeft, final Expression aRight) {
 		super(aLeft, aRight);

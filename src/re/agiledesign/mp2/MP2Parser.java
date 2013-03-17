@@ -67,11 +67,10 @@ import re.agiledesign.mp2.tokenizer.TokenConstants;
 import re.agiledesign.mp2.tokenizer.TokenTypes;
 import re.agiledesign.mp2.tokenizer.Tokenizer;
 import re.agiledesign.mp2.util.AssocEntry;
-import re.agiledesign.mp2.util.Util;
 import re.agiledesign.mp2.util.CoercionUtil.CoercionType;
+import re.agiledesign.mp2.util.Util;
 
-
-public class OperationParser {
+public class MP2Parser {
 	private final Tokenizer mTokenizer;
 	private/*   */LexicalScope mLexicalScope = new LexicalScope();
 	private final ExpressionFactory mExpressionFactory = new ExpressionFactory();
@@ -96,11 +95,11 @@ public class OperationParser {
 	/*		*///{ NOT, BIT_NOT }
 	/* */};
 
-	public OperationParser(final String aSource) {
+	public MP2Parser(final String aSource) {
 		this(aSource, /* legacy */true);
 	}
 
-	public OperationParser(final String aSource, final boolean aInt32) {
+	public MP2Parser(final String aSource, final boolean aInt32) {
 		mTokenizer = new Tokenizer(aSource, aInt32);
 	}
 

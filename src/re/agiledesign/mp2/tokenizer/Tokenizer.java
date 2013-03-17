@@ -5,7 +5,6 @@ import java.util.List;
 
 import re.agiledesign.mp2.exception.ParsingException;
 
-
 public class Tokenizer {
 	private int mIndex;
 	private final boolean mInt32;

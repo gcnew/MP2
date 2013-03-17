@@ -11,7 +11,6 @@ import re.agiledesign.mp2.collection.ConsListWrapper;
 import re.agiledesign.mp2.collection.ImmutableList;
 import re.agiledesign.mp2.internal.Scope;
 
-
 public class InlineListExpression extends Expression {
 	private final boolean mConsList;
 	private final List<Expression> mElements;

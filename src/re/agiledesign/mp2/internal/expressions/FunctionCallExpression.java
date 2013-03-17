@@ -8,7 +8,6 @@ import re.agiledesign.mp2.internal.FunctionScope;
 import re.agiledesign.mp2.internal.NameScope;
 import re.agiledesign.mp2.internal.Scope;
 
-
 public class FunctionCallExpression extends Expression {
 	private final Expression mFunctionAccessor;
 	private final List<Expression> mArgs;

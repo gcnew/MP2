@@ -8,7 +8,6 @@ import java.util.Map;
 import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.util.AssocEntry;
 
-
 public class InlineMapExpression extends Expression {
 	private final boolean mImmutable;
 	private final List<AssocEntry<Expression, Expression>> mElements;

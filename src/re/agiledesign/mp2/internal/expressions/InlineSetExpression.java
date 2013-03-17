@@ -7,7 +7,6 @@ import java.util.Set;
 
 import re.agiledesign.mp2.internal.Scope;
 
-
 public class InlineSetExpression extends Expression {
 	private final boolean mImmutable;
 	private final List<Expression> mElements;

@@ -11,7 +11,6 @@ import re.agiledesign.mp2.internal.expressions.CastExpression;
 import re.agiledesign.mp2.internal.expressions.Expression;
 import re.agiledesign.mp2.util.CoercionUtil.CoercionType;
 
-
 public class ReflectionUtil {
 
 	public static Object invokeMethod(final Object aThis,

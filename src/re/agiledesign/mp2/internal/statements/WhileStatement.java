@@ -4,7 +4,6 @@ import static re.agiledesign.mp2.util.CoercionUtil.isTrue;
 import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.expressions.Expression;
 
-
 public class WhileStatement extends Statement {
 	private final Expression mCondition;
 	private final Statement mBody;

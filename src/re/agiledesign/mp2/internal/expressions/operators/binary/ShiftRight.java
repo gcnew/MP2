@@ -6,7 +6,6 @@ import re.agiledesign.mp2.internal.expressions.BinaryOperatorExpression;
 import re.agiledesign.mp2.internal.expressions.Expression;
 import re.agiledesign.mp2.util.CoercionUtil;
 
-
 public class ShiftRight extends BinaryOperatorExpression {
 	public ShiftRight(final Expression aLeft, final Expression aRight) {
 		super(aLeft, aRight);

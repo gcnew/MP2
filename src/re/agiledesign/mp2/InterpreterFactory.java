@@ -13,7 +13,7 @@ public class InterpreterFactory {
 	}
 
 	public static ParsedScript parseScript(final String aScriptSource) throws Exception {
-		final OperationParser parser = new OperationParser(aScriptSource);
+		final MP2Parser parser = new MP2Parser(aScriptSource);
 
 		return parser.parse();
 	}

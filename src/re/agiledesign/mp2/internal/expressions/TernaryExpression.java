@@ -3,7 +3,6 @@ package re.agiledesign.mp2.internal.expressions;
 import static re.agiledesign.mp2.util.CoercionUtil.isTrue;
 import re.agiledesign.mp2.internal.Scope;
 
-
 public class TernaryExpression extends Expression {
 	private final Expression mCondition;
 	private final Expression mTrue;

@@ -5,7 +5,6 @@ import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.expressions.BinaryOperatorExpression;
 import re.agiledesign.mp2.internal.expressions.Expression;
 
-
 public class And extends BinaryOperatorExpression {
 	public And(final Expression aLeft, final Expression aRight) {
 		super(aLeft, aRight);

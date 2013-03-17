@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import re.agiledesign.mp2.exception.UnsupportedOperatorException;
 import re.agiledesign.mp2.tokenizer.OperatorType;
 
-
 public class CoercionUtil {
 	public enum CoercionType {
 		NULL, OBJECT, BOOLEAN, BYTE, SHORT, CHAR, INT, LONG, BIG_INTEGER, FLOAT, DOUBLE, BIG_DECIMAL, STRING

@@ -52,7 +52,6 @@ import re.agiledesign.mp2.internal.expressions.operators.unary.Not;
 import re.agiledesign.mp2.tokenizer.OperatorType;
 import re.agiledesign.mp2.tokenizer.TokenConstants;
 
-
 public class OperatorFactory {
 	private static Map<OperatorType, Constructor<? extends UnaryOperatorExpression>> UNARY_OPERATORS = new HashMap<OperatorType, Constructor<? extends UnaryOperatorExpression>>(8);
 	private static Map<OperatorType, Constructor<? extends BinaryOperatorExpression>> BINARY_OPERATORS = new HashMap<OperatorType, Constructor<? extends BinaryOperatorExpression>>(TokenConstants.OPERATOR_HASH_SIZE);

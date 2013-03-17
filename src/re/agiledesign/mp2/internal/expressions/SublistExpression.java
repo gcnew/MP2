@@ -8,7 +8,6 @@ import re.agiledesign.mp2.collection.AbstractConsList;
 import re.agiledesign.mp2.exception.ScriptException;
 import re.agiledesign.mp2.internal.Scope;
 
-
 public class SublistExpression extends Expression {
 	private final Expression mThis;
 	private final Expression mFromIdx;

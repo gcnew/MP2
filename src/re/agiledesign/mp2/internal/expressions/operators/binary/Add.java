@@ -6,7 +6,6 @@ import re.agiledesign.mp2.internal.expressions.BinaryOperatorExpression;
 import re.agiledesign.mp2.internal.expressions.Expression;
 import re.agiledesign.mp2.util.CoercionUtil;
 
-
 public class Add extends BinaryOperatorExpression {
 	public Add(final Expression aLeft, final Expression aRight) {
 		super(aLeft, aRight);

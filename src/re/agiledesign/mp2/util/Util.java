@@ -4,7 +4,6 @@ import java.util.List;
 
 import re.agiledesign.mp2.collection.ImmutableArrayList;
 
-
 public class Util {
 	public static <T> String getClassString(final T aObject) {
 		return (aObject != null) ? aObject.getClass().toString() : "(null)";

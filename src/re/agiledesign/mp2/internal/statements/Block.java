@@ -4,7 +4,6 @@ import java.util.List;
 
 import re.agiledesign.mp2.internal.Scope;
 
-
 public class Block extends Statement {
 	private final List<Statement> mStatements;
 

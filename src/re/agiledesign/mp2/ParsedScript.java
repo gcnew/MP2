@@ -2,11 +2,10 @@ package re.agiledesign.mp2;
 
 import java.util.Map;
 
+import re.agiledesign.mp2.internal.ControlFlow.Type;
 import re.agiledesign.mp2.internal.NameScope;
 import re.agiledesign.mp2.internal.Scope;
-import re.agiledesign.mp2.internal.ControlFlow.Type;
 import re.agiledesign.mp2.internal.statements.Statement;
-
 
 public class ParsedScript {
 	private final Statement mStartingStatement;

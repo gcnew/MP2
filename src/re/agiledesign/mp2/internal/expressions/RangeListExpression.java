@@ -11,7 +11,6 @@ import javax.script.ScriptException;
 import re.agiledesign.mp2.collection.RangeList;
 import re.agiledesign.mp2.internal.Scope;
 
-
 public class RangeListExpression extends Expression {
 	private final Expression mTo;
 	private final Expression mFrom;

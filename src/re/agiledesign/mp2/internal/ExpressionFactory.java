@@ -10,7 +10,6 @@ import re.agiledesign.mp2.internal.expressions.LocalAccessExpression;
 import re.agiledesign.mp2.tokenizer.Token;
 import re.agiledesign.mp2.tokenizer.TokenConstants;
 
-
 public class ExpressionFactory {
 	private static final ConstantExpression NULL = new ConstantExpression(TokenConstants.getKeywordToken("null"));
 	private final Map<Object, ConstantExpression> mConstantCache = new HashMap<Object, ConstantExpression>();

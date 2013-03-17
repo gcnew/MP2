@@ -5,7 +5,6 @@ import java.util.List;
 import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.expressions.Expression;
 
-
 public class SequenceStatement extends Statement {
 	private final List<Expression> mExpressions;
 

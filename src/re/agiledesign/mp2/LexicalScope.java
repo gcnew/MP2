@@ -11,11 +11,15 @@ import re.agiledesign.mp2.exception.ArgumentAlreadyExists;
 import re.agiledesign.mp2.exception.VariableAlreadyDeclared;
 import re.agiledesign.mp2.util.Util;
 
-
 public class LexicalScope {
+	// private final LexicalScope mPrevious;
 	private final List<String> mArgsArray = new ArrayList<String>();
 	private final Set<String> mAssigned = new HashSet<String>();
 	private final Map<String, Integer> mLocalVars = new HashMap<String, Integer>();
+
+	/* public LexicalScope(final LexicalScope aPrevious) {
+		mPrevious = aPrevious;
+	} */
 
 	public void addArgument(final String aArgName) throws ArgumentAlreadyExists {
 		final String argName = Util.stripVariableName(aArgName);

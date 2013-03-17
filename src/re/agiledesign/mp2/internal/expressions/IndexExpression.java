@@ -8,7 +8,6 @@ import java.util.Map;
 import re.agiledesign.mp2.exception.ScriptException;
 import re.agiledesign.mp2.internal.Scope;
 
-
 public class IndexExpression extends Expression {
 	private final Expression mThis;
 	private final Expression mIndex;

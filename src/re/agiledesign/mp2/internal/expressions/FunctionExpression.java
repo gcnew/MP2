@@ -3,10 +3,9 @@ package re.agiledesign.mp2.internal.expressions;
 import java.util.Collections;
 import java.util.List;
 
-import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.ControlFlow.Type;
+import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.statements.Statement;
-
 
 public class FunctionExpression extends Expression {
 	private final Statement mBody;

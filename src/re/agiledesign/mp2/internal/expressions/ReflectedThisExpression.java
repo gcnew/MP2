@@ -5,7 +5,6 @@ import java.util.List;
 import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.util.ReflectionUtil;
 
-
 public class ReflectedThisExpression extends Expression {
 	private final Expression mThis;
 	private final String mMethodName;

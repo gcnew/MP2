@@ -5,7 +5,6 @@ import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.expressions.BinaryOperatorExpression;
 import re.agiledesign.mp2.internal.expressions.Expression;
 
-
 public class Equal extends BinaryOperatorExpression {
 	public Equal(final Expression aLeft, final Expression aRight) {
 		super(aLeft, aRight);
