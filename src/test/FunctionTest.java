@@ -17,6 +17,10 @@ public class FunctionTest extends MP2Test {
 		assertEval("return ((x) => return 1 + x)(9)", Integer.valueOf(10));
 	}
 
+	public void testLambda3() throws Exception {
+		assertEval("return (() => return 10)(1, 2, 3)", Integer.valueOf(10));
+	}
+
 	public void testHigherOrder() throws Exception {
 		final String script = //
 		/**/"addOne = (x) => return 1 + x\n" +
