@@ -1,9 +1,10 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions;
+package re.agiledesign.mp2.internal.expressions;
 
 import java.util.List;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
-import com.kleverbeast.dpf.common.operationparser.util.ReflectionUtil;
+import re.agiledesign.mp2.internal.Scope;
+import re.agiledesign.mp2.util.ReflectionUtil;
+
 
 public class ReflectedThisExpression extends Expression {
 	private final Expression mThis;

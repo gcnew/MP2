@@ -1,7 +1,7 @@
-package com.kleverbeast.dpf.common.operationparser.internal.statements;
+package re.agiledesign.mp2.internal.statements;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
-import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
+import re.agiledesign.mp2.internal.Scope;
+import re.agiledesign.mp2.internal.expressions.Expression;
 
 public class ExpressionStatement extends Statement {
 	private final Expression mExpression;

@@ -1,4 +1,4 @@
-package com.kleverbeast.dpf.common.operationparser.internal;
+package re.agiledesign.mp2.internal;
 
 public class FunctionScope implements Scope {
 	private final NameScope mPrev;

@@ -1,9 +1,9 @@
-package com.kleverbeast.dpf.common.operationparser.internal.statements;
+package re.agiledesign.mp2.internal.statements;
 
-import static com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.isTrue;
+import static re.agiledesign.mp2.util.CoercionUtil.isTrue;
+import re.agiledesign.mp2.internal.Scope;
+import re.agiledesign.mp2.internal.expressions.Expression;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
-import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
 
 public class ForStatement extends Statement {
 	private final Expression mExpr1;

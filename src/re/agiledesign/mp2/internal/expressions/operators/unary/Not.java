@@ -1,10 +1,10 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions.operators.unary;
+package re.agiledesign.mp2.internal.expressions.operators.unary;
 
-import static com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.isTrue;
+import static re.agiledesign.mp2.util.CoercionUtil.isTrue;
+import re.agiledesign.mp2.internal.Scope;
+import re.agiledesign.mp2.internal.expressions.Expression;
+import re.agiledesign.mp2.internal.expressions.UnaryOperatorExpression;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
-import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
-import com.kleverbeast.dpf.common.operationparser.internal.expressions.UnaryOperatorExpression;
 
 public class Not extends UnaryOperatorExpression {
 	public Not(final Expression aRight) {

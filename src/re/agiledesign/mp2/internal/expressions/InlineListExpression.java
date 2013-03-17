@@ -1,15 +1,16 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions;
+package re.agiledesign.mp2.internal.expressions;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.script.ScriptException;
 
-import com.kleverbeast.dpf.common.operationparser.collection.AbstractConsList;
-import com.kleverbeast.dpf.common.operationparser.collection.ConsList;
-import com.kleverbeast.dpf.common.operationparser.collection.ConsListWrapper;
-import com.kleverbeast.dpf.common.operationparser.collection.ImmutableList;
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
+import re.agiledesign.mp2.collection.AbstractConsList;
+import re.agiledesign.mp2.collection.ConsList;
+import re.agiledesign.mp2.collection.ConsListWrapper;
+import re.agiledesign.mp2.collection.ImmutableList;
+import re.agiledesign.mp2.internal.Scope;
+
 
 public class InlineListExpression extends Expression {
 	private final boolean mConsList;

@@ -1,7 +1,7 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions;
+package re.agiledesign.mp2.internal.expressions;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
-import com.kleverbeast.dpf.common.operationparser.tokenizer.Token;
+import re.agiledesign.mp2.internal.Scope;
+import re.agiledesign.mp2.tokenizer.Token;
 
 public class ConstantExpression extends Expression {
 	private final Object mConstant;

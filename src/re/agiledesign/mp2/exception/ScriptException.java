@@ -1,4 +1,4 @@
-package com.kleverbeast.dpf.common.operationparser.exception;
+package re.agiledesign.mp2.exception;
 
 public class ScriptException extends Exception {
 	public ScriptException() {

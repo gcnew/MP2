@@ -1,6 +1,6 @@
-package com.kleverbeast.dpf.common.operationparser.util;
+package re.agiledesign.mp2.util;
 
-import static com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType.ADD;
+import static re.agiledesign.mp2.tokenizer.OperatorType.ADD;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -8,8 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.kleverbeast.dpf.common.operationparser.exception.UnsupportedOperatorException;
-import com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType;
+import re.agiledesign.mp2.exception.UnsupportedOperatorException;
+import re.agiledesign.mp2.tokenizer.OperatorType;
+
 
 public class CoercionUtil {
 	public enum CoercionType {

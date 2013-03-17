@@ -1,4 +1,4 @@
-package com.kleverbeast.dpf.common.operationparser.collection;
+package re.agiledesign.mp2.collection;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -1,11 +1,12 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions;
+package re.agiledesign.mp2.internal.expressions;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
+import re.agiledesign.mp2.internal.Scope;
+
 
 public class InlineSetExpression extends Expression {
 	private final boolean mImmutable;

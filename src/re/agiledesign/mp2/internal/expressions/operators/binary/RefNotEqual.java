@@ -1,8 +1,8 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions.operators.binary;
+package re.agiledesign.mp2.internal.expressions.operators.binary;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
-import com.kleverbeast.dpf.common.operationparser.internal.expressions.BinaryOperatorExpression;
-import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
+import re.agiledesign.mp2.internal.Scope;
+import re.agiledesign.mp2.internal.expressions.BinaryOperatorExpression;
+import re.agiledesign.mp2.internal.expressions.Expression;
 
 public class RefNotEqual extends BinaryOperatorExpression {
 	public RefNotEqual(final Expression aLeft, final Expression aRight) {

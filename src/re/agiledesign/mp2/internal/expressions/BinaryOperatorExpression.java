@@ -1,4 +1,4 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions;
+package re.agiledesign.mp2.internal.expressions;
 
 public abstract class BinaryOperatorExpression extends Expression {
 	protected final Expression mLeft;

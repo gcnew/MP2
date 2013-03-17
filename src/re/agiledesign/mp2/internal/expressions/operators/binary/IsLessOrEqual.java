@@ -1,11 +1,11 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions.operators.binary;
+package re.agiledesign.mp2.internal.expressions.operators.binary;
 
-import static com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType.IS_LESS_OR_EQ;
+import static re.agiledesign.mp2.tokenizer.OperatorType.IS_LESS_OR_EQ;
+import re.agiledesign.mp2.internal.Scope;
+import re.agiledesign.mp2.internal.expressions.BinaryOperatorExpression;
+import re.agiledesign.mp2.internal.expressions.Expression;
+import re.agiledesign.mp2.util.CoercionUtil;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
-import com.kleverbeast.dpf.common.operationparser.internal.expressions.BinaryOperatorExpression;
-import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
-import com.kleverbeast.dpf.common.operationparser.util.CoercionUtil;
 
 public class IsLessOrEqual extends BinaryOperatorExpression {
 	public IsLessOrEqual(final Expression aLeft, final Expression aRight) {

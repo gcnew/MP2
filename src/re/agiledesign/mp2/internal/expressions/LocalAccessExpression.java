@@ -1,6 +1,6 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions;
+package re.agiledesign.mp2.internal.expressions;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
+import re.agiledesign.mp2.internal.Scope;
 
 public class LocalAccessExpression extends Expression {
 	private final int mIndex;

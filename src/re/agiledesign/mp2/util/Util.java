@@ -1,8 +1,9 @@
-package com.kleverbeast.dpf.common.operationparser.util;
+package re.agiledesign.mp2.util;
 
 import java.util.List;
 
-import com.kleverbeast.dpf.common.operationparser.collection.ImmutableArrayList;
+import re.agiledesign.mp2.collection.ImmutableArrayList;
+
 
 public class Util {
 	public static <T> String getClassString(final T aObject) {

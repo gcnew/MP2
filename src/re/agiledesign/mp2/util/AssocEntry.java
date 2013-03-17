@@ -1,4 +1,4 @@
-package com.kleverbeast.dpf.common.operationparser.util;
+package re.agiledesign.mp2.util;
 
 public class AssocEntry<T1, T2> {
 	private final T1 mKey;

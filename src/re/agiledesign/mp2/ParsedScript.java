@@ -1,11 +1,12 @@
-package com.kleverbeast.dpf.common.operationparser;
+package re.agiledesign.mp2;
 
 import java.util.Map;
 
-import com.kleverbeast.dpf.common.operationparser.internal.ControlFlow.Type;
-import com.kleverbeast.dpf.common.operationparser.internal.NameScope;
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
-import com.kleverbeast.dpf.common.operationparser.internal.statements.Statement;
+import re.agiledesign.mp2.internal.NameScope;
+import re.agiledesign.mp2.internal.Scope;
+import re.agiledesign.mp2.internal.ControlFlow.Type;
+import re.agiledesign.mp2.internal.statements.Statement;
+
 
 public class ParsedScript {
 	private final Statement mStartingStatement;

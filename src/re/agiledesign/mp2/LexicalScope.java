@@ -1,4 +1,4 @@
-package com.kleverbeast.dpf.common.operationparser;
+package re.agiledesign.mp2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.kleverbeast.dpf.common.operationparser.exception.ArgumentAlreadyExists;
-import com.kleverbeast.dpf.common.operationparser.exception.VariableAlreadyDeclared;
-import com.kleverbeast.dpf.common.operationparser.util.Util;
+import re.agiledesign.mp2.exception.ArgumentAlreadyExists;
+import re.agiledesign.mp2.exception.VariableAlreadyDeclared;
+import re.agiledesign.mp2.util.Util;
+
 
 public class LexicalScope {
 	private final List<String> mArgsArray = new ArrayList<String>();

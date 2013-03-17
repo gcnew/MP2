@@ -1,6 +1,6 @@
-package com.kleverbeast.dpf.common.operationparser.internal.statements;
+package re.agiledesign.mp2.internal.statements;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
+import re.agiledesign.mp2.internal.Scope;
 
 public abstract class Statement {
 	public abstract void execute(final Scope aScope) throws Exception;

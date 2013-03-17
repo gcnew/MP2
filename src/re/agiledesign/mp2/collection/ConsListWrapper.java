@@ -1,4 +1,4 @@
-package com.kleverbeast.dpf.common.operationparser.collection;
+package re.agiledesign.mp2.collection;
 
 public class ConsListWrapper<T> extends AbstractConsList<T> {
 	private final ImmutableList<T> mList;

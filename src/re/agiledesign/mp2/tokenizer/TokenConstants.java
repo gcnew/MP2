@@ -1,11 +1,11 @@
-package com.kleverbeast.dpf.common.operationparser.tokenizer;
+package re.agiledesign.mp2.tokenizer;
 
-import static com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes.CONSTANT;
-import static com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes.GRAMMAR_TOKEN;
-import static com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes.KEYWORD;
-import static com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes.OPERATOR;
-import static com.kleverbeast.dpf.common.operationparser.tokenizer.TokenTypes.TYPE;
-import static com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.getCoercionType;
+import static re.agiledesign.mp2.tokenizer.TokenTypes.CONSTANT;
+import static re.agiledesign.mp2.tokenizer.TokenTypes.GRAMMAR_TOKEN;
+import static re.agiledesign.mp2.tokenizer.TokenTypes.KEYWORD;
+import static re.agiledesign.mp2.tokenizer.TokenTypes.OPERATOR;
+import static re.agiledesign.mp2.tokenizer.TokenTypes.TYPE;
+import static re.agiledesign.mp2.util.CoercionUtil.getCoercionType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

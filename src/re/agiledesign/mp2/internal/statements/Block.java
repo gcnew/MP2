@@ -1,8 +1,9 @@
-package com.kleverbeast.dpf.common.operationparser.internal.statements;
+package re.agiledesign.mp2.internal.statements;
 
 import java.util.List;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
+import re.agiledesign.mp2.internal.Scope;
+
 
 public class Block extends Statement {
 	private final List<Statement> mStatements;

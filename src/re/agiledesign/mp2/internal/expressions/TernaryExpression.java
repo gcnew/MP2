@@ -1,8 +1,8 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions;
+package re.agiledesign.mp2.internal.expressions;
 
-import static com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.isTrue;
+import static re.agiledesign.mp2.util.CoercionUtil.isTrue;
+import re.agiledesign.mp2.internal.Scope;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
 
 public class TernaryExpression extends Expression {
 	private final Expression mCondition;

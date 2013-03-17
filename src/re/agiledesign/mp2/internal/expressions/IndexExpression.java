@@ -1,12 +1,13 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions;
+package re.agiledesign.mp2.internal.expressions;
 
-import static com.kleverbeast.dpf.common.operationparser.util.Util.getClassString;
+import static re.agiledesign.mp2.util.Util.getClassString;
 
 import java.util.List;
 import java.util.Map;
 
-import com.kleverbeast.dpf.common.operationparser.exception.ScriptException;
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
+import re.agiledesign.mp2.exception.ScriptException;
+import re.agiledesign.mp2.internal.Scope;
+
 
 public class IndexExpression extends Expression {
 	private final Expression mThis;

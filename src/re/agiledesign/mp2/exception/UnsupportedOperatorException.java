@@ -1,8 +1,8 @@
-package com.kleverbeast.dpf.common.operationparser.exception;
+package re.agiledesign.mp2.exception;
 
-import static com.kleverbeast.dpf.common.operationparser.util.Util.getClassString;
+import static re.agiledesign.mp2.util.Util.getClassString;
+import re.agiledesign.mp2.tokenizer.OperatorType;
 
-import com.kleverbeast.dpf.common.operationparser.tokenizer.OperatorType;
 
 public class UnsupportedOperatorException extends ScriptException {
 	public UnsupportedOperatorException(final OperatorType aOperator, final Object aLeft, final Object aRight) {

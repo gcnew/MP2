@@ -1,4 +1,4 @@
-package com.kleverbeast.dpf.common.operationparser.tokenizer;
+package re.agiledesign.mp2.tokenizer;
 
 public enum TokenTypes {
 	CONSTANT, // null, string/float/integral literal, boolean constant (true, false)

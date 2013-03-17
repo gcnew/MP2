@@ -1,15 +1,16 @@
-package com.kleverbeast.dpf.common.operationparser.util;
+package re.agiledesign.mp2.util;
 
-import static com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.getWrapperClass;
+import static re.agiledesign.mp2.util.CoercionUtil.getWrapperClass;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
-import com.kleverbeast.dpf.common.operationparser.exception.AmbiguousException;
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
-import com.kleverbeast.dpf.common.operationparser.internal.expressions.CastExpression;
-import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
-import com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.CoercionType;
+import re.agiledesign.mp2.exception.AmbiguousException;
+import re.agiledesign.mp2.internal.Scope;
+import re.agiledesign.mp2.internal.expressions.CastExpression;
+import re.agiledesign.mp2.internal.expressions.Expression;
+import re.agiledesign.mp2.util.CoercionUtil.CoercionType;
+
 
 public class ReflectionUtil {
 

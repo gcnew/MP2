@@ -1,10 +1,10 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions.operators.binary;
+package re.agiledesign.mp2.internal.expressions.operators.binary;
 
-import static com.kleverbeast.dpf.common.operationparser.util.CoercionUtil.isFloating;
+import static re.agiledesign.mp2.util.CoercionUtil.isFloating;
+import re.agiledesign.mp2.internal.Scope;
+import re.agiledesign.mp2.internal.expressions.BinaryOperatorExpression;
+import re.agiledesign.mp2.internal.expressions.Expression;
 
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
-import com.kleverbeast.dpf.common.operationparser.internal.expressions.BinaryOperatorExpression;
-import com.kleverbeast.dpf.common.operationparser.internal.expressions.Expression;
 
 public class Equal extends BinaryOperatorExpression {
 	public Equal(final Expression aLeft, final Expression aRight) {

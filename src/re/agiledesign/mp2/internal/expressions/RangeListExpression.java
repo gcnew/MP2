@@ -1,6 +1,6 @@
-package com.kleverbeast.dpf.common.operationparser.internal.expressions;
+package re.agiledesign.mp2.internal.expressions;
 
-import static com.kleverbeast.dpf.common.operationparser.util.Util.getClassString;
+import static re.agiledesign.mp2.util.Util.getClassString;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,8 +8,9 @@ import java.util.List;
 
 import javax.script.ScriptException;
 
-import com.kleverbeast.dpf.common.operationparser.collection.RangeList;
-import com.kleverbeast.dpf.common.operationparser.internal.Scope;
+import re.agiledesign.mp2.collection.RangeList;
+import re.agiledesign.mp2.internal.Scope;
+
 
 public class RangeListExpression extends Expression {
 	private final Expression mTo;
