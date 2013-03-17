@@ -166,7 +166,7 @@ public class Tokenizer {
 
 		do {
 			++mIndex;
-		} while (!isAtEnd() && Character.isDigit(mSource.charAt(mIndex)));
+		} while (!isAtEnd() && isHexDigit(mSource.charAt(mIndex)));
 
 		boolean isFloat = false;
 		if (isCharAtOffset(0, '.')) {
@@ -183,20 +183,29 @@ public class Tokenizer {
 		}
 
 		final Object constant;
-		final String number = mSource.substring(startIndex, mIndex);
-		if (isFloat) {
-			constant = Double.valueOf(number);
-		} else {
-			base = (base == 0) ? 10 : base;
+		final String number = mSource.substring(startIndex + ((base != 0) ? 2 : 0), mIndex);
 
-			if (mInt32) {
-				constant = Integer.valueOf(Integer.parseInt(number, base));
+		try {
+			if (isFloat) {
+				constant = Double.valueOf(number);
 			} else {
-				constant = Long.valueOf(Long.parseLong(number, base));
+				base = (base == 0) ? 10 : base;
+
+				if (mInt32) {
+					constant = Integer.valueOf(Integer.parseInt(number, base));
+				} else {
+					constant = Long.valueOf(Long.parseLong(number, base));
+				}
 			}
+		} catch (final NumberFormatException e) {
+			throw new ParsingException("Connot be parsed into a number: " + mSource.substring(startIndex, mIndex));
 		}
 
 		return new Token(TokenTypes.CONSTANT, constant);
+	}
+
+	private boolean isHexDigit(final char aChar) {
+		return Character.isDigit(aChar) || ((aChar >= 'a') && (aChar <= 'f')) || ((aChar >= 'A') && (aChar <= 'F'));
 	}
 
 	private boolean isIdentifierChar(final char aChar) {

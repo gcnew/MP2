@@ -68,7 +68,9 @@ public abstract class MP2Test extends TestCase {
 		try {
 			eval(aScript, aArgs);
 		} catch (final Throwable exception) {
-			assertTrue(aExpected.isInstance(exception));
+			if (!aExpected.isInstance(exception)) {
+				throw new IllegalStateException("Expected: " + aExpected.getName() + ", found: " + exception.getClass());
+			}
 
 			return;
 		}
