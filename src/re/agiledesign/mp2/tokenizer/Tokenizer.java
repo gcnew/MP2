@@ -6,6 +6,8 @@ import java.util.List;
 import re.agiledesign.mp2.exception.ParsingException;
 
 public class Tokenizer {
+	private int mChar;
+	private int mLine;
 	private int mIndex;
 	private final boolean mInt32;
 	private final String mSource;
@@ -33,7 +35,7 @@ public class Tokenizer {
 
 	private void skipWhiteSpaces() {
 		while (!isAtEnd() && Character.isWhitespace(mSource.charAt(mIndex))) {
-			++mIndex;
+			nextChar();
 		}
 	}
 
@@ -52,13 +54,13 @@ public class Tokenizer {
 	}
 
 	private Token next0() throws ParsingException {
+		final int startIndex = mIndex;
 		final char c = mSource.charAt(mIndex);
 
 		switch (c) {
 		case '.':
 			if (isCharAtOffset(1, '.')) {
-				mIndex += 2;
-				return TokenConstants.RANGE;
+				nextChar();
 			}
 			//$FALL-THROUGH$
 		case ',':
@@ -71,14 +73,16 @@ public class Tokenizer {
 		case ']':
 		case '{':
 		case '}':
-			++mIndex;
-			return TokenConstants.getGrammarToken(Character.valueOf(c));
+			nextChar();
+			return TokenConstants.getSyntaxToken(mSource.substring(startIndex, mIndex), mLine, mChar);
+		case '"':
 		case '\'':
 			return parseString();
 		case '-':
 			if (isCharAtOffset(1, '>')) {
-				mIndex += 2;
-				return TokenConstants.ARROW;
+				nextChar();
+				nextChar();
+				return TokenConstants.getSyntaxToken("->", mLine, mChar);
 			}
 			//$FALL-THROUGH$
 		case '+':
@@ -120,16 +124,21 @@ public class Tokenizer {
 	}
 
 	private Token parseString() throws ParsingException {
-		final int endIndex = mSource.indexOf('\'', mIndex + 1);
+		final int startIndex = mIndex + 1;
+		final char stopChar = mSource.charAt(mIndex);
 
-		if (endIndex < 0) {
-			throw new ParsingException("No closing quote found for string starting at index: " + mIndex);
-		}
+		nextChar();
+		do {
+			if (isAtEnd()) {
+				throw new ParsingException("No closing quote found for string starting at index: " + startIndex);
+			}
 
-		final Token retval = new Token(TokenTypes.CONSTANT, mSource.substring(++mIndex, endIndex));
-		mIndex = endIndex + 1;
+			if ((nextChar() == stopChar) && (mSource.charAt(mIndex - 1) != '\\')) {
+				break;
+			}
+		} while (true);
 
-		return retval;
+		return new Token(TokenType.CONSTANT, mSource.substring(startIndex, mIndex - 1), mLine, mChar);
 	}
 
 	private Token parseNumber() throws ParsingException {
@@ -158,14 +167,16 @@ public class Tokenizer {
 					throw new ParsingException("Numeral system code expected (x/o/b/d)");
 				}
 
+				mChar -= 2;
 				mIndex -= 2;
 			}
 
+			mChar += 2;
 			mIndex += 2;
 		}
 
 		do {
-			++mIndex;
+			nextChar();
 		} while (!isAtEnd() && isHexDigit(mSource.charAt(mIndex)));
 
 		boolean isFloat = false;
@@ -177,7 +188,7 @@ public class Tokenizer {
 
 				isFloat = true;
 				do {
-					++mIndex;
+					nextChar();
 				} while (!isAtEnd() && Character.isDigit(mSource.charAt(mIndex)));
 			}
 		}
@@ -201,7 +212,7 @@ public class Tokenizer {
 			throw new ParsingException("Connot be parsed into a number: " + mSource.substring(startIndex, mIndex));
 		}
 
-		return new Token(TokenTypes.CONSTANT, constant);
+		return new Token(TokenType.CONSTANT, constant, mLine, mChar);
 	}
 
 	private boolean isHexDigit(final char aChar) {
@@ -213,14 +224,15 @@ public class Tokenizer {
 	}
 
 	private Token parseVariable() throws ParsingException {
-		final int startIndex = mIndex++;
+		nextChar();
 
+		final int startIndex = mIndex;
 		if (isAtEnd()) {
 			throw new ParsingException("Identifier expected but end of file reached");
 		}
 
 		parseIdentifier();
-		return new Token(TokenTypes.IDENTIFIER, mSource.substring(startIndex, mIndex));
+		return new Token(TokenType.IDENTIFIER, mSource.substring(startIndex, mIndex), mLine, mChar);
 	}
 
 	private Token parseIdentifier() throws ParsingException {
@@ -232,16 +244,28 @@ public class Tokenizer {
 		}
 
 		do {
-			++mIndex;
+			nextChar();
 		} while (!isAtEnd() && isIdentifierChar(mSource.charAt(mIndex)));
 
 		final String identifier = mSource.substring(startIndex, mIndex);
-		final Token keyword = TokenConstants.getKeywordToken(identifier);
-		return (keyword != null) ? keyword : new Token(TokenTypes.IDENTIFIER, identifier);
+		final Token keyword = TokenConstants.getKeywordToken(identifier, mLine, mChar);
+		return (keyword != null) ? keyword : new Token(TokenType.IDENTIFIER, identifier, mLine, mChar);
 	}
 
 	private boolean isCharAtOffset(final int aOffset, final char aChar) {
 		return !isAtEnd(aOffset) && (mSource.charAt(mIndex + aOffset) == aChar);
+	}
+
+	private char nextChar() {
+		final char retval = mSource.charAt(mIndex++);
+
+		++mChar;
+		if (retval == '\n') {
+			++mLine;
+			mChar = 0;
+		}
+
+		return retval;
 	}
 
 	private boolean isAtEnd() {
@@ -255,16 +279,18 @@ public class Tokenizer {
 	private Token parseOneOrEqual() {
 		final int advance = isCharAtOffset(1, '=') ? 2 : 1;
 		mIndex += advance;
+		mChar += advance;
 
-		return TokenConstants.getOperationToken(mSource.substring(mIndex - advance, mIndex));
+		return TokenConstants.getOperationToken(mSource.substring(mIndex - advance, mIndex), mLine, mChar);
 	}
 
 	private Token parseTwoOrEqual() {
 		if (isCharAtOffset(1, mSource.charAt(mIndex))) {
 			final int advance = isCharAtOffset(2, '=') ? 3 : 2;
 			mIndex += advance;
+			mChar += advance;
 
-			return TokenConstants.getOperationToken(mSource.substring(mIndex - advance, mIndex));
+			return TokenConstants.getOperationToken(mSource.substring(mIndex - advance, mIndex), mLine, mChar);
 		}
 
 		return parseOneOrEqual();
@@ -273,14 +299,16 @@ public class Tokenizer {
 	private Token parseRefEqualOrLambda() {
 		if (isCharAtOffset(0, '=') && isCharAtOffset(1, '>')) {
 			mIndex += 2;
+			mChar += 2;
 
-			return TokenConstants.LAMBDA;
+			return TokenConstants.getSyntaxToken("=>", mLine, mChar);
 		}
 
 		if (isCharAtOffset(2, '=') && isCharAtOffset(1, '=')) {
 			mIndex += 3;
+			mChar += 3;
 
-			return TokenConstants.getOperationToken(mSource.substring(mIndex - 3, mIndex));
+			return TokenConstants.getOperationToken(mSource.substring(mIndex - 3, mIndex), mLine, mChar);
 		}
 
 		return parseOneOrEqual();

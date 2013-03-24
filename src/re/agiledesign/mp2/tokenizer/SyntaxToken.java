@@ -1,6 +1,6 @@
 package re.agiledesign.mp2.tokenizer;
 
-public enum GrammarTokens {
+public enum SyntaxToken {
 	SCOPE, // the . operator
 	COMMA, // the comma operator ','
 	COLON, // the : operator

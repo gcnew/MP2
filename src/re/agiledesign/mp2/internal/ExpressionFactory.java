@@ -11,7 +11,7 @@ import re.agiledesign.mp2.tokenizer.Token;
 import re.agiledesign.mp2.tokenizer.TokenConstants;
 
 public class ExpressionFactory {
-	private static final ConstantExpression NULL = new ConstantExpression(TokenConstants.getKeywordToken("null"));
+	private static final ConstantExpression NULL = new ConstantExpression(TokenConstants.getKeywordToken("null", 0, 0));
 	private final Map<Object, ConstantExpression> mConstantCache = new HashMap<Object, ConstantExpression>();
 	private LocalAccessExpression mLocalAccessCache[] = new LocalAccessExpression[16];
 	private ArgumentAccessExpression mArgumentAccessCache[] = new ArgumentAccessExpression[16];

@@ -60,11 +60,11 @@ import re.agiledesign.mp2.internal.statements.ReturnStatement;
 import re.agiledesign.mp2.internal.statements.SequenceStatement;
 import re.agiledesign.mp2.internal.statements.Statement;
 import re.agiledesign.mp2.internal.statements.WhileStatement;
-import re.agiledesign.mp2.tokenizer.Keywords;
+import re.agiledesign.mp2.tokenizer.SyntaxToken;
+import re.agiledesign.mp2.tokenizer.Keyword;
 import re.agiledesign.mp2.tokenizer.OperatorType;
 import re.agiledesign.mp2.tokenizer.Token;
-import re.agiledesign.mp2.tokenizer.TokenConstants;
-import re.agiledesign.mp2.tokenizer.TokenTypes;
+import re.agiledesign.mp2.tokenizer.TokenType;
 import re.agiledesign.mp2.tokenizer.Tokenizer;
 import re.agiledesign.mp2.util.AssocEntry;
 import re.agiledesign.mp2.util.CoercionUtil.CoercionType;
@@ -126,47 +126,12 @@ public class MP2Parser {
 		return new Block(Util.immutableList(statements));
 	}
 
-	private void checkAndAdvance(final Token aToken) throws ParsingException {
-		final Token token = mTokenizer.next();
-
-		if (token != aToken) {
-			throwExpectedFound(aToken, token);
-		}
-	}
-
-	private boolean advanceIfNext(final Token aToken) throws ParsingException {
-		final int position = mTokenizer.getPostion();
-
-		if (mTokenizer.next() == aToken) {
-			return true;
-		}
-
-		mTokenizer.restorePosition(position);
-		return false;
-	}
-
-	private <T> T advanceIfNext(final TokenTypes aType, final T aValues[]) throws ParsingException {
-		final int position = mTokenizer.getPostion();
-		final Token token = mTokenizer.next();
-
-		if (token.getType() == aType) {
-			for (int i = 0; i < aValues.length; i++) {
-				if (token.getValue() == aValues[i]) {
-					return aValues[i];
-				}
-			}
-		}
-
-		mTokenizer.restorePosition(position);
-		return null;
-	}
-
 	private Expression parseAssignment() throws ParsingException {
 		final int position = mTokenizer.getPostion();
 		final Token token = mTokenizer.next();
 
 		// TODO: handle index ($a[$i] = X)
-		if ((token.getType() == TokenTypes.IDENTIFIER) && mTokenizer.hasNext()) {
+		if ((token.getType() == TokenType.IDENTIFIER) && mTokenizer.hasNext()) {
 			final Expression assignment = parseAssignment0(token.getStringValue());
 
 			if (assignment != null) {
@@ -181,7 +146,7 @@ public class MP2Parser {
 	private Expression parseAssignment0(final String aVarName) throws ParsingException {
 		final Token token2 = mTokenizer.next();
 
-		if (token2.getType() == TokenTypes.OPERATOR) {
+		if (token2.getType() == TokenType.OPERATOR) {
 			final OperatorType operator = token2.getValue();
 
 			if (operator.hasAssignment()) {
@@ -213,9 +178,9 @@ public class MP2Parser {
 	private Expression parseTernaryConditional() throws ParsingException {
 		final Expression exp = parsePrecedenced(0);
 
-		if (mTokenizer.hasNext() && advanceIfNext(TokenConstants.QUEST)) {
+		if (mTokenizer.hasNext() && advanceIfNext(SyntaxToken.QUEST)) {
 			final Expression t = parseAssignment();
-			checkAndAdvance(TokenConstants.COLON);
+			checkAndAdvance(SyntaxToken.COLON);
 			final Expression f = parseAssignment();
 
 			return new TernaryExpression(exp, t, f);
@@ -232,7 +197,7 @@ public class MP2Parser {
 		Expression retval = parsePrecedenced(aIndex + 1);
 		final OperatorType operators[] = PRECEDENCES[aIndex];
 		while (mTokenizer.hasNext()) {
-			final OperatorType operator = advanceIfNext(TokenTypes.OPERATOR, operators);
+			final OperatorType operator = advanceIfNext(TokenType.OPERATOR, operators);
 
 			if (operator == null) {
 				break;
@@ -247,12 +212,12 @@ public class MP2Parser {
 	private Expression parseCast() throws ParsingException {
 		final int position = mTokenizer.getPostion();
 
-		if (advanceIfNext(TokenConstants.O_BRACK)) {
+		if (advanceIfNext(SyntaxToken.O_BRACK)) {
 			final Token token = mTokenizer.next();
 
-			if (token.getType() == TokenTypes.TYPE) {
+			if (token.getType() == TokenType.TYPE) {
 				final CoercionType type = token.getValue();
-				checkAndAdvance(TokenConstants.C_BRACK);
+				checkAndAdvance(SyntaxToken.C_BRACK);
 
 				return new CastExpression(type, parseCast());
 			}
@@ -270,7 +235,7 @@ public class MP2Parser {
 			final int position = mTokenizer.getPostion();
 			final Token token = mTokenizer.next();
 
-			if (token.getType() == TokenTypes.OPERATOR) {
+			if (token.getType() == TokenType.OPERATOR) {
 				if (token.getValue() == ADD) {
 					continue;
 				}
@@ -297,14 +262,14 @@ public class MP2Parser {
 		final Token token = mTokenizer.next();
 
 		switch (token.getType()) {
-		case GRAMMAR_TOKEN:
+		case SYNTAX_TOKEN:
 			retval = parseGrammarExpression(token);
 			break;
 		case CONSTANT:
 			retval = mExpressionFactory.getConstantExpression(token);
 			break;
 		case IDENTIFIER:
-			if (mTokenizer.hasNext() && advanceIfNext(TokenConstants.O_BRACK)) {
+			if (mTokenizer.hasNext() && advanceIfNext(SyntaxToken.O_BRACK)) {
 				retval = parseFunctionCall(token.getStringValue());
 			} else {
 				retval = parseAccessExpression(token.getStringValue());
@@ -318,19 +283,19 @@ public class MP2Parser {
 		}
 
 		while (mTokenizer.hasNext()) {
-			if (advanceIfNext(TokenConstants.SCOPE)) {
+			if (advanceIfNext(SyntaxToken.SCOPE)) {
 				retval = parseThisExpression(retval);
 
 				continue;
 			}
 
-			if (advanceIfNext(TokenConstants.O_INDEX)) {
+			if (advanceIfNext(SyntaxToken.O_INDEX)) {
 				retval = parseIndexExpression(retval);
 
 				continue;
 			}
 
-			if (advanceIfNext(TokenConstants.O_BRACK)) {
+			if (advanceIfNext(SyntaxToken.O_BRACK)) {
 				final List<Expression> args = parseFunctionArgs();
 				retval = new FunctionCallExpression(retval, args);
 
@@ -344,12 +309,12 @@ public class MP2Parser {
 	}
 
 	private Expression parseGrammarExpression(final Token aCurrent) throws ParsingException {
-		if (aCurrent == TokenConstants.O_INDEX) {
+		if (is(aCurrent, SyntaxToken.O_INDEX)) {
 			return parseInlineList(false);
 		}
 
-		if (aCurrent != TokenConstants.O_BRACK) {
-			throwExpectedFound(TokenConstants.O_BRACK, aCurrent);
+		if (!is(aCurrent, SyntaxToken.O_BRACK)) {
+			throwExpectedFound(SyntaxToken.O_BRACK, aCurrent);
 		}
 
 		if (isLambda()) {
@@ -358,7 +323,7 @@ public class MP2Parser {
 
 		final int position = mTokenizer.getPostion();
 		final Expression simpleExpression = parseAssignment();
-		if (advanceIfNext(TokenConstants.C_BRACK)) {
+		if (advanceIfNext(SyntaxToken.C_BRACK)) {
 			return simpleExpression;
 		}
 
@@ -366,16 +331,62 @@ public class MP2Parser {
 		return parseInlineList(true);
 	}
 
+	private boolean isComprehension(final boolean aImmutable) throws ParsingException {
+		int brack = aImmutable ? 1 : 0;
+		int index = 1 - brack;
+		final int position = mTokenizer.getPostion();
+
+		// TODO: check for ( x ? 1 : 0; ...)
+		while (true) {
+			final Token token = mTokenizer.next();
+
+			if (token.getType() == TokenType.SYNTAX_TOKEN) {
+				switch (token.<SyntaxToken> getValue()) {
+				case O_BRACK:
+					++brack;
+					break;
+				case O_INDEX:
+					++index;
+					break;
+				case C_BRACK:
+					--brack;
+
+					if ((aImmutable ? brack : index) == 0) {
+						mTokenizer.restorePosition(position);
+						return false;
+					}
+					break;
+				case C_INDEX:
+					--index;
+
+					if ((aImmutable ? brack : index) == 0) {
+						mTokenizer.restorePosition(position);
+						return false;
+					}
+					break;
+				case COMMA:
+				case COLON:
+				case SEMICOL:
+					if (((aImmutable ? brack : index) == 1) && ((aImmutable ? index : brack) == 0)) {
+						mTokenizer.restorePosition(position);
+						return is(token, SyntaxToken.SEMICOL);
+					}
+					break;
+				}
+			}
+		}
+	}
+
 	private Expression parseInlineList(final boolean aImmutable) throws ParsingException {
 		final List<Expression> elements;
-		final Token expected = aImmutable ? TokenConstants.C_BRACK : TokenConstants.C_INDEX;
+		final SyntaxToken expected = aImmutable ? SyntaxToken.C_BRACK : SyntaxToken.C_INDEX;
 
 		if (advanceIfNext(expected)) {
 			elements = Collections.emptyList();
 		} else {
 			final Expression first = parseAssignment();
 
-			if (advanceIfNext(TokenConstants.RANGE)) {
+			if (advanceIfNext(SyntaxToken.RANGE)) {
 				return parseRangeList(first, aImmutable);
 			}
 
@@ -385,13 +396,13 @@ public class MP2Parser {
 				final int position = mTokenizer.getPostion();
 				final Token separator = mTokenizer.next();
 
-				if (separator == TokenConstants.ARROW) {
+				if (is(separator, SyntaxToken.ARROW)) {
 					if (advanceIfNext(expected)) {
 						// set with a single element
 						return new InlineSetExpression(Collections.singletonList(first), aImmutable);
 					}
 
-					if (advanceIfNext(TokenConstants.COMMA)) {
+					if (advanceIfNext(SyntaxToken.COMMA)) {
 						// parse set
 						elements = parseInlineList0(first, aImmutable, true);
 						return new InlineSetExpression(Util.immutableList(elements), aImmutable);
@@ -406,7 +417,7 @@ public class MP2Parser {
 
 				mTokenizer.restorePosition(position);
 				final List<Expression> temp;
-				if (separator == TokenConstants.COLON) {
+				if (is(separator, SyntaxToken.COLON)) {
 					temp = parseConsList(first);
 				} else {
 					temp = parseInlineList0(first, aImmutable, false);
@@ -421,13 +432,13 @@ public class MP2Parser {
 
 	private List<Expression> parseInlineList0(final Expression aFirst, final boolean aImmutable, final boolean aSet)
 			throws ParsingException {
-		final Token expected = aImmutable ? TokenConstants.C_BRACK : TokenConstants.C_INDEX;
+		final SyntaxToken expected = aImmutable ? SyntaxToken.C_BRACK : SyntaxToken.C_INDEX;
 
 		final ArrayList<Expression> retval = new ArrayList<Expression>();
 		retval.add(aFirst);
 
 		while (true) {
-			if (!advanceIfNext(TokenConstants.COMMA)) {
+			if (!advanceIfNext(SyntaxToken.COMMA)) {
 				checkAndAdvance(expected);
 				break;
 			}
@@ -439,7 +450,7 @@ public class MP2Parser {
 			retval.add(parseAssignment());
 
 			if (aSet) {
-				checkAndAdvance(TokenConstants.ARROW);
+				checkAndAdvance(SyntaxToken.ARROW);
 			}
 		}
 
@@ -456,15 +467,15 @@ public class MP2Parser {
 		retval.add(aFirst);
 
 		do {
-			checkAndAdvance(TokenConstants.COLON);
+			checkAndAdvance(SyntaxToken.COLON);
 			retval.add(parseAssignment());
-		} while (!advanceIfNext(TokenConstants.C_BRACK));
+		} while (!advanceIfNext(SyntaxToken.C_BRACK));
 
 		return retval;
 	}
 
 	private Expression parseRangeList(final Expression aFrom, final boolean aConsList) throws ParsingException {
-		final Token expected = aConsList ? TokenConstants.C_BRACK : TokenConstants.C_INDEX;
+		final SyntaxToken expected = aConsList ? SyntaxToken.C_BRACK : SyntaxToken.C_INDEX;
 		if (advanceIfNext(expected)) {
 			if (!aConsList) {
 				throw new ParsingException("Infinite strict list found");
@@ -481,13 +492,13 @@ public class MP2Parser {
 
 	private List<AssocEntry<Expression, Expression>> parseInlineMap(final AssocEntry<Expression, Expression> aFirst,
 			final boolean aImmutable) throws ParsingException {
-		final Token expected = aImmutable ? TokenConstants.C_BRACK : TokenConstants.C_INDEX;
+		final SyntaxToken expected = aImmutable ? SyntaxToken.C_BRACK : SyntaxToken.C_INDEX;
 
 		final ArrayList<AssocEntry<Expression, Expression>> retval = new ArrayList<AssocEntry<Expression, Expression>>();
 		retval.add(aFirst);
 
 		while (true) {
-			if (!advanceIfNext(TokenConstants.COMMA)) {
+			if (!advanceIfNext(SyntaxToken.COMMA)) {
 				checkAndAdvance(expected);
 				break;
 			}
@@ -497,7 +508,7 @@ public class MP2Parser {
 			}
 
 			final Expression key = parseAssignment();
-			checkAndAdvance(TokenConstants.ARROW);
+			checkAndAdvance(SyntaxToken.ARROW);
 			final Expression value = parseAssignment();
 
 			retval.add(new AssocEntry<Expression, Expression>(key, value));
@@ -512,17 +523,17 @@ public class MP2Parser {
 		do {
 			final Token token = mTokenizer.next();
 
-			if (token == TokenConstants.O_BRACK) {
+			if (is(token, SyntaxToken.O_BRACK)) {
 				++balance;
 				continue;
 			}
 
-			if (token == TokenConstants.C_BRACK) {
+			if (is(token, SyntaxToken.C_BRACK)) {
 				--balance;
 			}
 		} while (balance != 0);
 
-		final boolean retval = mTokenizer.hasNext() && (mTokenizer.next() == TokenConstants.LAMBDA);
+		final boolean retval = mTokenizer.hasNext() && is(mTokenizer.next(), SyntaxToken.LAMBDA);
 		mTokenizer.restorePosition(position);
 
 		return retval;
@@ -549,11 +560,11 @@ public class MP2Parser {
 	private Expression parseThisExpression(final Expression aThis) throws ParsingException {
 		final Token token = mTokenizer.next();
 
-		if (token.getType() != TokenTypes.IDENTIFIER) {
-			throwExpectedFound(TokenTypes.IDENTIFIER, token);
+		if (token.getType() != TokenType.IDENTIFIER) {
+			throwExpectedFound(TokenType.IDENTIFIER, token);
 		}
 
-		checkAndAdvance(TokenConstants.O_BRACK);
+		checkAndAdvance(SyntaxToken.O_BRACK);
 		final List<Expression> args = parseFunctionArgs();
 		return new ReflectedThisExpression(aThis, token.getStringValue(), args);
 	}
@@ -561,14 +572,14 @@ public class MP2Parser {
 	private Expression parseIndexExpression(final Expression aThis) throws ParsingException {
 		final Expression index = parseAssignment();
 
-		if (advanceIfNext(TokenConstants.ARROW)) {
+		if (advanceIfNext(SyntaxToken.ARROW)) {
 			final Expression toIndex = parseAssignment();
 
-			checkAndAdvance(TokenConstants.C_INDEX);
+			checkAndAdvance(SyntaxToken.C_INDEX);
 			return new SublistExpression(aThis, index, toIndex);
 		}
 
-		checkAndAdvance(TokenConstants.C_INDEX);
+		checkAndAdvance(SyntaxToken.C_INDEX);
 		return new IndexExpression(aThis, index);
 	}
 
@@ -582,15 +593,15 @@ public class MP2Parser {
 	private List<Expression> parseFunctionArgs() throws ParsingException {
 		final List<Expression> args = new ArrayList<Expression>(4);
 
-		if (!advanceIfNext(TokenConstants.C_BRACK)) {
+		if (!advanceIfNext(SyntaxToken.C_BRACK)) {
 			while (true) {
 				args.add(parseAssignment());
 
-				if (advanceIfNext(TokenConstants.C_BRACK)) {
+				if (advanceIfNext(SyntaxToken.C_BRACK)) {
 					break;
 				}
 
-				checkAndAdvance(TokenConstants.COMMA);
+				checkAndAdvance(SyntaxToken.COMMA);
 			}
 		}
 
@@ -601,8 +612,8 @@ public class MP2Parser {
 		final int position = mTokenizer.getPostion();
 		final Token token = mTokenizer.next();
 
-		if (token.getType() == TokenTypes.KEYWORD) {
-			switch (token.<Keywords> getValue()) {
+		if (token.getType() == TokenType.KEYWORD) {
+			switch (token.<Keyword> getValue()) {
 			case FUNCTION:
 				parseFunctionDefinition();
 				return true;
@@ -628,11 +639,11 @@ public class MP2Parser {
 
 	private void parseFunctionDefinition() throws ParsingException {
 		final Token nameToken = mTokenizer.next();
-		if (nameToken.getType() != TokenTypes.IDENTIFIER) {
-			throwExpectedFound(TokenTypes.IDENTIFIER, nameToken);
+		if (nameToken.getType() != TokenType.IDENTIFIER) {
+			throwExpectedFound(TokenType.IDENTIFIER, nameToken);
 		}
 
-		checkAndAdvance(TokenConstants.O_BRACK);
+		checkAndAdvance(SyntaxToken.O_BRACK);
 		final FunctionExpression function = parseFunctionDefinition0(false);
 		mFunctions.put(nameToken.getStringValue(), function);
 	}
@@ -640,24 +651,24 @@ public class MP2Parser {
 	private FunctionExpression parseFunctionDefinition0(final boolean aLambda) throws ParsingException,
 			ArgumentAlreadyExists {
 		final LexicalScope oldScope = newLexicalScope();
-		if (!advanceIfNext(TokenConstants.C_BRACK)) {
+		if (!advanceIfNext(SyntaxToken.C_BRACK)) {
 			while (true) {
 				final Token argName = mTokenizer.next();
-				if (argName.getType() != TokenTypes.IDENTIFIER) {
-					throwExpectedFound(TokenTypes.IDENTIFIER, argName);
+				if (argName.getType() != TokenType.IDENTIFIER) {
+					throwExpectedFound(TokenType.IDENTIFIER, argName);
 				}
 
 				mLexicalScope.addArgument(argName.getStringValue());
-				if (advanceIfNext(TokenConstants.C_BRACK)) {
+				if (advanceIfNext(SyntaxToken.C_BRACK)) {
 					break;
 				}
 
-				checkAndAdvance(TokenConstants.COMMA);
+				checkAndAdvance(SyntaxToken.COMMA);
 			}
 		}
 
 		if (aLambda) {
-			checkAndAdvance(TokenConstants.LAMBDA);
+			checkAndAdvance(SyntaxToken.LAMBDA);
 		}
 
 		final Statement body = parseStatementOrBlock();
@@ -669,7 +680,7 @@ public class MP2Parser {
 	}
 
 	private Statement parseStatement() throws ParsingException {
-		if (advanceIfNext(TokenConstants.SEMICOL)) {
+		if (advanceIfNext(SyntaxToken.SEMICOL)) {
 			return EMPTY_STATEMENT;
 		}
 
@@ -677,8 +688,8 @@ public class MP2Parser {
 		final Token token = mTokenizer.next();
 
 		Statement retval = null;
-		if (token.getType() == TokenTypes.KEYWORD) {
-			switch (token.<Keywords> getValue()) {
+		if (token.getType() == TokenType.KEYWORD) {
+			switch (token.<Keyword> getValue()) {
 			case IF:
 				retval = parseIfElse();
 				break;
@@ -712,20 +723,20 @@ public class MP2Parser {
 		}
 
 		if (mTokenizer.hasNext()) {
-			advanceIfNext(TokenConstants.SEMICOL);
+			advanceIfNext(SyntaxToken.SEMICOL);
 		}
 
 		return retval;
 	}
 
 	private Statement parseIfElse() throws ParsingException {
-		checkAndAdvance(TokenConstants.O_BRACK);
+		checkAndAdvance(SyntaxToken.O_BRACK);
 		final Expression condition = parseAssignment();
-		checkAndAdvance(TokenConstants.C_BRACK);
+		checkAndAdvance(SyntaxToken.C_BRACK);
 
 		final Statement trueStatement = parseStatementOrBlock();
 
-		if (mTokenizer.hasNext() && advanceIfNext(TokenConstants.ELSE)) {
+		if (mTokenizer.hasNext() && advanceIfNext(Keyword.ELSE)) {
 			return new IfElseStatement(condition, trueStatement, parseStatementOrBlock());
 		}
 
@@ -733,30 +744,30 @@ public class MP2Parser {
 	}
 
 	private Statement parseFor() throws ParsingException {
-		checkAndAdvance(TokenConstants.O_BRACK);
+		checkAndAdvance(SyntaxToken.O_BRACK);
 
 		final Expression expr1;
-		if (advanceIfNext(TokenConstants.SEMICOL)) {
+		if (advanceIfNext(SyntaxToken.SEMICOL)) {
 			expr1 = mExpressionFactory.getConstantExpression((Object) null);
 		} else {
 			expr1 = parseAssignment();
-			checkAndAdvance(TokenConstants.SEMICOL);
+			checkAndAdvance(SyntaxToken.SEMICOL);
 		}
 
 		final Expression expr2;
-		if (advanceIfNext(TokenConstants.SEMICOL)) {
+		if (advanceIfNext(SyntaxToken.SEMICOL)) {
 			expr2 = mExpressionFactory.getConstantExpression((Object) null);
 		} else {
 			expr2 = parseAssignment();
-			checkAndAdvance(TokenConstants.SEMICOL);
+			checkAndAdvance(SyntaxToken.SEMICOL);
 		}
 
 		final Expression expr3;
-		if (advanceIfNext(TokenConstants.C_BRACK)) {
+		if (advanceIfNext(SyntaxToken.C_BRACK)) {
 			expr3 = mExpressionFactory.getConstantExpression((Object) null);
 		} else {
 			expr3 = parseAssignment();
-			checkAndAdvance(TokenConstants.C_BRACK);
+			checkAndAdvance(SyntaxToken.C_BRACK);
 		}
 
 		final Statement body = parseStatementOrBlock();
@@ -765,9 +776,9 @@ public class MP2Parser {
 	}
 
 	private Statement parseWhile() throws ParsingException {
-		checkAndAdvance(TokenConstants.O_BRACK);
+		checkAndAdvance(SyntaxToken.O_BRACK);
 		final Expression condition = parseAssignment();
-		checkAndAdvance(TokenConstants.C_BRACK);
+		checkAndAdvance(SyntaxToken.C_BRACK);
 
 		final Statement body = parseStatementOrBlock();
 		return new WhileStatement(condition, body);
@@ -776,16 +787,16 @@ public class MP2Parser {
 	private Statement parseDo() throws ParsingException {
 		final Statement body = parseStatementOrBlock();
 
-		checkAndAdvance(TokenConstants.WHILE);
-		checkAndAdvance(TokenConstants.O_BRACK);
+		checkAndAdvance(Keyword.WHILE);
+		checkAndAdvance(SyntaxToken.O_BRACK);
 		final Expression condition = parseAssignment();
-		checkAndAdvance(TokenConstants.C_BRACK);
+		checkAndAdvance(SyntaxToken.C_BRACK);
 
 		return new DoStatement(condition, body);
 	}
 
 	private Statement parseReturn() throws ParsingException {
-		if (advanceIfNext(TokenConstants.SEMICOL)) {
+		if (advanceIfNext(SyntaxToken.SEMICOL)) {
 			return EMPTY_RETURN_STATEMENT;
 		}
 
@@ -799,8 +810,8 @@ public class MP2Parser {
 		do {
 			final Token token = mTokenizer.next();
 
-			if (token.getType() != TokenTypes.IDENTIFIER) {
-				throwExpectedFound(TokenTypes.IDENTIFIER, token);
+			if (token.getType() != TokenType.IDENTIFIER) {
+				throwExpectedFound(TokenType.IDENTIFIER, token);
 			}
 
 			final String varName = token.getStringValue();
@@ -816,7 +827,7 @@ public class MP2Parser {
 					mTokenizer.restorePosition(position);
 				}
 			}
-		} while (mTokenizer.hasNext() && advanceIfNext(TokenConstants.COMMA));
+		} while (mTokenizer.hasNext() && advanceIfNext(SyntaxToken.COMMA));
 
 		switch (expressions.size()) {
 		case 0:
@@ -831,10 +842,10 @@ public class MP2Parser {
 	private Statement parseStatementOrBlock() throws ParsingException {
 		final int position = mTokenizer.getPostion();
 
-		if (advanceIfNext(TokenConstants.O_BLOCK)) {
+		if (advanceIfNext(SyntaxToken.O_BLOCK)) {
 			final ArrayList<Statement> statements = new ArrayList<Statement>();
 
-			while (!advanceIfNext(TokenConstants.C_BLOCK)) {
+			while (!advanceIfNext(SyntaxToken.C_BLOCK)) {
 				final Statement statement = parseStatement();
 
 				if (statement != EMPTY_STATEMENT) {
@@ -853,11 +864,77 @@ public class MP2Parser {
 		return parseStatement();
 	}
 
-	private void throwExpectedFound(final Token aExpected, final Token aFound) throws ParsingException {
+	private boolean is(final Token aToken, final Keyword aObject) {
+		return aToken.getValue() == aObject;
+	}
+
+	private boolean is(final Token aToken, final SyntaxToken aObject) {
+		return aToken.getValue() == aObject;
+	}
+
+	private void checkAndAdvance(final SyntaxToken aValue) throws ParsingException {
+		final Token token = mTokenizer.next();
+
+		if (!is(token, aValue)) {
+			throwExpectedFound(aValue, token);
+		}
+	}
+
+	private void checkAndAdvance(final Keyword aValue) throws ParsingException {
+		final Token token = mTokenizer.next();
+
+		if (!is(token, aValue)) {
+			throwExpectedFound(aValue, token);
+		}
+	}
+
+	private boolean advanceIfNext(final SyntaxToken aValue) throws ParsingException {
+		final int position = mTokenizer.getPostion();
+
+		if (is(mTokenizer.next(), aValue)) {
+			return true;
+		}
+
+		mTokenizer.restorePosition(position);
+		return false;
+	}
+
+	private boolean advanceIfNext(final Keyword aValue) throws ParsingException {
+		final int position = mTokenizer.getPostion();
+
+		if (is(mTokenizer.next(), aValue)) {
+			return true;
+		}
+
+		mTokenizer.restorePosition(position);
+		return false;
+	}
+
+	private <T> T advanceIfNext(final TokenType aType, final T aValues[]) throws ParsingException {
+		final int position = mTokenizer.getPostion();
+		final Token token = mTokenizer.next();
+
+		if (token.getType() == aType) {
+			for (int i = 0; i < aValues.length; i++) {
+				if (token.getValue() == aValues[i]) {
+					return aValues[i];
+				}
+			}
+		}
+
+		mTokenizer.restorePosition(position);
+		return null;
+	}
+
+	private void throwExpectedFound(final Keyword aExpected, final Token aFound) throws ParsingException {
 		throw new ParsingException("Expected token: " + aExpected + ", found: " + aFound);
 	}
 
-	private void throwExpectedFound(final TokenTypes aExpected, final Token aFound) throws ParsingException {
+	private void throwExpectedFound(final SyntaxToken aExpected, final Token aFound) throws ParsingException {
+		throw new ParsingException("Expected token: " + aExpected + ", found: " + aFound);
+	}
+
+	private void throwExpectedFound(final TokenType aExpected, final Token aFound) throws ParsingException {
 		throw new ParsingException("Expected token of type: " + aExpected + ", found: " + aFound);
 	}
 

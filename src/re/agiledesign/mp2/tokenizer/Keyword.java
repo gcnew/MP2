@@ -1,6 +1,6 @@
 package re.agiledesign.mp2.tokenizer;
 
-public enum Keywords {
+public enum Keyword {
 	IF, // if
 	ELSE, // else
 	FOR, // for
