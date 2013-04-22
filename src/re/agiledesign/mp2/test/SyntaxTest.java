@@ -111,4 +111,11 @@ public class SyntaxTest extends MP2Test {
 		assertEval("return 3.5 + '4'", "3.54");
 		assertEval("return 3.5 + 4 + ''", "7.5");
 	}
+
+	public void testString() throws Exception {
+		assertEval("return 'Say \\'Hello\\''", "Say 'Hello'");
+		assertEval("return \"Say 'Hello'\"", "Say 'Hello'");
+		assertEval("return 'Say \"Hello\"'", "Say \"Hello\"");
+		assertEval("return \"Say \\\"Hello\\\"\"", "Say \"Hello\"");
+	}
 }

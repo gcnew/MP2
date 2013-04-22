@@ -133,7 +133,8 @@ public class Tokenizer {
 				throw new ParsingException("No closing quote found for string starting at index: " + startIndex);
 			}
 
-			if ((nextChar() == stopChar) && (mSource.charAt(mIndex - 1) != '\\')) {
+			// TODO: doesn't work; write a test with escaped strings..
+			if ((nextChar() == stopChar) && (mSource.charAt(mIndex - 2) != '\\')) {
 				break;
 			}
 		} while (true);
