@@ -6,7 +6,7 @@ import re.agiledesign.mp2.util.StringUtil;
 @SuppressWarnings("boxing")
 public class StringFormatTest extends TestCase {
 	public void testFormat1() {
-		assertEquals("Hello, World", StringUtil.format("Hello, {}", "World"));
+		assertEquals("Hello, World!", StringUtil.format("Hello, {}!", "World"));
 	}
 
 	public void testFormat2() {

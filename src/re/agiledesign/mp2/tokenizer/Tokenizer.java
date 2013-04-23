@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import re.agiledesign.mp2.exception.ParsingException;
+import re.agiledesign.mp2.util.StringUtil;
 
 public class Tokenizer {
 	private int mChar;
@@ -130,7 +131,7 @@ public class Tokenizer {
 		nextChar();
 		do {
 			if (isAtEnd()) {
-				throw new ParsingException("No closing quote found for string starting at index: " + startIndex);
+				throw $("No closing quote found for string starting at {}", Integer.valueOf(startIndex));
 			}
 
 			// TODO: doesn't work; write a test with escaped strings..
@@ -165,7 +166,7 @@ public class Tokenizer {
 			default:
 				if (Character.isDigit(next)) {
 					// don't allow mistakes to pass through
-					throw new ParsingException("Numeral system code expected (x/o/b/d)");
+					throw $("Numeral system code expected (x/o/b/d)");
 				}
 
 				mChar -= 2;
@@ -184,7 +185,7 @@ public class Tokenizer {
 		if (isCharAtOffset(0, '.')) {
 			if (isAtEnd(1) || Character.isDigit(mSource.charAt(mIndex + 1))) {
 				if (base != 0) {
-					throw new ParsingException("Invalid floating point syntax (cannot have numeral system specifiers)");
+					throw $("Invalid floating point syntax (cannot have numeral system specifiers)");
 				}
 
 				isFloat = true;
@@ -210,7 +211,7 @@ public class Tokenizer {
 				}
 			}
 		} catch (final NumberFormatException e) {
-			throw new ParsingException("Connot be parsed into a number: " + mSource.substring(startIndex, mIndex));
+			throw $("Connot be parsed into a number: {}", mSource.substring(startIndex, mIndex));
 		}
 
 		return new Token(TokenType.CONSTANT, constant, mLine, mChar);
@@ -229,7 +230,7 @@ public class Tokenizer {
 
 		final int startIndex = mIndex;
 		if (isAtEnd()) {
-			throw new ParsingException("Identifier expected but end of file reached");
+			throw $("Identifier expected but end of file reached");
 		}
 
 		parseIdentifier();
@@ -241,7 +242,7 @@ public class Tokenizer {
 
 		final char firstChar = mSource.charAt(mIndex);
 		if (!(Character.isLetter(firstChar) || (firstChar == '_'))) {
-			throw new ParsingException("Identifier starting character expected but found: " + firstChar);
+			throw $("Identifier starting character expected but found: {}", Character.valueOf(firstChar));
 		}
 
 		do {
@@ -313,5 +314,12 @@ public class Tokenizer {
 		}
 
 		return parseOneOrEqual();
+	}
+
+	private ParsingException $(final String aMessage, final Object... aArgs) {
+		final String message = StringUtil.format(aMessage, aArgs);
+		final String fullMsg = StringUtil.format("{}:{} {}", Integer.valueOf(mLine), Integer.valueOf(mChar), message);
+
+		return new ParsingException(fullMsg);
 	}
 }
