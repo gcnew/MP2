@@ -125,22 +125,35 @@ public class Tokenizer {
 	}
 
 	private Token parseString() throws ParsingException {
-		final int startIndex = mIndex + 1;
+		final int startIndex = mIndex;
 		final char stopChar = mSource.charAt(mIndex);
 
 		nextChar();
+		int lastIndex = startIndex + 1;
+		final StringBuilder retval = new StringBuilder();
 		do {
 			if (isAtEnd()) {
 				throw $("No closing quote found for string starting at {}", Integer.valueOf(startIndex));
 			}
 
-			// TODO: doesn't work; write a test with escaped strings..
-			if ((nextChar() == stopChar) && (mSource.charAt(mIndex - 2) != '\\')) {
+			final char c = nextChar();
+			if (c == stopChar) {
 				break;
+			}
+
+			if (c == '\\') {
+				retval.append(mSource.substring(lastIndex, mIndex - 1));
+
+				// if at end will fail on the next iteration
+				if (!isAtEnd()) {
+					lastIndex = mIndex;
+					nextChar();
+				}
 			}
 		} while (true);
 
-		return new Token(TokenType.CONSTANT, mSource.substring(startIndex, mIndex - 1), mLine, mChar);
+		retval.append(mSource.substring(lastIndex, mIndex - 1));
+		return new Token(TokenType.CONSTANT, retval.toString(), mLine, mChar);
 	}
 
 	private Token parseNumber() throws ParsingException {

@@ -117,5 +117,6 @@ public class SyntaxTest extends MP2Test {
 		assertEval("return \"Say 'Hello'\"", "Say 'Hello'");
 		assertEval("return 'Say \"Hello\"'", "Say \"Hello\"");
 		assertEval("return \"Say \\\"Hello\\\"\"", "Say \"Hello\"");
+		assertException("'Say \\", ParsingException.class);
 	}
 }
