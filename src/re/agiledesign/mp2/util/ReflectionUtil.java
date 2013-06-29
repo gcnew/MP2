@@ -31,8 +31,7 @@ public class ReflectionUtil {
 				types[i] = value.getClass();
 			} else {
 				if (e instanceof CastExpression) {
-					final CoercionType castType = ((CastExpression) e).getType();
-					types[i] = CoercionUtil.getJavaType(castType);
+					types[i] = ((CastExpression) e).getType().getJavaType();
 				} else {
 					types[i] = null;
 					noNull = false;

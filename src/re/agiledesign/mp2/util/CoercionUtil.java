@@ -6,31 +6,51 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import re.agiledesign.mp2.exception.UnsupportedOperatorException;
 import re.agiledesign.mp2.tokenizer.OperatorType;
 
 public class CoercionUtil {
 	public enum CoercionType {
-		NULL, OBJECT, BOOLEAN, BYTE, SHORT, CHAR, INT, LONG, BIG_INTEGER, FLOAT, DOUBLE, BIG_DECIMAL, STRING
+		NULL(null), //
+		OBJECT(null), //
+		BOOLEAN(Boolean.class), //
+		BYTE(Byte.class), //
+		SHORT(Short.class), //
+		CHAR(Character.class), //
+		INT(Integer.class), //
+		LONG(Long.class), //
+		BIG_INTEGER(BigInteger.class), //
+		FLOAT(Float.class), //
+		DOUBLE(Double.class), //
+		BIG_DECIMAL(BigDecimal.class), //
+		STRING(String.class);
+
+		private final Class<?> mJavaType;
+
+		private CoercionType(final Class<?> aJavaType) {
+			mJavaType = aJavaType;
+		}
+
+		public Class<?> getJavaType() {
+			if (mJavaType == null) {
+				throw new IllegalStateException("No direct Java type for: " + this);
+			}
+
+			return mJavaType;
+		}
 	}
 
 	private static final Map<Class<?>, Class<?>> mWrapperTypes = new HashMap<Class<?>, Class<?>>();
 	private static final Map<Class<?>, CoercionType> mTypesMap = new HashMap<Class<?>, CoercionUtil.CoercionType>();
 
 	static {
-		mTypesMap.put(Boolean.class, CoercionType.BOOLEAN);
-		mTypesMap.put(Byte.class, CoercionType.BYTE);
-		mTypesMap.put(Short.class, CoercionType.SHORT);
-		mTypesMap.put(Character.class, CoercionType.CHAR);
-		mTypesMap.put(Integer.class, CoercionType.INT);
-		mTypesMap.put(Long.class, CoercionType.LONG);
-		mTypesMap.put(BigInteger.class, CoercionType.BIG_INTEGER);
-		mTypesMap.put(Float.class, CoercionType.FLOAT);
-		mTypesMap.put(Double.class, CoercionType.DOUBLE);
-		mTypesMap.put(BigDecimal.class, CoercionType.BIG_DECIMAL);
-		mTypesMap.put(String.class, CoercionType.STRING);
+		for (final CoercionType type : CoercionType.values()) {
+			// use the type field directly
+			if (type.mJavaType != null) {
+				mTypesMap.put(type.mJavaType, type);
+			}
+		}
 	}
 
 	static {
@@ -56,16 +76,6 @@ public class CoercionUtil {
 		}
 
 		return getCoercionType(aObject.getClass());
-	}
-
-	public static Class<?> getJavaType(final CoercionType aType) {
-		for (final Entry<Class<?>, CoercionType> e : mTypesMap.entrySet()) {
-			if (e.getValue() == aType) {
-				return e.getKey();
-			}
-		}
-
-		throw new IllegalArgumentException("Provided type cannot be " + aType);
 	}
 
 	public static Class<?> getWrapperClass(final Class<?> aType) {
