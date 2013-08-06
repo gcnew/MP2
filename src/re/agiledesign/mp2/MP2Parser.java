@@ -33,6 +33,7 @@ import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.internal.ExpressionFactory;
 import re.agiledesign.mp2.internal.OperatorFactory;
 import re.agiledesign.mp2.internal.expressions.AccessExpression;
+import re.agiledesign.mp2.internal.expressions.ArgumentAssignmentExpression;
 import re.agiledesign.mp2.internal.expressions.AssignmentExpression;
 import re.agiledesign.mp2.internal.expressions.CastExpression;
 import re.agiledesign.mp2.internal.expressions.ConstantExpression;
@@ -60,9 +61,9 @@ import re.agiledesign.mp2.internal.statements.ReturnStatement;
 import re.agiledesign.mp2.internal.statements.SequenceStatement;
 import re.agiledesign.mp2.internal.statements.Statement;
 import re.agiledesign.mp2.internal.statements.WhileStatement;
-import re.agiledesign.mp2.tokenizer.SyntaxToken;
 import re.agiledesign.mp2.tokenizer.Keyword;
 import re.agiledesign.mp2.tokenizer.OperatorType;
+import re.agiledesign.mp2.tokenizer.SyntaxToken;
 import re.agiledesign.mp2.tokenizer.Token;
 import re.agiledesign.mp2.tokenizer.TokenType;
 import re.agiledesign.mp2.tokenizer.Tokenizer;
@@ -154,12 +155,12 @@ public class MP2Parser {
 
 				if (operator != ASSIGN) {
 					final OperatorType basicOperator = operator.getBasicOperator();
-					right = OperatorFactory.getBinaryOperator(basicOperator, new AccessExpression(aVarName), right);
+					right = OperatorFactory.getBinaryOperator(basicOperator, parseAccessExpression(aVarName), right);
 				}
 
 				int index = mLexicalScope.getArgumentIndex(aVarName);
 				if (index >= 0) {
-					return new LocalAssignmentExpression(index, right);
+					return new ArgumentAssignmentExpression(index, right);
 				}
 
 				index = mLexicalScope.getLocalVariableIndex(aVarName);

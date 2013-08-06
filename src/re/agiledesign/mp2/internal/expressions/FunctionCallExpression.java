@@ -29,12 +29,12 @@ public class FunctionCallExpression extends Expression {
 		}
 
 		int i = 0;
-		final Object args[] = new Object[mArgs.size()];
+		final FunctionExpression function = (FunctionExpression) var;
+		final Object args[] = new Object[Math.max(function.getArguments().size(), mArgs.size())];
 		for (final Expression e : mArgs) {
 			args[i++] = e.execute(aScope);
 		}
 
-		final FunctionExpression function = (FunctionExpression) var;
 		final NameScope parent = (aScope instanceof FunctionScope) ? aScope.getPrevious() : (NameScope) aScope;
 		final FunctionScope scope = new FunctionScope(parent, args, function.getLocalsCount());
 
