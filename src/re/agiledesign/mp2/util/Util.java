@@ -51,6 +51,17 @@ public class Util {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T extends Exception> T rethrow(final Exception aException) throws T {
+		throw (T) aException;
+	}
+
+	public static RuntimeException rethrowUnchecked(final Exception aException) {
+		Util.<RuntimeException> rethrow(aException);
+
+		throw new AssertionError("### Error: this code should be unreachable ###");
+	}
+
 	public static <T> ImmutableArrayList<T> immutableList(final List<T> aList) {
 		return new ImmutableArrayList<T>(aList);
 	}

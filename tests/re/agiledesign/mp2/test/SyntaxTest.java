@@ -6,23 +6,23 @@ import java.math.BigInteger;
 import re.agiledesign.mp2.exception.ParsingException;
 
 public class SyntaxTest extends MP2Test {
-	public void testTernary0() throws Exception {
+	public void testTernary0() {
 		assertEval("return ((a = true) ? a : false) ? 4 : 5", Integer.valueOf(4));
 	}
 
-	public void testTernary1() throws Exception {
+	public void testTernary1() {
 		assertEval("return (a = true) ? a : false ? 4 : 5", Boolean.TRUE);
 	}
 
-	public void testTernary2() throws Exception {
+	public void testTernary2() {
 		assertEval("return a = false ? a : false ? 4 : 5", Integer.valueOf(5));
 	}
 
-	public void testTernaryPrecedence0() throws Exception {
+	public void testTernaryPrecedence0() {
 		assertEval("return a = false ? 1 : 2", Integer.valueOf(2));
 	}
 
-	public void testNumericLiterals() throws Exception {
+	public void testNumericLiterals() {
 		final Integer i255 = Integer.valueOf(255);
 		assertEval("return 255", i255);
 		assertEval("return 0xFF", i255);
@@ -43,7 +43,7 @@ public class SyntaxTest extends MP2Test {
 		assertException("1F3.33", ParsingException.class);
 	}
 
-	public void testCasts() throws Exception {
+	public void testCasts() {
 		assertEval("return (int) null", null);
 		assertEval("return (int) 123", Integer.valueOf(123));
 		assertEval("return (int) 123.1", Integer.valueOf(123));
@@ -105,14 +105,14 @@ public class SyntaxTest extends MP2Test {
 		assertEval("return (boolean) 'false'", Boolean.FALSE);
 	}
 
-	public void testCoercion() throws Exception {
+	public void testCoercion() {
 		assertEval("return '' + null", "null");
 		assertEval("return '3' + 4", "34");
 		assertEval("return 3.5 + '4'", "3.54");
 		assertEval("return 3.5 + 4 + ''", "7.5");
 	}
 
-	public void testString() throws Exception {
+	public void testString() {
 		assertEval("return 'Say \\'Hello\\''", "Say 'Hello'");
 		assertEval("return \"Say 'Hello'\"", "Say 'Hello'");
 		assertEval("return 'Say \"Hello\"'", "Say \"Hello\"");

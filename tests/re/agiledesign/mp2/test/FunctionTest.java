@@ -4,24 +4,26 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import re.agiledesign.mp2.exception.ParsingException;
+
 public class FunctionTest extends MP2Test {
-	public void testLambda0() throws Exception {
+	public void testLambda0() {
 		assertEval("x = (x) => return 1 + x return x(9)", Integer.valueOf(10));
 	}
 
-	public void testLambda1() throws Exception {
+	public void testLambda1() {
 		assertEval("return !(x) => { return 1 + x }(9)", Boolean.FALSE);
 	}
 
-	public void testLambda2() throws Exception {
+	public void testLambda2() {
 		assertEval("return ((x) => return 1 + x)(9)", Integer.valueOf(10));
 	}
 
-	public void testLambda3() throws Exception {
+	public void testLambda3() {
 		assertEval("return (() => return 10)(1, 2, 3)", Integer.valueOf(10));
 	}
 
-	public void testHigherOrder() throws Exception {
+	public void testHigherOrder() {
 		final String script = //
 		/**/"addOne = (x) => return 1 + x\n" +
 		/**/"higherOrder = (x, f) => return f(x)\n" +
@@ -31,7 +33,7 @@ public class FunctionTest extends MP2Test {
 	}
 
 	@SuppressWarnings("boxing")
-	public void testRecursiveMap() throws Exception {
+	public void testRecursiveMap() {
 		final String script = //
 		/**/"car = (l) => return !l || l.isEmpty() ? null : l[0]\n" +
 		/**/"cdr = (l) => return !l || (l.size() < 2) ? null : l[1 -> l.size()]\n" +
@@ -44,7 +46,7 @@ public class FunctionTest extends MP2Test {
 	}
 
 	@SuppressWarnings("boxing")
-	public void testRecursiveMap2() throws Exception {
+	public void testRecursiveMap2() {
 		final String script = //
 		/**/"car = (l) => return l === null ? null : l.first()\n" +
 		/**/"cdr = (l) => return l === null ? null : l.rest()\n" +
@@ -58,7 +60,7 @@ public class FunctionTest extends MP2Test {
 	}
 
 	@SuppressWarnings({ "unchecked", "boxing" })
-	public void testFilter() throws Exception {
+	public void testFilter() {
 		final String script = //
 		/**/"function filter(l, f) {\n" +
 		/**/"	local i, retval = []\n" +
@@ -82,5 +84,29 @@ public class FunctionTest extends MP2Test {
 		final List<Integer> list2 = Collections.emptyList();
 
 		assertEval(script, Arrays.<List<Integer>> asList(list0, list1, list2));
+	}
+
+	public void testLocalSameAsClosed() {
+		final String script = //
+		/**/"function test() {\n" +
+		/**/"	var i = 3;\n" +
+		/**/"\n" +
+		/**/"	return () => { i = i + 1; local i = 5; return i; }\n" +
+		/**/"}";
+
+		// locals/vars names should no collide with used closed variables names
+		assertException(script, ParsingException.class);
+	}
+
+	public void testArgumentSameAsClosed() {
+		final String script = //
+		/**/"function test() {\n" +
+		/**/"	var i = 3;\n" +
+		/**/"\n" +
+		/**/"	return (i) => { return i; }\n" +
+		/**/"}";
+
+		// argument names should no collide with closed variables names
+		assertException(script, ParsingException.class);
 	}
 }

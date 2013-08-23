@@ -3,7 +3,7 @@ package re.agiledesign.mp2.test;
 public class ScopeTest extends MP2Test {
 	private static final Integer EXPECTED = Integer.valueOf(6);
 
-	public void testRootLocal() throws Exception {
+	public void testRootLocal() {
 		final String script = //
 		/**/"local i = 5;\n" +
 		/**/"local f = () => return 1;\n" +
@@ -12,7 +12,7 @@ public class ScopeTest extends MP2Test {
 		assertEval(script, EXPECTED);
 	}
 
-	public void testMultipleLocals() throws Exception {
+	public void testMultipleLocals() {
 		final String script = //
 		/**/"function test() {\n" +
 		/**/"	local i = 2, z, k = 1;\n" +
@@ -25,7 +25,7 @@ public class ScopeTest extends MP2Test {
 		assertEval(script, EXPECTED);
 	}
 
-	public void testLocalInLoop() throws Exception {
+	public void testLocalInLoop() {
 		final String script = //
 		/**/"function test() {\n" +
 		/**/"	local i = 0, sum = 0;\n" +
@@ -42,7 +42,7 @@ public class ScopeTest extends MP2Test {
 		assertEval(script, EXPECTED);
 	}
 
-	public void testArgumentAssignment() throws Exception {
+	public void testArgumentAssignment() {
 		final String script = //
 		/**/"function test(aInteger) {\n" +
 		/**/"	aInteger = 3\n;" +
