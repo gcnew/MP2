@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Main {
+	@SuppressWarnings({ "unused", "boxing", "null" })
 	public static class ABC {
 		public void print(final Object l) {
 			System.out.println(l);

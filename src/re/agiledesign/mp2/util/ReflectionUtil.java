@@ -233,7 +233,7 @@ public class ReflectionUtil {
 		}
 
 		sb.append(aClass.getName()).append('.').append(aMethod).append('(');
-		Util.arrayJoin(", ", argTypes, sb);
+		ArrayUtil.arrayJoin(", ", argTypes, sb);
 		sb.append(')');
 
 		return sb.toString();
