@@ -14,6 +14,7 @@ public enum Keyword {
 	TRY, // try
 	CATCH, // catch 
 	FINALLY, // finally
+	VAR, // var - a closable assignable variable
 	LOCAL, // local - local var_name
 	GLOBAL, // shortcut to the global scope
 	THIS, // this

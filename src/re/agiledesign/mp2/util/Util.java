@@ -1,5 +1,6 @@
 package re.agiledesign.mp2.util;
 
+import java.util.Collections;
 import java.util.List;
 
 import re.agiledesign.mp2.collection.ImmutableArrayList;
@@ -62,7 +63,11 @@ public class Util {
 		throw new AssertionError("### Error: this code should be unreachable ###");
 	}
 
-	public static <T> ImmutableArrayList<T> immutableList(final List<T> aList) {
+	public static <T> List<T> immutableList(final List<T> aList) {
+		if (aList.isEmpty()) {
+			return Collections.emptyList();
+		}
+
 		return new ImmutableArrayList<T>(aList);
 	}
 }

@@ -1,6 +1,5 @@
 package re.agiledesign.mp2.internal.expressions;
 
-import java.util.Collections;
 import java.util.List;
 
 import re.agiledesign.mp2.internal.ControlFlow.Type;
@@ -15,7 +14,7 @@ public class FunctionExpression extends Expression {
 	public FunctionExpression(final Statement aBody, final int aLocalsCount, final List<String> aArguments) {
 		mBody = aBody;
 		mLocalsCount = aLocalsCount;
-		mArguments = Collections.unmodifiableList(aArguments);
+		mArguments = aArguments;
 	}
 
 	public Object execute(final Scope aScope) throws Exception {

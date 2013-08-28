@@ -1,9 +1,9 @@
 package re.agiledesign.mp2.tokenizer;
 
 import static re.agiledesign.mp2.tokenizer.TokenType.CONSTANT;
-import static re.agiledesign.mp2.tokenizer.TokenType.SYNTAX_TOKEN;
 import static re.agiledesign.mp2.tokenizer.TokenType.KEYWORD;
 import static re.agiledesign.mp2.tokenizer.TokenType.OPERATOR;
+import static re.agiledesign.mp2.tokenizer.TokenType.SYNTAX_TOKEN;
 import static re.agiledesign.mp2.tokenizer.TokenType.TYPE;
 import static re.agiledesign.mp2.util.CoercionUtil.getCoercionType;
 
@@ -41,6 +41,7 @@ public class TokenConstants {
 	private static final Token TRY = new Token(KEYWORD, Keyword.TRY, 0, 0);
 	private static final Token CATCH = new Token(KEYWORD, Keyword.CATCH, 0, 0);
 	private static final Token FINALLY = new Token(KEYWORD, Keyword.FINALLY, 0, 0);
+	private static final Token VAR = new Token(KEYWORD, Keyword.VAR, 0, 0);
 	private static final Token LOCAL = new Token(KEYWORD, Keyword.LOCAL, 0, 0);
 	private static final Token GLOBAL = new Token(KEYWORD, Keyword.GLOBAL, 0, 0);
 	private static final Token THIS = new Token(KEYWORD, Keyword.THIS, 0, 0);
@@ -157,6 +158,7 @@ public class TokenConstants {
 		KEYWORD_TOKEN_MAP.put("try", TRY);
 		KEYWORD_TOKEN_MAP.put("catch", CATCH);
 		KEYWORD_TOKEN_MAP.put("finally", FINALLY);
+		KEYWORD_TOKEN_MAP.put("var", VAR);
 		KEYWORD_TOKEN_MAP.put("local", LOCAL);
 		KEYWORD_TOKEN_MAP.put("global", GLOBAL);
 		KEYWORD_TOKEN_MAP.put("this", THIS);

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import re.agiledesign.mp2.VarInfo.Visibility;
 import re.agiledesign.mp2.exception.ArgumentAlreadyExists;
 import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.internal.ExpressionFactory;
@@ -73,7 +74,7 @@ import re.agiledesign.mp2.util.Util;
 
 public class MP2Parser {
 	private final Tokenizer mTokenizer;
-	private/*   */LexicalScope mLexicalScope = new LexicalScope();
+	private/*   */LexicalScope mLexicalScope = new LexicalScope(null);
 	private final ExpressionFactory mExpressionFactory = new ExpressionFactory();
 	private final Map<String, FunctionExpression> mFunctions = new HashMap<String, FunctionExpression>();
 
@@ -158,15 +159,16 @@ public class MP2Parser {
 					right = OperatorFactory.getBinaryOperator(basicOperator, parseAccessExpression(aVarName), right);
 				}
 
-				int index = mLexicalScope.getArgumentIndex(aVarName);
-				if (index >= 0) {
-					return new ArgumentAssignmentExpression(index, right);
-				}
+				final VarInfo var = mLexicalScope.getVariable(aVarName);
+				if (var != null) {
+					if (var.isArgument()) {
+						return new ArgumentAssignmentExpression(var.getIndex(), right);
+					}
 
-				index = mLexicalScope.getLocalVariableIndex(aVarName);
-				if (index >= 0) {
-					mLexicalScope.setAssigned(aVarName);
-					return new LocalAssignmentExpression(index, right);
+					if (var.isLocal()) {
+						mLexicalScope.setAssigned(aVarName);
+						return new LocalAssignmentExpression(var.getIndex(), right);
+					}
 				}
 
 				return new AssignmentExpression(aVarName, right);
@@ -541,18 +543,20 @@ public class MP2Parser {
 	}
 
 	private Expression parseAccessExpression(final String aVarName) throws ParsingException {
-		int index = mLexicalScope.getArgumentIndex(aVarName);
-		if (index >= 0) {
-			return mExpressionFactory.getArgumentAccessExpression(index);
-		}
+		final VarInfo var = mLexicalScope.getVariable(aVarName);
 
-		index = mLexicalScope.getLocalVariableIndex(aVarName);
-		if (index >= 0) {
-			if (!mLexicalScope.isAssigned(aVarName)) {
-				throw new ParsingException("Local variable '" + aVarName + "' is used without being initialized");
+		if (var != null) {
+			if (var.isArgument()) {
+				return mExpressionFactory.getArgumentAccessExpression(var.getIndex());
 			}
 
-			return mExpressionFactory.getLocalAccessExpression(index);
+			if (var.isLocal()) {
+				if (!mLexicalScope.isAssigned(aVarName)) {
+					throw new ParsingException("Local variable '" + aVarName + "' is used without being initialized");
+				}
+
+				return mExpressionFactory.getLocalAccessExpression(var.getIndex());
+			}
 		}
 
 		return new AccessExpression(aVarName);
@@ -627,15 +631,12 @@ public class MP2Parser {
 		return false;
 	}
 
-	private LexicalScope newLexicalScope() {
-		final LexicalScope oldScope = mLexicalScope;
-
-		mLexicalScope = new LexicalScope();
-		return oldScope;
+	private void newLexicalScope() {
+		mLexicalScope = new LexicalScope(mLexicalScope);
 	}
 
-	private void restoreLexicalScope(final LexicalScope aLexicalScope) {
-		mLexicalScope = aLexicalScope;
+	private void restoreLexicalScope() {
+		mLexicalScope = mLexicalScope.getParentScope();
 	}
 
 	private void parseFunctionDefinition() throws ParsingException {
@@ -651,7 +652,7 @@ public class MP2Parser {
 
 	private FunctionExpression parseFunctionDefinition0(final boolean aLambda) throws ParsingException,
 			ArgumentAlreadyExists {
-		final LexicalScope oldScope = newLexicalScope();
+		newLexicalScope();
 		if (!advanceIfNext(SyntaxToken.C_BRACK)) {
 			while (true) {
 				final Token argName = mTokenizer.next();
@@ -659,7 +660,7 @@ public class MP2Parser {
 					throwExpectedFound(TokenType.IDENTIFIER, argName);
 				}
 
-				mLexicalScope.addArgument(argName.getStringValue());
+				mLexicalScope.addVariable(argName.getStringValue(), Visibility.ARGUMENT);
 				if (advanceIfNext(SyntaxToken.C_BRACK)) {
 					break;
 				}
@@ -673,11 +674,11 @@ public class MP2Parser {
 		}
 
 		final Statement body = parseStatementOrBlock();
-		final int localsCount = mLexicalScope.getLocalsCount();
+		final int localsCount = mLexicalScope.getCountOf(Visibility.LOCAL);
 		final List<String> argsArray = mLexicalScope.getArgumentsArray();
 
-		restoreLexicalScope(oldScope);
-		return new FunctionExpression(body, localsCount, argsArray);
+		restoreLexicalScope();
+		return new FunctionExpression(body, localsCount, Util.immutableList(argsArray));
 	}
 
 	private Statement parseStatement() throws ParsingException {
@@ -816,7 +817,7 @@ public class MP2Parser {
 			}
 
 			final String varName = token.getStringValue();
-			mLexicalScope.addLocalVariable(varName);
+			mLexicalScope.addVariable(varName, Visibility.LOCAL);
 
 			if (mTokenizer.hasNext()) {
 				final int position = mTokenizer.getPostion();

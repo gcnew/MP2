@@ -1,77 +1,104 @@
 package re.agiledesign.mp2;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
+import re.agiledesign.mp2.VarInfo.Visibility;
 import re.agiledesign.mp2.exception.ArgumentAlreadyExists;
+import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.exception.VariableAlreadyDeclared;
+import re.agiledesign.mp2.util.AssertUtil;
 import re.agiledesign.mp2.util.Util;
 
 public class LexicalScope {
-	// private final LexicalScope mPrevious;
-	private final List<String> mArgsArray = new ArrayList<String>();
-	private final Set<String> mAssigned = new HashSet<String>();
-	private final Map<String, Integer> mLocalVars = new HashMap<String, Integer>();
+	private final LexicalScope mParentScope;
+	private final int mIndices[] = new int[Visibility.values().length];
+	private final Map<String, VarInfo> mVariables = new HashMap<String, VarInfo>();
 
-	/* public LexicalScope(final LexicalScope aPrevious) {
-		mPrevious = aPrevious;
-	} */
+	private static VarInfo DUMMY_VAR = new VarInfo(null, null, null, -1);
 
-	public void addArgument(final String aArgName) throws ArgumentAlreadyExists {
-		final String argName = Util.stripVariableName(aArgName);
+	public LexicalScope(final LexicalScope aParentScope) {
+		mParentScope = aParentScope;
+	}
 
-		if (mArgsArray.contains(argName)) {
-			throw new ArgumentAlreadyExists(aArgName);
+	public VarInfo getVariable(final String aVarName) {
+		final VarInfo retval = getVar(aVarName, null);
+		return (retval != DUMMY_VAR) ? retval : null;
+	}
+
+	public VarInfo getVariable(final String aVarName, final Visibility aVisibility) {
+		final VarInfo retval = getVar(aVarName, aVisibility);
+		return (retval != DUMMY_VAR) ? retval : null;
+	}
+
+	private VarInfo getVar(final String aVarName, final Visibility aVisibility) {
+		final VarInfo var = mVariables.get(Util.stripVariableName(aVarName));
+
+		if (var == null) {
+			return DUMMY_VAR;
 		}
 
-		mArgsArray.add(argName);
+		if (aVisibility != null) {
+			AssertUtil.runtimeAssert(var.getVisibility() == aVisibility, "Variable not of expected visibility!");
+		}
+
+		return var;
 	}
 
-	public int getArgumentIndex(final String aArgName) {
-		return mArgsArray.indexOf(Util.stripVariableName(aArgName));
+	private int getNextIndex(final Visibility aVisibility) {
+		return mIndices[aVisibility.ordinal()]++;
 	}
 
-	public List<String> getArgumentsArray() {
-		return mArgsArray;
-	}
-
-	public int getLocalsCount() {
-		return mLocalVars.size();
-	}
-
-	public void addLocalVariable(final String aVarName) throws VariableAlreadyDeclared {
+	public void addVariable(final String aVarName, final Visibility aVisibility) throws ParsingException {
 		final String varName = Util.stripVariableName(aVarName);
 
-		if (mLocalVars.containsKey(varName) || mArgsArray.contains(varName)) {
+		if (mVariables.containsKey(varName)) {
+			if (aVisibility == Visibility.ARGUMENT) {
+				throw new ArgumentAlreadyExists(aVarName);
+			}
+
 			throw new VariableAlreadyDeclared(aVarName);
 		}
 
-		mLocalVars.put(varName, Integer.valueOf(mLocalVars.size()));
+		mVariables.put(varName, new VarInfo(varName, aVisibility, this, getNextIndex(aVisibility)));
 	}
 
-	public int getLocalVariableIndex(final String aVarName) {
-		final String varName = Util.stripVariableName(aVarName);
-		Integer retval = mLocalVars.get(varName);
+	public int getCountOf(final Visibility aVisibility) {
+		return mIndices[aVisibility.ordinal()];
+	}
 
-		// old style variables were declared on first use, add it if not present
-		if ((retval == null) && Util.isLegacyVariable(aVarName)) {
-			retval = Integer.valueOf(mLocalVars.size());
+	public int getIndexOf(final String aVarName) {
+		return getVar(aVarName, null).getIndex();
+	}
 
-			mLocalVars.put(varName, retval);
+	public Visibility getVisibilityOf(final String aVarName) {
+		return getVar(aVarName, null).getVisibility();
+	}
+
+	public List<String> getArgumentsArray() {
+		final String argumentNames[] = new String[getCountOf(Visibility.ARGUMENT)];
+
+		for (final Entry<String, VarInfo> e : mVariables.entrySet()) {
+			if (e.getValue().isArgument()) {
+				argumentNames[e.getValue().getIndex()] = e.getKey();
+			}
 		}
 
-		return (retval != null) ? retval.intValue() : (-1);
+		return Arrays.asList(argumentNames);
 	}
 
 	public void setAssigned(final String aVarName) {
-		mAssigned.add(Util.stripVariableName(aVarName));
+		getVar(aVarName, null).assign();
 	}
 
 	public boolean isAssigned(final String aVarName) {
-		return mAssigned.contains(Util.stripVariableName(aVarName));
+		return getVar(aVarName, null).isAssigned();
+	}
+
+	public LexicalScope getParentScope() {
+		return mParentScope;
 	}
 }
