@@ -23,6 +23,31 @@ public class FunctionTest extends MP2Test {
 		assertEval("return (() => return 10)(1, 2, 3)", Integer.valueOf(10));
 	}
 
+	public void testImmediate() {
+		final String script = //
+		/**/"test = () => return [ () => return (1 .. 2) ]\n" +
+		/**/"return test()[0]().size()";
+
+		assertEval(script, Integer.valueOf(2));
+	}
+
+	public void testNested() {
+		final String script = //
+		/**/"test = () => return () => return (1 .. 2)\n" +
+		/**/"return test()().size()";
+
+		assertEval(script, Integer.valueOf(2));
+	}
+
+	public void testLambda() {
+		final String script = //
+		/**/"x = 2\n" +
+		/**/"addLambda = (x, y) => return () => return x + y + 1\n" +
+		/**/"return addLambda(4, 5)()";
+
+		assertEval(script, Integer.valueOf(10));
+	}
+
 	public void testHigherOrder() {
 		final String script = //
 		/**/"addOne = (x) => return 1 + x\n" +
@@ -94,7 +119,7 @@ public class FunctionTest extends MP2Test {
 		/**/"	return () => { i = i + 1; local i = 5; return i; }\n" +
 		/**/"}";
 
-		// locals/vars names should no collide with used closed variables names
+		// locals/vars names should not collide with used closed variables names
 		assertException(script, ParsingException.class);
 	}
 
@@ -106,7 +131,17 @@ public class FunctionTest extends MP2Test {
 		/**/"	return (i) => { return i; }\n" +
 		/**/"}";
 
-		// argument names should no collide with closed variables names
+		// argument names should not collide with closed variables names
+		assertException(script, ParsingException.class);
+	}
+
+	public void testArgumentSameAsLocal() {
+		final String script = //
+		/**/"function test(i) {\n" +
+		/**/"	local i = 3;\n" +
+		/**/"}";
+
+		// argument names should not collide with local variables names
 		assertException(script, ParsingException.class);
 	}
 }

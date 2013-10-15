@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import re.agiledesign.mp2.VarInfo.Visibility;
-import re.agiledesign.mp2.exception.ArgumentAlreadyExists;
 import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.exception.VariableAlreadyDeclared;
 import re.agiledesign.mp2.util.AssertUtil;
@@ -55,12 +54,9 @@ public class LexicalScope {
 	public void addVariable(final String aVarName, final Visibility aVisibility) throws ParsingException {
 		final String varName = Util.stripVariableName(aVarName);
 
-		if (mVariables.containsKey(varName)) {
-			if (aVisibility == Visibility.ARGUMENT) {
-				throw new ArgumentAlreadyExists(aVarName);
-			}
-
-			throw new VariableAlreadyDeclared(aVarName);
+		final VarInfo existingVar = mVariables.get(varName);
+		if (existingVar != null) {
+			throw new VariableAlreadyDeclared(existingVar);
 		}
 
 		mVariables.put(varName, new VarInfo(varName, aVisibility, this, getNextIndex(aVisibility)));

@@ -717,7 +717,7 @@ public class MP2Parser {
 				retval = parseLocalStatement();
 				break;
 			default:
-				throw new ParsingException("Keyword not yet implemented" + token);
+				throw new ParsingException("Keyword not yet implemented: " + token);
 			}
 		} else {
 			mTokenizer.restorePosition(position);
