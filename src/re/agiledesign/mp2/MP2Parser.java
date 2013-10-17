@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import re.agiledesign.mp2.VarInfo.Visibility;
-import re.agiledesign.mp2.exception.ArgumentAlreadyExists;
 import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.internal.ExpressionFactory;
 import re.agiledesign.mp2.internal.OperatorFactory;
@@ -650,8 +649,7 @@ public class MP2Parser {
 		mFunctions.put(nameToken.getStringValue(), function);
 	}
 
-	private FunctionExpression parseFunctionDefinition0(final boolean aLambda) throws ParsingException,
-			ArgumentAlreadyExists {
+	private FunctionExpression parseFunctionDefinition0(final boolean aLambda) throws ParsingException {
 		newLexicalScope();
 		if (!advanceIfNext(SyntaxToken.C_BRACK)) {
 			while (true) {
