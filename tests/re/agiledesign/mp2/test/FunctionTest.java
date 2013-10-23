@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import re.agiledesign.mp2.exception.ParsingException;
-
 public class FunctionTest extends MP2Test {
 	public void testLambda0() {
 		assertEval("x = (x) => return 1 + x return x(9)", Integer.valueOf(10));
@@ -109,39 +107,5 @@ public class FunctionTest extends MP2Test {
 		final List<Integer> list2 = Collections.emptyList();
 
 		assertEval(script, Arrays.<List<Integer>> asList(list0, list1, list2));
-	}
-
-	public void testLocalSameAsClosed() {
-		final String script = //
-		/**/"function test() {\n" +
-		/**/"	var i = 3;\n" +
-		/**/"\n" +
-		/**/"	return () => { i = i + 1; local i = 5; return i; }\n" +
-		/**/"}";
-
-		// locals/vars names should not collide with used closed variables names
-		assertException(script, ParsingException.class);
-	}
-
-	public void testArgumentSameAsClosed() {
-		final String script = //
-		/**/"function test() {\n" +
-		/**/"	var i = 3;\n" +
-		/**/"\n" +
-		/**/"	return (i) => { return i; }\n" +
-		/**/"}";
-
-		// argument names should not collide with closed variables names
-		assertException(script, ParsingException.class);
-	}
-
-	public void testArgumentSameAsLocal() {
-		final String script = //
-		/**/"function test(i) {\n" +
-		/**/"	local i = 3;\n" +
-		/**/"}";
-
-		// argument names should not collide with local variables names
-		assertException(script, ParsingException.class);
 	}
 }

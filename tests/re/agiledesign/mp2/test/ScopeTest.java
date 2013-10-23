@@ -1,5 +1,7 @@
 package re.agiledesign.mp2.test;
 
+import re.agiledesign.mp2.exception.ParsingException;
+
 public class ScopeTest extends MP2Test {
 	private static final Integer EXPECTED = Integer.valueOf(6);
 
@@ -52,5 +54,39 @@ public class ScopeTest extends MP2Test {
 		/**/"return test() + ((x) => return x = 3;)(8)";
 
 		assertEval(script, EXPECTED);
+	}
+
+	public void testLocalSameAsClosed() {
+		final String script = //
+		/**/"function test() {\n" +
+		/**/"	var i = 3;\n" +
+		/**/"\n" +
+		/**/"	return () => { i = i + 1; local i = 5; return i; }\n" +
+		/**/"}";
+
+		// locals/vars names should not collide with used closed variables names
+		assertException(script, ParsingException.class);
+	}
+
+	public void testArgumentSameAsClosed() {
+		final String script = //
+		/**/"function test() {\n" +
+		/**/"	var i = 3;\n" +
+		/**/"\n" +
+		/**/"	return (i) => { return i; }\n" +
+		/**/"}";
+
+		// argument names should not collide with closed variables names
+		assertException(script, ParsingException.class);
+	}
+
+	public void testArgumentSameAsLocal() {
+		final String script = //
+		/**/"function test(i) {\n" +
+		/**/"	local i = 3;\n" +
+		/**/"}";
+
+		// argument names should not collide with local variables names
+		assertException(script, ParsingException.class);
 	}
 }
