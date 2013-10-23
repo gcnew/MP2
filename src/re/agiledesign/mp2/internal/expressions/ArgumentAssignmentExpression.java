@@ -12,7 +12,6 @@ public class ArgumentAssignmentExpression extends Expression {
 		mExpression = aExpression;
 	}
 
-	@Override
 	public Object execute(final Scope aScope) throws Exception {
 		final Object value = mExpression.execute(aScope);
 		((FunctionScope) aScope).setArgument(mIndex, value);

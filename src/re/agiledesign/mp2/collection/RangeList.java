@@ -74,7 +74,6 @@ public class RangeList extends AbstractImmutableList<Integer> implements RandomA
 		return Integer.valueOf(aIndex + mFrom);
 	}
 
-	@Override
 	public int indexOf(final Object aO) {
 		return contains(aO) ? (((Number) aO).intValue() - mFrom) : -1;
 	}
