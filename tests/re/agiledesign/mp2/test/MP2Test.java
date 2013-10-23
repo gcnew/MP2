@@ -5,6 +5,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 import re.agiledesign.mp2.Interpreter;
 import re.agiledesign.mp2.InterpreterFactory;
+import re.agiledesign.mp2.util.ArrayUtil;
 import re.agiledesign.mp2.util.Util;
 
 public abstract class MP2Test extends TestCase {
@@ -12,7 +13,8 @@ public abstract class MP2Test extends TestCase {
 		return interpreter(aScript, null);
 	}
 
-	protected static Interpreter interpreter(final String aScript, final Map<String, Object> aArgs) throws Exception {
+	protected static Interpreter interpreter(final String aScript, final Map<String, ? extends Object> aArgs)
+			throws Exception {
 		return InterpreterFactory.createInterpreter(aScript, aArgs);
 	}
 
@@ -20,7 +22,7 @@ public abstract class MP2Test extends TestCase {
 		return eval(aScript, null);
 	}
 
-	protected static Object eval(final String aScript, final Map<String, Object> aArgs) {
+	protected static Object eval(final String aScript, final Map<String, ? extends Object> aArgs) {
 		try {
 			final Object retval = interpreter(aScript, aArgs).eval();
 			return retval;
@@ -37,12 +39,14 @@ public abstract class MP2Test extends TestCase {
 		assertEval(aScript, null, aExpected, aEquals);
 	}
 
-	protected static void assertEval(final String aScript, final Map<String, Object> aArgs, final Object aExpected) {
+	protected static void assertEval(final String aScript,
+			final Map<String, ? extends Object> aArgs,
+			final Object aExpected) {
 		assertEquals(aExpected, eval(aScript, aArgs));
 	}
 
 	protected static void assertEval(final String aScript,
-			final Map<String, Object> aArgs,
+			final Map<String, ? extends Object> aArgs,
 			final Object aExpected,
 			final EqualsTest aEquals) {
 		assertTrue(aEquals.areEqual(aExpected, eval(aScript, aArgs)));
@@ -52,7 +56,9 @@ public abstract class MP2Test extends TestCase {
 		assertGlobal(aScript, null, aExpected);
 	}
 
-	protected static void assertGlobal(final String aScript, final Map<String, Object> aArgs, final Object aExpected) {
+	protected static void assertGlobal(final String aScript,
+			final Map<String, ? extends Object> aArgs,
+			final Object aExpected) {
 		try {
 			final Interpreter interpreter = interpreter(aScript, aArgs);
 
@@ -68,7 +74,7 @@ public abstract class MP2Test extends TestCase {
 	}
 
 	protected static void assertException(final String aScript,
-			final Map<String, Object> aArgs,
+			final Map<String, ? extends Object> aArgs,
 			final Class<? extends Throwable> aExpected) {
 		try {
 			eval(aScript, aArgs);
@@ -82,6 +88,12 @@ public abstract class MP2Test extends TestCase {
 
 		fail();
 	}
+
+	public static final EqualsTest ArrayEquals = new EqualsTest() {
+		public boolean areEqual(Object aFirst, Object aSecond) {
+			return ArrayUtil.equals(aFirst, aSecond);
+		}
+	};
 
 	public interface EqualsTest {
 		public boolean areEqual(final Object aFirst, final Object aSecond);

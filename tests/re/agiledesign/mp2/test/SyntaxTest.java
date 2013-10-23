@@ -2,6 +2,12 @@ package re.agiledesign.mp2.test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import re.agiledesign.mp2.exception.ParsingException;
 
@@ -118,5 +124,93 @@ public class SyntaxTest extends MP2Test {
 		assertEval("return 'Say \"Hello\"'", "Say \"Hello\"");
 		assertEval("return \"Say \\\"Hello\\\"\"", "Say \"Hello\"");
 		assertException("'Say \\", ParsingException.class);
+	}
+
+	public void testPrimitiveArrayAssignment() {
+		assertEval("return a[0]= 3", Collections.singletonMap("a", new int[] { 0, 1, 2 }), Integer.valueOf(3));
+	}
+
+	public void testPrimitiveArrayAssignment2() {
+		final int arr[] = { 0, 1, 2 };
+		final int expected[] = { 3, 1, 2 };
+
+		assertEval("a[0]= 3; return a", Collections.singletonMap("a", arr), expected, ArrayEquals);
+	}
+
+	public void testPrimitiveArrayAssignment3() {
+		// TODO: should we do coercion or simply fail?
+		assertEval("return a[0]= 3.0", Collections.singletonMap("a", new int[] { 0, 1, 2 }), Integer.valueOf(3));
+	}
+
+	public void testPrimitiveArrayAssignment4() {
+		assertException("return a[0]= a",
+				Collections.singletonMap("a", new int[] { 0, 1, 2 }),
+				ClassCastException.class);
+	}
+
+	public void testListAssignment() {
+		final List<String> list = new ArrayList<String>();
+		list.add("empty");
+
+		assertEval("l[0] = 'abcd'; return l", Collections.singletonMap("l", list), Collections.singletonList("abcd"));
+	}
+
+	public void testListAssignment2() {
+		final List<String> list = new ArrayList<String>();
+		list.add("empty");
+
+		assertEval("return l[0] = 'abcd'", Collections.singletonMap("l", list), "abcd");
+	}
+
+	@SuppressWarnings("boxing")
+	public void testListAssignment3() {
+		assertEval("l = [ 0, 1, 2 ]; l[0] = 3; return l", Arrays.asList(3, 1, 2));
+	}
+
+	public void testListAssignment4() {
+		assertException("l = ( 0, 1, 2 ); l[0] = 3", UnsupportedOperationException.class);
+	}
+
+	public void testMapAssignment() {
+		final Map<Integer, String> expected = Collections.singletonMap(Integer.valueOf(0), "abcd");
+		final Map<Integer, String> map = new HashMap<Integer, String>();
+		map.put(Integer.valueOf(0), "empty");
+
+		assertEval("m[0] = 'abcd'; return m", Collections.singletonMap("m", map), expected);
+	}
+
+	public void testMapAssignment2() {
+		final Map<Integer, String> map = new HashMap<Integer, String>();
+		map.put(Integer.valueOf(0), "empty");
+
+		assertEval("return m[0] = 'abcd'", Collections.singletonMap("m", map), "abcd");
+	}
+
+	public void testMapAssignment3() {
+		assertEval("l = [ 'a' -> 'b'  ]; l['a'] = 'a'; return l", Collections.singletonMap("a", "a"));
+	}
+
+	public void testMapAssignment4() {
+		assertException("l = ( 'a' -> 'b'  ); l['a'] = 'a'; return l", UnsupportedOperationException.class);
+	}
+
+	public void testNestedAssignment() {
+		assertEval("return a[0][0] = 3", Collections.singletonMap("a", new int[][] { { 0 } }), Integer.valueOf(3));
+	}
+
+	public void testNestedAssignment2() {
+		final Map<String, Object> m = new HashMap<String, Object>();
+		final List<Integer> l = new ArrayList<Integer>();
+
+		l.add(Integer.valueOf(0));
+		m.put("l", l);
+
+		eval("m['l'][0] = 3", Collections.singletonMap("m", m));
+		assertEquals(Integer.valueOf(3), l.get(0));
+	}
+
+	@SuppressWarnings("boxing")
+	public void testAssignmentOrder() {
+		assertEval("i = 0; a = [ 3, 6 ]; a[i] = i = 9; return [ i, a[0], a[1] ]", Arrays.asList(9, 9, 6));
 	}
 }

@@ -167,7 +167,8 @@ public class MP2Parser {
 		final int position = mTokenizer.getPostion();
 		final Token next = mTokenizer.next();
 
-		if ((next.getType() == TokenType.IDENTIFIER) && (advanceIfNext(TokenType.OPERATOR, ASSIGN) != null)) {
+		if ((next.getType() == TokenType.IDENTIFIER) && mTokenizer.hasNext()
+				&& (advanceIfNext(TokenType.OPERATOR, ASSIGN) != null)) {
 			final VarInfo var = mLexicalScope.getVariable(next.getStringValue());
 
 			if ((var != null) && (var.isLocal() || var.isVar())) {
