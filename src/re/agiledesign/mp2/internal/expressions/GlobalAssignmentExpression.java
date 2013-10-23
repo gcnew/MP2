@@ -2,11 +2,11 @@ package re.agiledesign.mp2.internal.expressions;
 
 import re.agiledesign.mp2.internal.Scope;
 
-public class AssignmentExpression extends Expression {
+public class GlobalAssignmentExpression extends Expression {
 	private final String mVariableName;
 	private final Expression mExpression;
 
-	public AssignmentExpression(final String aVariableName, final Expression aExpression) {
+	public GlobalAssignmentExpression(final String aVariableName, final Expression aExpression) {
 		mVariableName = aVariableName;
 		mExpression = aExpression;
 	}

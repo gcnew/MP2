@@ -46,6 +46,51 @@ public class ArrayUtil {
 		throw new IllegalStateException("Unexpected primitive type: " + componentType);
 	}
 
+	public static Object setIndex(final Object aArray, final int aIndex, final Object aValue) {
+		if ((aArray == null) || !aArray.getClass().isArray()) {
+			throw new IllegalStateException("Array expected");
+		}
+
+		final Class<?> componentType = aArray.getClass().getComponentType();
+		if (!componentType.isPrimitive()) {
+			return ((Object[]) aArray)[aIndex] = aValue;
+		}
+
+		if (componentType == int.class) {
+			return Integer.valueOf(((int[]) aArray)[aIndex] = ((Number) aValue).intValue());
+		}
+
+		if (componentType == byte.class) {
+			return Byte.valueOf(((byte[]) aArray)[aIndex] = ((Number) aValue).byteValue());
+		}
+
+		if (componentType == long.class) {
+			return Long.valueOf(((long[]) aArray)[aIndex] = ((Number) aValue).longValue());
+		}
+
+		if (componentType == double.class) {
+			return Double.valueOf(((double[]) aArray)[aIndex] = ((Number) aValue).doubleValue());
+		}
+
+		if (componentType == short.class) {
+			return Short.valueOf(((short[]) aArray)[aIndex] = ((Number) aValue).shortValue());
+		}
+
+		if (componentType == char.class) {
+			return Character.valueOf(((char[]) aArray)[aIndex] = ((Character) aValue).charValue());
+		}
+
+		if (componentType == float.class) {
+			return Float.valueOf(((float[]) aArray)[aIndex] = ((Number) aValue).floatValue());
+		}
+
+		if (componentType == boolean.class) {
+			return Boolean.valueOf(((boolean[]) aArray)[aIndex] = ((Boolean) aValue).booleanValue());
+		}
+
+		throw new IllegalStateException("Unexpected primitive type: " + componentType);
+	}
+
 	public static <T> String arrayJoin(final String aSeparator, final T... aArgs) {
 		final StringBuilder retval = new StringBuilder(128);
 		arrayJoin(aSeparator != null ? aSeparator : "", aArgs, retval);

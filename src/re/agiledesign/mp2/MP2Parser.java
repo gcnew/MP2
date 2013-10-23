@@ -33,14 +33,13 @@ import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.internal.ExpressionFactory;
 import re.agiledesign.mp2.internal.OperatorFactory;
 import re.agiledesign.mp2.internal.expressions.AccessExpression;
-import re.agiledesign.mp2.internal.expressions.ArgumentAssignmentExpression;
-import re.agiledesign.mp2.internal.expressions.AssignmentExpression;
 import re.agiledesign.mp2.internal.expressions.CastExpression;
 import re.agiledesign.mp2.internal.expressions.ConstantExpression;
 import re.agiledesign.mp2.internal.expressions.Expression;
 import re.agiledesign.mp2.internal.expressions.FunctionCallExpression;
 import re.agiledesign.mp2.internal.expressions.FunctionExpression;
-import re.agiledesign.mp2.internal.expressions.IndexExpression;
+import re.agiledesign.mp2.internal.expressions.GlobalAccessExpression;
+import re.agiledesign.mp2.internal.expressions.IndexAccessExpression;
 import re.agiledesign.mp2.internal.expressions.InlineListExpression;
 import re.agiledesign.mp2.internal.expressions.InlineMapExpression;
 import re.agiledesign.mp2.internal.expressions.InlineSetExpression;
@@ -67,6 +66,7 @@ import re.agiledesign.mp2.tokenizer.SyntaxToken;
 import re.agiledesign.mp2.tokenizer.Token;
 import re.agiledesign.mp2.tokenizer.TokenType;
 import re.agiledesign.mp2.tokenizer.Tokenizer;
+import re.agiledesign.mp2.util.AssertUtil;
 import re.agiledesign.mp2.util.AssocEntry;
 import re.agiledesign.mp2.util.CoercionUtil.CoercionType;
 import re.agiledesign.mp2.util.Util;
@@ -128,52 +128,59 @@ public class MP2Parser {
 	}
 
 	private Expression parseAssignment() throws ParsingException {
+		final Expression varAssign = parseVarAssign();
+		if (varAssign != null) {
+			return varAssign;
+		}
+
+		final Expression left = parseTernaryConditional();
+		if (mTokenizer.hasNext()) {
+			final int position = mTokenizer.getPostion();
+			final Token token = mTokenizer.next();
+
+			if (token.getType() == TokenType.OPERATOR) {
+				final OperatorType operator = token.getValue();
+
+				if (operator.hasAssignment()) {
+					Expression right = parseAssignment();
+
+					if (operator != ASSIGN) {
+						final OperatorType basicOperator = operator.getBasicOperator();
+						right = OperatorFactory.getBinaryOperator(basicOperator, left, right);
+					}
+
+					if (left instanceof AccessExpression) {
+						return ((AccessExpression) left).asAssignment(right);
+					}
+
+					throw new ParsingException("LHS of assignment not assignable: " + left);
+				}
+			}
+
+			mTokenizer.restorePosition(position);
+		}
+
+		return left;
+	}
+
+	private Expression parseVarAssign() throws ParsingException {
 		final int position = mTokenizer.getPostion();
-		final Token token = mTokenizer.next();
+		final Token next = mTokenizer.next();
 
-		// TODO: handle index ($a[$i] = X)
-		if ((token.getType() == TokenType.IDENTIFIER) && mTokenizer.hasNext()) {
-			final Expression assignment = parseAssignment0(token.getStringValue());
+		if ((next.getType() == TokenType.IDENTIFIER) && (advanceIfNext(TokenType.OPERATOR, ASSIGN) != null)) {
+			final VarInfo var = mLexicalScope.getVariable(next.getStringValue());
 
-			if (assignment != null) {
-				return assignment;
+			if ((var != null) && (var.isLocal() || var.isVar())) {
+				final Expression right = parseAssignment();
+
+				var.assign();
+
+				// TODO: handle var properly
+				return new LocalAssignmentExpression(var.getIndex(), right);
 			}
 		}
 
 		mTokenizer.restorePosition(position);
-		return parseTernaryConditional();
-	}
-
-	private Expression parseAssignment0(final String aVarName) throws ParsingException {
-		final Token token2 = mTokenizer.next();
-
-		if (token2.getType() == TokenType.OPERATOR) {
-			final OperatorType operator = token2.getValue();
-
-			if (operator.hasAssignment()) {
-				Expression right = parseAssignment();
-
-				if (operator != ASSIGN) {
-					final OperatorType basicOperator = operator.getBasicOperator();
-					right = OperatorFactory.getBinaryOperator(basicOperator, parseAccessExpression(aVarName), right);
-				}
-
-				final VarInfo var = mLexicalScope.getVariable(aVarName);
-				if (var != null) {
-					if (var.isArgument()) {
-						return new ArgumentAssignmentExpression(var.getIndex(), right);
-					}
-
-					if (var.isLocal()) {
-						mLexicalScope.setAssigned(aVarName);
-						return new LocalAssignmentExpression(var.getIndex(), right);
-					}
-				}
-
-				return new AssignmentExpression(aVarName, right);
-			}
-		}
-
 		return null;
 	}
 
@@ -550,7 +557,7 @@ public class MP2Parser {
 			}
 
 			if (var.isLocal()) {
-				if (!mLexicalScope.isAssigned(aVarName)) {
+				if (!var.isAssigned()) {
 					throw new ParsingException("Local variable '" + aVarName + "' is used without being initialized");
 				}
 
@@ -558,7 +565,7 @@ public class MP2Parser {
 			}
 		}
 
-		return new AccessExpression(aVarName);
+		return new GlobalAccessExpression(aVarName);
 	}
 
 	private Expression parseThisExpression(final Expression aThis) throws ParsingException {
@@ -584,7 +591,7 @@ public class MP2Parser {
 		}
 
 		checkAndAdvance(SyntaxToken.C_INDEX);
-		return new IndexExpression(aThis, index);
+		return new IndexAccessExpression(aThis, index);
 	}
 
 	private Expression parseFunctionCall(final String aFunctionName) throws ParsingException {
@@ -712,7 +719,10 @@ public class MP2Parser {
 				retval = parseReturn();
 				break;
 			case LOCAL:
-				retval = parseLocalStatement();
+				retval = parseVarStatement(Visibility.LOCAL);
+				break;
+			case VAR:
+				retval = parseVarStatement(Visibility.VAR);
 				break;
 			default:
 				throw new ParsingException("Keyword not yet implemented: " + token);
@@ -804,7 +814,9 @@ public class MP2Parser {
 		return new ReturnStatement(expression);
 	}
 
-	private Statement parseLocalStatement() throws ParsingException {
+	private Statement parseVarStatement(final Visibility aVisibility) throws ParsingException {
+		AssertUtil.runtimeAssert(aVisibility == Visibility.LOCAL || aVisibility == Visibility.VAR);
+
 		final ArrayList<Expression> expressions = new ArrayList<Expression>(4);
 
 		do {
@@ -815,17 +827,15 @@ public class MP2Parser {
 			}
 
 			final String varName = token.getStringValue();
-			mLexicalScope.addVariable(varName, Visibility.LOCAL);
+			mLexicalScope.addVariable(varName, aVisibility);
 
-			if (mTokenizer.hasNext()) {
-				final int position = mTokenizer.getPostion();
-				final Expression assignment = parseAssignment0(varName);
+			if (advanceIfNext(TokenType.OPERATOR, OperatorType.ASSIGN) != null) {
+				mTokenizer.restorePosition(mTokenizer.getPostion() - 2);
 
-				if (assignment != null) {
-					expressions.add(assignment);
-				} else {
-					mTokenizer.restorePosition(position);
-				}
+				final Expression init = parseVarAssign();
+				AssertUtil.notNull(init);
+
+				expressions.add(init);
 			}
 		} while (mTokenizer.hasNext() && advanceIfNext(SyntaxToken.COMMA));
 
@@ -910,7 +920,7 @@ public class MP2Parser {
 		return false;
 	}
 
-	private <T> T advanceIfNext(final TokenType aType, final T aValues[]) throws ParsingException {
+	private <T> T advanceIfNext(final TokenType aType, final T... aValues) throws ParsingException {
 		final int position = mTokenizer.getPostion();
 		final Token token = mTokenizer.next();
 

@@ -40,4 +40,9 @@ public class Util {
 
 		return new ImmutableArrayList<T>(aList);
 	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T cast(final Object aObject) {
+		return (T) aObject;
+	}
 }

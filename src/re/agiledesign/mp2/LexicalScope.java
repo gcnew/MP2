@@ -51,7 +51,7 @@ public class LexicalScope {
 		return mIndices[aVisibility.ordinal()]++;
 	}
 
-	public void addVariable(final String aVarName, final Visibility aVisibility) throws ParsingException {
+	public VarInfo addVariable(final String aVarName, final Visibility aVisibility) throws ParsingException {
 		final String varName = Util.stripVariableName(aVarName);
 
 		final VarInfo existingVar = mVariables.get(varName);
@@ -59,7 +59,10 @@ public class LexicalScope {
 			throw new VariableAlreadyDeclared(existingVar);
 		}
 
-		mVariables.put(varName, new VarInfo(varName, aVisibility, this, getNextIndex(aVisibility)));
+		final VarInfo retval = new VarInfo(varName, aVisibility, this, getNextIndex(aVisibility));
+		mVariables.put(varName, retval);
+
+		return retval;
 	}
 
 	public int getCountOf(final Visibility aVisibility) {
@@ -84,14 +87,6 @@ public class LexicalScope {
 		}
 
 		return Arrays.asList(argumentNames);
-	}
-
-	public void setAssigned(final String aVarName) {
-		getVar(aVarName, null).assign();
-	}
-
-	public boolean isAssigned(final String aVarName) {
-		return getVar(aVarName, null).isAssigned();
 	}
 
 	public LexicalScope getParentScope() {
