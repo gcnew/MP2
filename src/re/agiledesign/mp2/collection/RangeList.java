@@ -11,11 +11,11 @@ public class RangeList extends AbstractImmutableList<Integer> implements RandomA
 	private final int mFrom;
 	private final int mTo;
 
-	public RangeList(final int aFrom, final int a“Ó) {
-		checkRange(aFrom, a“Ó);
+	public RangeList(final int aFrom, final int aTo) {
+		checkRange(aFrom, aTo);
 
 		mFrom = aFrom;
-		mTo = a“Ó;
+		mTo = aTo;
 	}
 
 	public int size() {
