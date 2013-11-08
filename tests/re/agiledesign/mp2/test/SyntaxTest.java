@@ -12,6 +12,8 @@ import java.util.Map;
 import re.agiledesign.mp2.exception.ParsingException;
 
 public class SyntaxTest extends MP2Test {
+	private static final Integer NINE = Integer.valueOf(9);
+
 	public void testTernary0() {
 		assertEval("return ((a = true) ? a : false) ? 4 : 5", Integer.valueOf(4));
 	}
@@ -126,6 +128,22 @@ public class SyntaxTest extends MP2Test {
 		assertException("'Say \\", ParsingException.class);
 	}
 
+	public void testVarPreIncrement() {
+		final Map<String, Integer> a = new HashMap<String, Integer>();
+		a.put("a", Integer.valueOf(8));
+
+		assertEval("a = 0; return ++a", NINE);
+		assertEquals(a.get("a"), NINE);
+	}
+
+	public void testVarPostDecrement() {
+		final Map<String, Integer> a = new HashMap<String, Integer>();
+		a.put("a", NINE);
+
+		assertEval("a = 0; return a--", NINE);
+		assertEquals(a.get("a"), Integer.valueOf(8));
+	}
+
 	public void testPrimitiveArrayAssignment() {
 		assertEval("return a[0]= 3", Collections.singletonMap("a", new int[] { 0, 1, 2 }), Integer.valueOf(3));
 	}
@@ -171,6 +189,27 @@ public class SyntaxTest extends MP2Test {
 		assertException("l = ( 0, 1, 2 ); l[0] = 3", UnsupportedOperationException.class);
 	}
 
+	public void testListComplexEquals() {
+		final List<Integer> a = Arrays.asList(Integer.valueOf(0));
+
+		assertEval("return a[0] += 9", Collections.singletonMap("a", a), NINE);
+		assertEquals(NINE, a.get(0));
+	}
+
+	public void testListPreDecrement() {
+		final List<Integer> a = Arrays.asList(Integer.valueOf(10));
+
+		assertEval("return --a[0]", Collections.singletonMap("a", a), NINE);
+		assertEquals(NINE, a.get(0));
+	}
+
+	public void testListPostDecrement() {
+		final List<Integer> a = Arrays.asList(NINE);
+
+		assertEval("return a[0]--", Collections.singletonMap("a", a), NINE);
+		assertEquals(Integer.valueOf(8), a.get(0));
+	}
+
 	public void testMapAssignment() {
 		final Map<Integer, String> expected = Collections.singletonMap(Integer.valueOf(0), "abcd");
 		final Map<Integer, String> map = new HashMap<Integer, String>();
@@ -192,6 +231,30 @@ public class SyntaxTest extends MP2Test {
 
 	public void testMapAssignment4() {
 		assertException("l = ( 'a' -> 'b'  ); l['a'] = 'a'; return l", UnsupportedOperationException.class);
+	}
+
+	public void testMapComplexEquals() {
+		final Map<String, Integer> a = new HashMap<String, Integer>();
+		a.put("i", Integer.valueOf(0));
+
+		assertEval("return a['i'] += 9", Collections.singletonMap("a", a), NINE);
+		assertEquals(NINE, a.get("i"));
+	}
+
+	public void testMapPreIncrement() {
+		final Map<String, Integer> a = new HashMap<String, Integer>();
+		a.put("i", Integer.valueOf(8));
+
+		assertEval("return ++a['i']", Collections.singletonMap("a", a), NINE);
+		assertEquals(NINE, a.get("i"));
+	}
+
+	public void testMapPostIncrement() {
+		final Map<String, Integer> a = new HashMap<String, Integer>();
+		a.put("i", NINE);
+
+		assertEval("return a['i']++", Collections.singletonMap("a", a), NINE);
+		assertEquals(Integer.valueOf(10), a.get("i"));
 	}
 
 	public void testNestedAssignment() {
