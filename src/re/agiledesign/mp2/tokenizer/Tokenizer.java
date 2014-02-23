@@ -87,6 +87,13 @@ public class Tokenizer {
 			}
 			//$FALL-THROUGH$
 		case '+':
+			// handle ++ and --
+			if (isCharAtOffset(1, c)) {
+				nextChar();
+				nextChar();
+				return TokenConstants.getOperationToken(mSource.substring(startIndex, mIndex), mLine, mChar);
+			}
+			//$FALL-THROUGH$
 		case '/':
 		case '*':
 		case '%':

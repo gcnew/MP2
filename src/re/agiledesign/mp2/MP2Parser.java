@@ -4,9 +4,12 @@ import static re.agiledesign.mp2.tokenizer.OperatorType.ADD;
 import static re.agiledesign.mp2.tokenizer.OperatorType.AND;
 import static re.agiledesign.mp2.tokenizer.OperatorType.ASSIGN;
 import static re.agiledesign.mp2.tokenizer.OperatorType.BIT_AND;
+import static re.agiledesign.mp2.tokenizer.OperatorType.BIT_NOT;
 import static re.agiledesign.mp2.tokenizer.OperatorType.BIT_OR;
 import static re.agiledesign.mp2.tokenizer.OperatorType.BIT_XOR;
+import static re.agiledesign.mp2.tokenizer.OperatorType.DECREMENT;
 import static re.agiledesign.mp2.tokenizer.OperatorType.DIVIDE;
+import static re.agiledesign.mp2.tokenizer.OperatorType.INCREMENT;
 import static re.agiledesign.mp2.tokenizer.OperatorType.IS_EQUAL;
 import static re.agiledesign.mp2.tokenizer.OperatorType.IS_GREATER;
 import static re.agiledesign.mp2.tokenizer.OperatorType.IS_GREATER_OR_EQ;
@@ -17,6 +20,7 @@ import static re.agiledesign.mp2.tokenizer.OperatorType.IS_REF_EQUAL;
 import static re.agiledesign.mp2.tokenizer.OperatorType.IS_REF_NOT_EQUAL;
 import static re.agiledesign.mp2.tokenizer.OperatorType.MODULO;
 import static re.agiledesign.mp2.tokenizer.OperatorType.MULTIPLY;
+import static re.agiledesign.mp2.tokenizer.OperatorType.NOT;
 import static re.agiledesign.mp2.tokenizer.OperatorType.OR;
 import static re.agiledesign.mp2.tokenizer.OperatorType.SHIFT_LEFT;
 import static re.agiledesign.mp2.tokenizer.OperatorType.SHIFT_RIGHT;
@@ -93,8 +97,11 @@ public class MP2Parser {
 	/*		*/{ SHIFT_LEFT, SHIFT_RIGHT },
 	/*		*/{ ADD, SUBSTRACT },
 	/*		*/{ MULTIPLY, DIVIDE, MODULO },
-	/*		*///{ NOT, BIT_NOT }
+	/*		*///REENTRANT_UNARY + STAR_CREMENTS
 	/* */};
+
+	private static final OperatorType STAR_CREMENTS[] = { INCREMENT, DECREMENT };
+	private static final OperatorType REENTRANT_UNARY[] = { NOT, BIT_NOT, SUBSTRACT, ADD };
 
 	public MP2Parser(final String aSource) {
 		this(aSource, /* legacy */true);
@@ -242,29 +249,56 @@ public class MP2Parser {
 		OperatorType operator = null;
 
 		do {
-			final int position = mTokenizer.getPostion();
-			final Token token = mTokenizer.next();
+			final OperatorType matched = advanceIfNext(TokenType.OPERATOR, REENTRANT_UNARY);
 
-			if (token.getType() == TokenType.OPERATOR) {
-				if (token.getValue() == ADD) {
+			if (matched != null) {
+				if (matched == ADD) {
 					continue;
 				}
 
 				if (operator == null) {
-					operator = token.getValue();
-				} else if (token.getValue() == operator) {
+					operator = matched;
+				} else if (matched == operator) {
 					operator = null;
 				} else {
-					mTokenizer.restorePosition(position);
 					retval = parseUnary();
 				}
 			} else {
-				mTokenizer.restorePosition(position);
-				retval = parseExpression();
+				retval = parseStarCrement();
 			}
 		} while (retval == null);
 
 		return (operator == null) ? retval : OperatorFactory.getUnaryOperator(operator, retval);
+	}
+
+	private Expression parseStarCrement() throws ParsingException {
+		final OperatorType pre = advanceIfNext(TokenType.OPERATOR, STAR_CREMENTS);
+		final Expression exp = parseExpression();
+
+		final VarInfo tempVar = mLexicalScope.getOrAddSpecialVariable("temp");
+		if (pre != null) {
+			if (!(exp instanceof AccessExpression)) {
+				throw new ParsingException("PRECREMENT: AccessExpression expected but found: " + exp);
+			}
+
+			final OperatorType operator = (pre == INCREMENT) ? ADD : SUBSTRACT;
+			final Expression action = OperatorFactory.getBinaryOperator(operator, exp, ExpressionFactory.getOne());
+
+			return ((AccessExpression) exp).asAssignment(action);
+		}
+
+		if (mTokenizer.hasNext()) {
+			final OperatorType post = advanceIfNext(TokenType.OPERATOR, INCREMENT, DECREMENT);
+			if (post != null) {
+				if (!(exp instanceof AccessExpression)) {
+					throw new ParsingException("POSTCREMENT: AccessExpression expected but found: " + exp);
+				}
+
+				// TODO:...
+			}
+		}
+
+		return exp;
 	}
 
 	private Expression parseExpression() throws ParsingException {
@@ -830,7 +864,7 @@ public class MP2Parser {
 			final String varName = token.getStringValue();
 			mLexicalScope.addVariable(varName, aVisibility);
 
-			if (advanceIfNext(TokenType.OPERATOR, OperatorType.ASSIGN) != null) {
+			if (advanceIfNext(TokenType.OPERATOR, ASSIGN) != null) {
 				mTokenizer.restorePosition(mTokenizer.getPostion() - 2);
 
 				final Expression init = parseVarAssign();

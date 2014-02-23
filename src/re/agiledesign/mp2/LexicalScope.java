@@ -51,6 +51,20 @@ public class LexicalScope {
 		return mIndices[aVisibility.ordinal()]++;
 	}
 
+	public VarInfo getOrAddSpecialVariable(final String aVarName) {
+		final String varName = '!' + aVarName;
+		final VarInfo existingVar = mVariables.get(varName);
+
+		if (existingVar != null) {
+			return existingVar;
+		}
+
+		final VarInfo retval = new VarInfo(varName, Visibility.LOCAL, this, getNextIndex(Visibility.LOCAL));
+		mVariables.put(varName, retval);
+
+		return retval;
+	}
+
 	public VarInfo addVariable(final String aVarName, final Visibility aVisibility) throws ParsingException {
 		final String varName = Util.stripVariableName(aVarName);
 

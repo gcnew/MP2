@@ -132,16 +132,14 @@ public class SyntaxTest extends MP2Test {
 		final Map<String, Integer> a = new HashMap<String, Integer>();
 		a.put("a", Integer.valueOf(8));
 
-		assertEval("a = 0; return ++a", NINE);
-		assertEquals(a.get("a"), NINE);
+		assertEval("return ++a", a, NINE);
 	}
 
 	public void testVarPostDecrement() {
 		final Map<String, Integer> a = new HashMap<String, Integer>();
 		a.put("a", NINE);
 
-		assertEval("a = 0; return a--", NINE);
-		assertEquals(a.get("a"), Integer.valueOf(8));
+		assertEval("return a--", NINE);
 	}
 
 	public void testPrimitiveArrayAssignment() {

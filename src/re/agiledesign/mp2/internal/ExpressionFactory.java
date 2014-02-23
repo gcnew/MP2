@@ -11,6 +11,7 @@ import re.agiledesign.mp2.tokenizer.Token;
 import re.agiledesign.mp2.tokenizer.TokenConstants;
 
 public class ExpressionFactory {
+	private static final ConstantExpression ONE = new ConstantExpression(Integer.valueOf(1));
 	private static final ConstantExpression NULL = new ConstantExpression(TokenConstants.getKeywordToken("null", 0, 0));
 	private final Map<Object, ConstantExpression> mConstantCache = new HashMap<Object, ConstantExpression>();
 	private LocalAccessExpression mLocalAccessCache[] = new LocalAccessExpression[16];
@@ -70,5 +71,9 @@ public class ExpressionFactory {
 
 	public static final ConstantExpression getNull() {
 		return NULL;
+	}
+
+	public static final ConstantExpression getOne() {
+		return ONE;
 	}
 }

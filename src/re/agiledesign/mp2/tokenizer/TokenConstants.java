@@ -63,8 +63,10 @@ public class TokenConstants {
 	private static final Token ASSIGN = new Token(OPERATOR, OperatorType.ASSIGN, 0, 0);
 	private static final Token ADD = new Token(OPERATOR, OperatorType.ADD, 0, 0);
 	private static final Token ADD_EQ = new Token(OPERATOR, OperatorType.ADD_EQ, 0, 0);
+	private static final Token INCREMENT = new Token(OPERATOR, OperatorType.INCREMENT, 0, 0);
 	private static final Token SUBSTRACT = new Token(OPERATOR, OperatorType.SUBSTRACT, 0, 0);
 	private static final Token SUBSTRACT_EQ = new Token(OPERATOR, OperatorType.SUBSTRACT_EQ, 0, 0);
+	private static final Token DECREMENT = new Token(OPERATOR, OperatorType.DECREMENT, 0, 0);
 	private static final Token MULTIPLY = new Token(OPERATOR, OperatorType.MULTIPLY, 0, 0);
 	private static final Token MULTIPLY_EQ = new Token(OPERATOR, OperatorType.MULTIPLY_EQ, 0, 0);
 	private static final Token DIVIDE = new Token(OPERATOR, OperatorType.DIVIDE, 0, 0);
@@ -105,8 +107,10 @@ public class TokenConstants {
 		OPERATOR_TOKEN_MAP.put("=", ASSIGN);
 		OPERATOR_TOKEN_MAP.put("+", ADD);
 		OPERATOR_TOKEN_MAP.put("+=", ADD_EQ);
+		OPERATOR_TOKEN_MAP.put("++", INCREMENT);
 		OPERATOR_TOKEN_MAP.put("-", SUBSTRACT);
 		OPERATOR_TOKEN_MAP.put("-=", SUBSTRACT_EQ);
+		OPERATOR_TOKEN_MAP.put("--", DECREMENT);
 		OPERATOR_TOKEN_MAP.put("*", MULTIPLY);
 		OPERATOR_TOKEN_MAP.put("*=", MULTIPLY_EQ);
 		OPERATOR_TOKEN_MAP.put("/", DIVIDE);
