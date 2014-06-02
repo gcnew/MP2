@@ -6,7 +6,11 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+import re.agiledesign.mp2.util.StacklessException;
+
 public abstract class AbstractConsList<T> extends AbstractImmutableList<T> implements SequentialList<T> {
+	private static final StacklessException SAME_MARK = new StacklessException();
+
 	public int size() {
 		return (rest() == null) ? 1 : (rest().size() + 1);
 	}
@@ -134,17 +138,25 @@ public abstract class AbstractConsList<T> extends AbstractImmutableList<T> imple
 		SequentialList<T> curr = this;
 		for (int idx = aFromIndex; idx != 0; --idx) {
 			if (curr == null) {
-				throw new IllegalStateException("To index greater than list length");
+				throw new IllegalStateException("From index greater than list length");
 			}
 
 			curr = curr.rest();
 		}
 
-		return copy(this, aToIndex);
+		try {
+			return copy(curr, aToIndex - aFromIndex);
+		} catch (final StacklessException ignored) {
+			return curr;
+		}
 	}
 
-	private static <T> AbstractConsList<T> copy(final SequentialList<T> aList, final int aN) {
+	private static <T> AbstractConsList<T> copy(final SequentialList<T> aList, final int aN) throws StacklessException {
 		if (aN == 0) {
+			if (aList == null) {
+				throw SAME_MARK;
+			}
+
 			return null;
 		}
 
