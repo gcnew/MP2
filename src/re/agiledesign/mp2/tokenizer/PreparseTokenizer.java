@@ -6,7 +6,7 @@ import java.util.List;
 import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.util.StringUtil;
 
-public class Tokenizer {
+public class PreparseTokenizer {
 	private int mChar;
 	private int mLine;
 	private int mIndex;
@@ -14,7 +14,7 @@ public class Tokenizer {
 	private final String mSource;
 	private final List<Token> mTokens;
 
-	public Tokenizer(final String aSource, final boolean aInt32) {
+	public PreparseTokenizer(final String aSource, final boolean aInt32) {
 		mInt32 = aInt32;
 		mSource = aSource;
 		mTokens = new ArrayList<Token>();

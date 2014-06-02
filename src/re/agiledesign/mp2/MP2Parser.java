@@ -69,14 +69,14 @@ import re.agiledesign.mp2.tokenizer.OperatorType;
 import re.agiledesign.mp2.tokenizer.SyntaxToken;
 import re.agiledesign.mp2.tokenizer.Token;
 import re.agiledesign.mp2.tokenizer.TokenType;
-import re.agiledesign.mp2.tokenizer.Tokenizer;
+import re.agiledesign.mp2.tokenizer.PreparseTokenizer;
 import re.agiledesign.mp2.util.AssertUtil;
 import re.agiledesign.mp2.util.AssocEntry;
 import re.agiledesign.mp2.util.CoercionUtil.CoercionType;
 import re.agiledesign.mp2.util.Util;
 
 public class MP2Parser {
-	private final Tokenizer mTokenizer;
+	private final PreparseTokenizer mTokenizer;
 	private/*   */LexicalScope mLexicalScope = new LexicalScope(null);
 	private final ExpressionFactory mExpressionFactory = new ExpressionFactory();
 	private final Map<String, FunctionExpression> mFunctions = new HashMap<String, FunctionExpression>();
@@ -108,7 +108,7 @@ public class MP2Parser {
 	}
 
 	public MP2Parser(final String aSource, final boolean aInt32) {
-		mTokenizer = new Tokenizer(aSource, aInt32);
+		mTokenizer = new PreparseTokenizer(aSource, aInt32);
 	}
 
 	public ParsedScript parse() throws ParsingException {
