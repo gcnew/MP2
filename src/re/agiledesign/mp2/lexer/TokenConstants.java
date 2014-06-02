@@ -1,10 +1,10 @@
-package re.agiledesign.mp2.tokenizer;
+package re.agiledesign.mp2.lexer;
 
-import static re.agiledesign.mp2.tokenizer.TokenType.CONSTANT;
-import static re.agiledesign.mp2.tokenizer.TokenType.KEYWORD;
-import static re.agiledesign.mp2.tokenizer.TokenType.OPERATOR;
-import static re.agiledesign.mp2.tokenizer.TokenType.SYNTAX_TOKEN;
-import static re.agiledesign.mp2.tokenizer.TokenType.TYPE;
+import static re.agiledesign.mp2.lexer.TokenType.CONSTANT;
+import static re.agiledesign.mp2.lexer.TokenType.KEYWORD;
+import static re.agiledesign.mp2.lexer.TokenType.OPERATOR;
+import static re.agiledesign.mp2.lexer.TokenType.SYNTAX_TOKEN;
+import static re.agiledesign.mp2.lexer.TokenType.TYPE;
 import static re.agiledesign.mp2.util.CoercionUtil.getCoercionType;
 
 import java.math.BigDecimal;

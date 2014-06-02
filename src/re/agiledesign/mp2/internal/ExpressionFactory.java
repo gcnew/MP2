@@ -7,8 +7,8 @@ import java.util.Map;
 import re.agiledesign.mp2.internal.expressions.ArgumentAccessExpression;
 import re.agiledesign.mp2.internal.expressions.ConstantExpression;
 import re.agiledesign.mp2.internal.expressions.LocalAccessExpression;
-import re.agiledesign.mp2.tokenizer.Token;
-import re.agiledesign.mp2.tokenizer.TokenConstants;
+import re.agiledesign.mp2.lexer.Token;
+import re.agiledesign.mp2.lexer.TokenConstants;
 
 public class ExpressionFactory {
 	private static final ConstantExpression ONE = new ConstantExpression(Integer.valueOf(1));

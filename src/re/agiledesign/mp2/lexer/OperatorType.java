@@ -1,4 +1,4 @@
-package re.agiledesign.mp2.tokenizer;
+package re.agiledesign.mp2.lexer;
 
 public enum OperatorType {
 	/*   = */ASSIGN,

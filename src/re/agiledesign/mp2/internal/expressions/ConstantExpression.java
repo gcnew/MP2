@@ -1,7 +1,7 @@
 package re.agiledesign.mp2.internal.expressions;
 
 import re.agiledesign.mp2.internal.Scope;
-import re.agiledesign.mp2.tokenizer.Token;
+import re.agiledesign.mp2.lexer.Token;
 
 public class ConstantExpression extends Expression {
 	private final Object mConstant;

@@ -1,4 +1,4 @@
-package re.agiledesign.mp2.tokenizer;
+package re.agiledesign.mp2.lexer;
 
 import java.util.ArrayList;
 import java.util.List;

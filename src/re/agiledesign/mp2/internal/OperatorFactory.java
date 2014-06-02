@@ -1,24 +1,24 @@
 package re.agiledesign.mp2.internal;
 
-import static re.agiledesign.mp2.tokenizer.OperatorType.ADD;
-import static re.agiledesign.mp2.tokenizer.OperatorType.AND;
-import static re.agiledesign.mp2.tokenizer.OperatorType.BIT_NOT;
-import static re.agiledesign.mp2.tokenizer.OperatorType.DIVIDE;
-import static re.agiledesign.mp2.tokenizer.OperatorType.IS_EQUAL;
-import static re.agiledesign.mp2.tokenizer.OperatorType.IS_GREATER;
-import static re.agiledesign.mp2.tokenizer.OperatorType.IS_GREATER_OR_EQ;
-import static re.agiledesign.mp2.tokenizer.OperatorType.IS_LESS;
-import static re.agiledesign.mp2.tokenizer.OperatorType.IS_LESS_OR_EQ;
-import static re.agiledesign.mp2.tokenizer.OperatorType.IS_NOT_EQUAL;
-import static re.agiledesign.mp2.tokenizer.OperatorType.IS_REF_EQUAL;
-import static re.agiledesign.mp2.tokenizer.OperatorType.IS_REF_NOT_EQUAL;
-import static re.agiledesign.mp2.tokenizer.OperatorType.MODULO;
-import static re.agiledesign.mp2.tokenizer.OperatorType.MULTIPLY;
-import static re.agiledesign.mp2.tokenizer.OperatorType.NOT;
-import static re.agiledesign.mp2.tokenizer.OperatorType.OR;
-import static re.agiledesign.mp2.tokenizer.OperatorType.SHIFT_LEFT;
-import static re.agiledesign.mp2.tokenizer.OperatorType.SHIFT_RIGHT;
-import static re.agiledesign.mp2.tokenizer.OperatorType.SUBSTRACT;
+import static re.agiledesign.mp2.lexer.OperatorType.ADD;
+import static re.agiledesign.mp2.lexer.OperatorType.AND;
+import static re.agiledesign.mp2.lexer.OperatorType.BIT_NOT;
+import static re.agiledesign.mp2.lexer.OperatorType.DIVIDE;
+import static re.agiledesign.mp2.lexer.OperatorType.IS_EQUAL;
+import static re.agiledesign.mp2.lexer.OperatorType.IS_GREATER;
+import static re.agiledesign.mp2.lexer.OperatorType.IS_GREATER_OR_EQ;
+import static re.agiledesign.mp2.lexer.OperatorType.IS_LESS;
+import static re.agiledesign.mp2.lexer.OperatorType.IS_LESS_OR_EQ;
+import static re.agiledesign.mp2.lexer.OperatorType.IS_NOT_EQUAL;
+import static re.agiledesign.mp2.lexer.OperatorType.IS_REF_EQUAL;
+import static re.agiledesign.mp2.lexer.OperatorType.IS_REF_NOT_EQUAL;
+import static re.agiledesign.mp2.lexer.OperatorType.MODULO;
+import static re.agiledesign.mp2.lexer.OperatorType.MULTIPLY;
+import static re.agiledesign.mp2.lexer.OperatorType.NOT;
+import static re.agiledesign.mp2.lexer.OperatorType.OR;
+import static re.agiledesign.mp2.lexer.OperatorType.SHIFT_LEFT;
+import static re.agiledesign.mp2.lexer.OperatorType.SHIFT_RIGHT;
+import static re.agiledesign.mp2.lexer.OperatorType.SUBSTRACT;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -49,8 +49,8 @@ import re.agiledesign.mp2.internal.expressions.operators.binary.Substract;
 import re.agiledesign.mp2.internal.expressions.operators.unary.BitNot;
 import re.agiledesign.mp2.internal.expressions.operators.unary.Negate;
 import re.agiledesign.mp2.internal.expressions.operators.unary.Not;
-import re.agiledesign.mp2.tokenizer.OperatorType;
-import re.agiledesign.mp2.tokenizer.TokenConstants;
+import re.agiledesign.mp2.lexer.OperatorType;
+import re.agiledesign.mp2.lexer.TokenConstants;
 
 public class OperatorFactory {
 	private static Map<OperatorType, Constructor<? extends UnaryOperatorExpression>> UNARY_OPERATORS = new HashMap<OperatorType, Constructor<? extends UnaryOperatorExpression>>(8);

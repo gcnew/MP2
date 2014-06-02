@@ -1,4 +1,4 @@
-package re.agiledesign.mp2.tokenizer;
+package re.agiledesign.mp2.lexer;
 
 public enum TokenType {
 	CONSTANT, // null, string/float/integral literal, boolean constant (true, false)

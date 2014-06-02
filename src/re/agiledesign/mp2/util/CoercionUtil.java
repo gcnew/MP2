@@ -1,6 +1,6 @@
 package re.agiledesign.mp2.util;
 
-import static re.agiledesign.mp2.tokenizer.OperatorType.ADD;
+import static re.agiledesign.mp2.lexer.OperatorType.ADD;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import re.agiledesign.mp2.exception.UnsupportedOperatorException;
-import re.agiledesign.mp2.tokenizer.OperatorType;
+import re.agiledesign.mp2.lexer.OperatorType;
 
 public class CoercionUtil {
 	public enum CoercionType {

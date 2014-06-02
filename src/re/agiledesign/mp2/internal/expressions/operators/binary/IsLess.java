@@ -1,6 +1,6 @@
 package re.agiledesign.mp2.internal.expressions.operators.binary;
 
-import static re.agiledesign.mp2.tokenizer.OperatorType.IS_LESS;
+import static re.agiledesign.mp2.lexer.OperatorType.IS_LESS;
 import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.expressions.BinaryOperatorExpression;
 import re.agiledesign.mp2.internal.expressions.Expression;
