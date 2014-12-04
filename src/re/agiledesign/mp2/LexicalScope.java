@@ -10,7 +10,6 @@ import re.agiledesign.mp2.VarInfo.Visibility;
 import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.exception.VariableAlreadyDeclared;
 import re.agiledesign.mp2.util.AssertUtil;
-import re.agiledesign.mp2.util.Util;
 
 public class LexicalScope {
 	private final LexicalScope mParentScope;
@@ -34,7 +33,7 @@ public class LexicalScope {
 	}
 
 	private VarInfo getVar(final String aVarName, final Visibility aVisibility) {
-		final VarInfo var = mVariables.get(Util.stripVariableName(aVarName));
+		final VarInfo var = mVariables.get(aVarName);
 
 		if (var == null) {
 			return DUMMY_VAR;
@@ -66,15 +65,13 @@ public class LexicalScope {
 	}
 
 	public VarInfo addVariable(final String aVarName, final Visibility aVisibility) throws ParsingException {
-		final String varName = Util.stripVariableName(aVarName);
-
-		final VarInfo existingVar = mVariables.get(varName);
+		final VarInfo existingVar = mVariables.get(aVarName);
 		if (existingVar != null) {
 			throw new VariableAlreadyDeclared(existingVar);
 		}
 
-		final VarInfo retval = new VarInfo(varName, aVisibility, this, getNextIndex(aVisibility));
-		mVariables.put(varName, retval);
+		final VarInfo retval = new VarInfo(aVarName, aVisibility, this, getNextIndex(aVisibility));
+		mVariables.put(aVarName, retval);
 
 		return retval;
 	}

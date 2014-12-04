@@ -66,17 +66,18 @@ import re.agiledesign.mp2.internal.statements.Statement;
 import re.agiledesign.mp2.internal.statements.WhileStatement;
 import re.agiledesign.mp2.lexer.Keyword;
 import re.agiledesign.mp2.lexer.OperatorType;
-import re.agiledesign.mp2.lexer.PreparseTokenizer;
 import re.agiledesign.mp2.lexer.SyntaxToken;
 import re.agiledesign.mp2.lexer.Token;
 import re.agiledesign.mp2.lexer.TokenType;
+import re.agiledesign.mp2.lexer.Tokenizer;
+import re.agiledesign.mp2.lexer.TokensBuffer;
 import re.agiledesign.mp2.util.AssertUtil;
 import re.agiledesign.mp2.util.AssocEntry;
 import re.agiledesign.mp2.util.CoercionUtil.CoercionType;
 import re.agiledesign.mp2.util.Util;
 
 public class MP2Parser {
-	private final PreparseTokenizer mTokenizer;
+	private final TokensBuffer mTokenizer;
 	private/*   */LexicalScope mLexicalScope = new LexicalScope(null);
 	private final ExpressionFactory mExpressionFactory = new ExpressionFactory();
 	private final Map<String, FunctionExpression> mFunctions = new HashMap<String, FunctionExpression>();
@@ -103,17 +104,11 @@ public class MP2Parser {
 	private static final OperatorType STAR_CREMENTS[] = { INCREMENT, DECREMENT };
 	private static final OperatorType REENTRANT_UNARY[] = { NOT, BIT_NOT, SUBSTRACT, ADD };
 
-	public MP2Parser(final String aSource) {
-		this(aSource, /* legacy */true);
-	}
-
-	public MP2Parser(final String aSource, final boolean aInt32) {
-		mTokenizer = new PreparseTokenizer(aSource, aInt32);
+	public MP2Parser(final String aSource) throws ParsingException {
+		mTokenizer = new TokensBuffer(new Tokenizer(aSource));
 	}
 
 	public ParsedScript parse() throws ParsingException {
-		mTokenizer.tokenize();
-
 		return new ParsedScript(parseBlock(), mFunctions);
 	}
 

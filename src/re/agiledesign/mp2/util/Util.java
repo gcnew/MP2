@@ -10,18 +10,6 @@ public class Util {
 		return (aObject != null) ? aObject.getClass().toString() : "(null)";
 	}
 
-	public static boolean isLegacyVariable(final String aVarName) {
-		return aVarName.charAt(0) == '$';
-	}
-
-	public static String stripVariableName(final String aVarName) {
-		if (isLegacyVariable(aVarName)) {
-			return aVarName.substring(1);
-		}
-
-		return aVarName;
-	}
-
 	@SuppressWarnings("unchecked")
 	public static <T extends Exception> T rethrow(final Exception aException) throws T {
 		throw (T) aException;

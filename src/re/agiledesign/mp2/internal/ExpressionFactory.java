@@ -7,12 +7,15 @@ import java.util.Map;
 import re.agiledesign.mp2.internal.expressions.ArgumentAccessExpression;
 import re.agiledesign.mp2.internal.expressions.ConstantExpression;
 import re.agiledesign.mp2.internal.expressions.LocalAccessExpression;
+import re.agiledesign.mp2.lexer.SourcePosition;
 import re.agiledesign.mp2.lexer.Token;
 import re.agiledesign.mp2.lexer.TokenConstants;
 
 public class ExpressionFactory {
 	private static final ConstantExpression ONE = new ConstantExpression(Integer.valueOf(1));
-	private static final ConstantExpression NULL = new ConstantExpression(TokenConstants.getKeywordToken("null", 0, 0));
+	private static final ConstantExpression NULL = new ConstantExpression(TokenConstants.getKeywordToken("null",
+			SourcePosition.UNKNOWN));
+
 	private final Map<Object, ConstantExpression> mConstantCache = new HashMap<Object, ConstantExpression>();
 	private LocalAccessExpression mLocalAccessCache[] = new LocalAccessExpression[16];
 	private ArgumentAccessExpression mArgumentAccessCache[] = new ArgumentAccessExpression[16];

@@ -1,37 +1,33 @@
 package re.agiledesign.mp2.lexer;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import re.agiledesign.mp2.exception.ParsingException;
+import re.agiledesign.mp2.util.ArrayUtil;
 import re.agiledesign.mp2.util.StringUtil;
 
-public class PreparseTokenizer {
+public class Tokenizer {
 	private int mChar;
 	private int mLine;
 	private int mIndex;
-	private final boolean mInt32;
 	private final String mSource;
-	private final List<Token> mTokens;
 
-	public PreparseTokenizer(final String aSource, final boolean aInt32) {
-		mInt32 = aInt32;
+	private int mTokenIndex;
+	private int mTokenLine;
+	private int mTokenChar;
+
+	private static final Map<Character, Integer> RADIX_MAP = new HashMap<Character, Integer>(8);
+
+	static {
+		RADIX_MAP.put(Character.valueOf('x'), Integer.valueOf(16));
+		RADIX_MAP.put(Character.valueOf('d'), Integer.valueOf(10));
+		RADIX_MAP.put(Character.valueOf('o'), Integer.valueOf(8));
+		RADIX_MAP.put(Character.valueOf('b'), Integer.valueOf(2));
+	}
+
+	public Tokenizer(final String aSource) {
 		mSource = aSource;
-		mTokens = new ArrayList<Token>();
-	}
-
-	public int getPostion() {
-		return mIndex;
-	}
-
-	public void restorePosition(final int aPosition) {
-		if ((aPosition >= 0) && (aPosition < mTokens.size())) {
-			mIndex = aPosition;
-
-			return;
-		}
-
-		throw new IllegalArgumentException("Inappropriate position: " + aPosition);
 	}
 
 	private void skipWhiteSpaces() {
@@ -40,23 +36,15 @@ public class PreparseTokenizer {
 		}
 	}
 
-	public void tokenize() throws ParsingException {
-		while (hasNext0()) {
-			mTokens.add(next0());
-		}
-
-		mIndex = 0;
-	}
-
-	private boolean hasNext0() {
+	public boolean hasNext() {
 		skipWhiteSpaces();
 
 		return !isAtEnd();
 	}
 
-	private Token next0() throws ParsingException {
-		final int startIndex = mIndex;
+	public Token next() throws ParsingException {
 		final char c = mSource.charAt(mIndex);
+		tokenStart();
 
 		switch (c) {
 		case '.':
@@ -75,23 +63,23 @@ public class PreparseTokenizer {
 		case '{':
 		case '}':
 			nextChar();
-			return TokenConstants.getSyntaxToken(mSource.substring(startIndex, mIndex), mLine, mChar);
+			return TokenConstants.getSyntaxToken(tokenString(), tokenPosition());
 		case '"':
 		case '\'':
 			return parseString();
 		case '-':
 			if (isCharAtOffset(1, '>')) {
-				nextChar();
-				nextChar();
-				return TokenConstants.getSyntaxToken("->", mLine, mChar);
+				advance(2);
+
+				return TokenConstants.getSyntaxToken(tokenString(), tokenPosition());
 			}
 			//$FALL-THROUGH$
 		case '+':
 			// handle ++ and --
 			if (isCharAtOffset(1, c)) {
-				nextChar();
-				nextChar();
-				return TokenConstants.getOperationToken(mSource.substring(startIndex, mIndex), mLine, mChar);
+				advance(2);
+
+				return TokenConstants.getOperationToken(tokenString(), tokenPosition());
 			}
 			//$FALL-THROUGH$
 		case '/':
@@ -108,8 +96,6 @@ public class PreparseTokenizer {
 		case '>':
 		case '<':
 			return parseTwoOrEqual();
-		case '$':
-			return parseVariable();
 		}
 
 		if (Character.isDigit(c)) {
@@ -119,28 +105,15 @@ public class PreparseTokenizer {
 		return parseIdentifier();
 	}
 
-	public boolean hasNext() {
-		return mIndex < mTokens.size();
-	}
-
-	public Token next() throws ParsingException {
-		if (!hasNext()) {
-			throw new ParsingException("EOF reached");
-		}
-
-		return mTokens.get(mIndex++);
-	}
-
 	private Token parseString() throws ParsingException {
-		final int startIndex = mIndex;
 		final char stopChar = mSource.charAt(mIndex);
 
 		nextChar();
-		int lastIndex = startIndex + 1;
+		int lastIndex = mIndex;
 		final StringBuilder retval = new StringBuilder();
 		do {
 			if (isAtEnd()) {
-				throw $("No closing quote found for string starting at {}", Integer.valueOf(startIndex));
+				throw $("No closing quote found");
 			}
 
 			final char c = nextChar();
@@ -155,46 +128,33 @@ public class PreparseTokenizer {
 				if (!isAtEnd()) {
 					lastIndex = mIndex;
 					nextChar();
+					// TODO: hande different escapes here
 				}
 			}
 		} while (true);
 
 		retval.append(mSource.substring(lastIndex, mIndex - 1));
-		return new Token(TokenType.CONSTANT, retval.toString(), mLine, mChar);
+		return new Token(TokenType.CONSTANT, retval.toString(), tokenPosition());
 	}
 
 	private Token parseNumber() throws ParsingException {
-		final int startIndex = mIndex;
-
 		int base = 0; // 0 will be normalized to 10, used to help parsing floats
 		if (isCharAtOffset(0, '0') && !isAtEnd(1)) {
 			final char next = Character.toLowerCase(mSource.charAt(mIndex + 1));
+			final Integer radix = RADIX_MAP.get(Character.valueOf(next));
 
-			switch (next) {
-			case 'x':
-				base = 16;
-				break;
-			case 'd':
-				base = 10;
-				break;
-			case 'o':
-				base = 8;
-				break;
-			case 'b':
-				base = 2;
-				break;
-			default:
+			if (radix != null) {
+				base = radix.intValue();
+
+				advance(2);
+			} else {
 				if (Character.isDigit(next)) {
 					// don't allow mistakes to pass through
-					throw $("Numeral system code expected (x/o/b/d)");
+					final String radixes = ArrayUtil.arrayJoin("/", RADIX_MAP.keySet().toArray());
+
+					throw $("Numeral system code expected ({})", radixes);
 				}
-
-				mChar -= 2;
-				mIndex -= 2;
 			}
-
-			mChar += 2;
-			mIndex += 2;
 		}
 
 		do {
@@ -216,25 +176,20 @@ public class PreparseTokenizer {
 		}
 
 		final Object constant;
-		final String number = mSource.substring(startIndex + ((base != 0) ? 2 : 0), mIndex);
+		final String number = mSource.substring(mTokenIndex + ((base != 0) ? 2 : 0), mIndex);
 
 		try {
 			if (isFloat) {
 				constant = Double.valueOf(number);
 			} else {
 				base = (base == 0) ? 10 : base;
-
-				if (mInt32) {
-					constant = Integer.valueOf(Integer.parseInt(number, base));
-				} else {
-					constant = Long.valueOf(Long.parseLong(number, base));
-				}
+				constant = Integer.valueOf(number, base);
 			}
 		} catch (final NumberFormatException e) {
-			throw $("Connot be parsed into a number: {}", mSource.substring(startIndex, mIndex));
+			throw $("Connot be parsed into a number: {}", tokenString());
 		}
 
-		return new Token(TokenType.CONSTANT, constant, mLine, mChar);
+		return new Token(TokenType.CONSTANT, constant, tokenPosition());
 	}
 
 	private boolean isHexDigit(final char aChar) {
@@ -245,21 +200,7 @@ public class PreparseTokenizer {
 		return Character.isLetterOrDigit(aChar) || (aChar == '_');
 	}
 
-	private Token parseVariable() throws ParsingException {
-		nextChar();
-
-		final int startIndex = mIndex;
-		if (isAtEnd()) {
-			throw $("Identifier expected but end of file reached");
-		}
-
-		parseIdentifier();
-		return new Token(TokenType.IDENTIFIER, mSource.substring(startIndex, mIndex), mLine, mChar);
-	}
-
 	private Token parseIdentifier() throws ParsingException {
-		final int startIndex = mIndex;
-
 		final char firstChar = mSource.charAt(mIndex);
 		if (!(Character.isLetter(firstChar) || (firstChar == '_'))) {
 			throw $("Identifier starting character expected but found: {}", Character.valueOf(firstChar));
@@ -269,9 +210,15 @@ public class PreparseTokenizer {
 			nextChar();
 		} while (!isAtEnd() && isIdentifierChar(mSource.charAt(mIndex)));
 
-		final String identifier = mSource.substring(startIndex, mIndex);
-		final Token keyword = TokenConstants.getKeywordToken(identifier, mLine, mChar);
-		return (keyword != null) ? keyword : new Token(TokenType.IDENTIFIER, identifier, mLine, mChar);
+		final String identifier = tokenString();
+		final SourcePosition position = tokenPosition();
+		final Token keyword = TokenConstants.getKeywordToken(identifier, position);
+
+		if (keyword != null) {
+			return keyword;
+		}
+
+		return new Token(TokenType.IDENTIFIER, identifier, position);
 	}
 
 	private boolean isCharAtOffset(final int aOffset, final char aChar) {
@@ -279,8 +226,9 @@ public class PreparseTokenizer {
 	}
 
 	private char nextChar() {
-		final char retval = mSource.charAt(mIndex++);
+		final char retval = mSource.charAt(mIndex);
 
+		++mIndex;
 		++mChar;
 		if (retval == '\n') {
 			++mLine;
@@ -288,6 +236,12 @@ public class PreparseTokenizer {
 		}
 
 		return retval;
+	}
+
+	private void advance(final int aCount) {
+		for (int i = 0; i < aCount; ++i) {
+			nextChar();
+		}
 	}
 
 	private boolean isAtEnd() {
@@ -299,20 +253,16 @@ public class PreparseTokenizer {
 	}
 
 	private Token parseOneOrEqual() {
-		final int advance = isCharAtOffset(1, '=') ? 2 : 1;
-		mIndex += advance;
-		mChar += advance;
+		advance(isCharAtOffset(1, '=') ? 2 : 1);
 
-		return TokenConstants.getOperationToken(mSource.substring(mIndex - advance, mIndex), mLine, mChar);
+		return TokenConstants.getOperationToken(tokenString(), tokenPosition());
 	}
 
 	private Token parseTwoOrEqual() {
 		if (isCharAtOffset(1, mSource.charAt(mIndex))) {
-			final int advance = isCharAtOffset(2, '=') ? 3 : 2;
-			mIndex += advance;
-			mChar += advance;
+			advance(isCharAtOffset(2, '=') ? 3 : 2);
 
-			return TokenConstants.getOperationToken(mSource.substring(mIndex - advance, mIndex), mLine, mChar);
+			return TokenConstants.getOperationToken(tokenString(), tokenPosition());
 		}
 
 		return parseOneOrEqual();
@@ -320,25 +270,39 @@ public class PreparseTokenizer {
 
 	private Token parseRefEqualOrLambda() {
 		if (isCharAtOffset(0, '=') && isCharAtOffset(1, '>')) {
-			mIndex += 2;
-			mChar += 2;
+			advance(2);
 
-			return TokenConstants.getSyntaxToken("=>", mLine, mChar);
+			return TokenConstants.getSyntaxToken(tokenString(), tokenPosition());
 		}
 
 		if (isCharAtOffset(2, '=') && isCharAtOffset(1, '=')) {
-			mIndex += 3;
-			mChar += 3;
+			advance(3);
 
-			return TokenConstants.getOperationToken(mSource.substring(mIndex - 3, mIndex), mLine, mChar);
+			return TokenConstants.getOperationToken(tokenString(), tokenPosition());
 		}
 
 		return parseOneOrEqual();
 	}
 
+	private void tokenStart() {
+		mTokenLine = mLine;
+		mTokenChar = mChar;
+		mTokenIndex = mIndex;
+	}
+
+	private SourcePosition tokenPosition() {
+		return new SourcePosition(mTokenIndex, mIndex, mTokenLine, mTokenChar);
+	}
+
+	private String tokenString() {
+		return mSource.substring(mTokenIndex, mIndex);
+	}
+
 	private ParsingException $(final String aMessage, final Object... aArgs) {
 		final String message = StringUtil.format(aMessage, aArgs);
-		final String fullMsg = StringUtil.format("{}:{} {}", Integer.valueOf(mLine), Integer.valueOf(mChar), message);
+
+		@SuppressWarnings("boxing")
+		final String fullMsg = StringUtil.format("{}:{} {}", mTokenLine, mTokenChar, message);
 
 		return new ParsingException(fullMsg);
 	}

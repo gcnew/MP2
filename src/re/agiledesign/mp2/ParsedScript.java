@@ -11,12 +11,12 @@ public class ParsedScript {
 	private final Statement mStartingStatement;
 	private final Map<String, ? extends Object> mGlobals;
 
-	/* package */ParsedScript(final Statement aStartingStatement, final Map<String, ? extends Object> aGlobals) {
+	/* package */ParsedScript(final Statement aStartingStatement, final Map<String, ?> aGlobals) {
 		mGlobals = aGlobals;
 		mStartingStatement = aStartingStatement;
 	}
 
-	/* package */Interpreter createInterpreter(final Map<String, ? extends Object> aGlobalVars) {
+	/* package */Interpreter createInterpreter(final Map<String, ?> aGlobalVars) {
 		final NameScope scope = new NameScope(null, null, mGlobals, 0);
 
 		if (aGlobalVars != null) {

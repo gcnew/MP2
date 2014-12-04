@@ -15,7 +15,7 @@ public class NameScope implements Scope {
 
 	public NameScope(final NameScope aPrev,
 			final Object[] aArgs,
-			final Map<String, ? extends Object> aNamedVars,
+			final Map<String, ?> aNamedVars,
 			final int aLocalVarsCount) {
 		mPrev = aPrev;
 
@@ -28,7 +28,7 @@ public class NameScope implements Scope {
 		mLocalVars = new Object[aLocalVarsCount];
 	}
 
-	public void putAll(final Map<String, ? extends Object> aLocalVars) {
+	public void putAll(final Map<String, ?> aLocalVars) {
 		mNamedVars.putAll(aLocalVars);
 	}
 
