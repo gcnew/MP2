@@ -61,7 +61,7 @@ public class ArrayUtil {
 
 		final Class<?> componentType = aArray1.getClass().getComponentType();
 		if (!componentType.isPrimitive()) {
-			return Arrays.equals((Object[]) aArray1, (Object[]) aArray2);
+			return Arrays.deepEquals((Object[]) aArray1, (Object[]) aArray2);
 		}
 
 		if (componentType == int.class) {

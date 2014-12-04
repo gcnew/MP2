@@ -4,6 +4,7 @@ import static re.agiledesign.mp2.util.CoercionUtil.isFloating;
 import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.expressions.BinaryOperatorExpression;
 import re.agiledesign.mp2.internal.expressions.Expression;
+import re.agiledesign.mp2.util.ArrayUtil;
 
 public class Equal extends BinaryOperatorExpression {
 	public Equal(final Expression aLeft, final Expression aRight) {
@@ -20,6 +21,10 @@ public class Equal extends BinaryOperatorExpression {
 
 		if ((left == null) || (right == null)) {
 			return Boolean.FALSE;
+		}
+
+		if (left.getClass().isArray() || right.getClass().isArray()) {
+			return Boolean.valueOf(ArrayUtil.equals(left, right));
 		}
 
 		if (left.equals(right)) {
