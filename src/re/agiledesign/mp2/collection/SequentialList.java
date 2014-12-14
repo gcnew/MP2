@@ -5,5 +5,7 @@ public interface SequentialList<T> extends ImmutableList<T> {
 
 	public SequentialList<T> rest();
 
+	public SequentialList<T> cons(T aValue);
+
 	public SequentialList<T> subList2(int aFrom, int aTo);
 }

@@ -151,7 +151,7 @@ public abstract class AbstractConsList<T> extends AbstractImmutableList<T> imple
 		}
 	}
 
-	private static <T> AbstractConsList<T> copy(final SequentialList<T> aList, final int aN) throws StacklessException {
+	private static <T> SequentialList<T> copy(final SequentialList<T> aList, final int aN) throws StacklessException {
 		if (aN == 0) {
 			if (aList == null) {
 				throw SAME_MARK;

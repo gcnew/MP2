@@ -36,4 +36,8 @@ public class ConsList<T> extends AbstractConsList<T> {
 	public final SequentialList<T> rest() {
 		return mRest;
 	}
+
+	public ConsList<T> cons(final T aValue) {
+		return new ConsList<T>(aValue, this);
+	}
 }

@@ -1,11 +1,13 @@
 package re.agiledesign.mp2.lexer;
 
 public class SourcePosition {
-	public static final SourcePosition UNKNOWN = new SourcePosition(0, 0, 0);
+	public static final SourcePosition BEGINING = new SourcePosition(0, 0, 0);
+	public static final SourcePosition UNKNOWN = new SourcePosition(-1, -1, -1);
 
 	private final int mStart;
 	private final int mEnd;
 	private final int mLineChar;
+	private final Source mSource = null;
 
 	public SourcePosition(final int aStart, final int aEnd, final int aLineChar) {
 		mStart = aStart;
@@ -31,6 +33,10 @@ public class SourcePosition {
 
 	public int getChar() {
 		return mLineChar & 0x0000FFFF;
+	}
+
+	public Source getSource() {
+		return mSource;
 	}
 
 	public String toString() {

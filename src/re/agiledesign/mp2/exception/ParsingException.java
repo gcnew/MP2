@@ -16,4 +16,24 @@ public class ParsingException extends Exception {
 	public ParsingException(final Throwable aCause) {
 		super(aCause);
 	}
+
+	public String getErrorMessage() {
+		final StringBuilder sb = new StringBuilder();
+
+		sb.append(getMessage());
+
+		Throwable current = this.getCause();
+		while (current != null) {
+			sb.append('\n').append(current.getMessage());
+
+			// include just one foreign exception
+			if (!(current instanceof ParsingException)) {
+				break;
+			}
+
+			current = current.getCause();
+		}
+
+		return sb.toString();
+	}
 }
