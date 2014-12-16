@@ -6,6 +6,7 @@ public enum Keyword {
 	FOR, // for
 	BREAK, // break
 	CONTINUE, //continue
+	FALLTHROUGH, // fallthrough
 	RETURN, // return
 	DO, // do
 	WHILE, // while

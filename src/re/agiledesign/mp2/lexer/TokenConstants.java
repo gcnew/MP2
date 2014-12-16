@@ -34,6 +34,7 @@ public class TokenConstants {
 	private static final Token FOR = new Token(KEYWORD, Keyword.FOR, UNKNOWN);
 	private static final Token BREAK = new Token(KEYWORD, Keyword.BREAK, UNKNOWN);
 	private static final Token CONTINUE = new Token(KEYWORD, Keyword.CONTINUE, UNKNOWN);
+	private static final Token FALLTHROUGH = new Token(KEYWORD, Keyword.FALLTHROUGH, UNKNOWN);
 	private static final Token RETURN = new Token(KEYWORD, Keyword.RETURN, UNKNOWN);
 	private static final Token DO = new Token(KEYWORD, Keyword.DO, UNKNOWN);
 	private static final Token WHILE = new Token(KEYWORD, Keyword.WHILE, UNKNOWN);
@@ -155,6 +156,7 @@ public class TokenConstants {
 		KEYWORD_TOKEN_MAP.put("for", FOR);
 		KEYWORD_TOKEN_MAP.put("break", BREAK);
 		KEYWORD_TOKEN_MAP.put("continue", CONTINUE);
+		KEYWORD_TOKEN_MAP.put("fallthrough", FALLTHROUGH);
 		KEYWORD_TOKEN_MAP.put("return", RETURN);
 		KEYWORD_TOKEN_MAP.put("do", DO);
 		KEYWORD_TOKEN_MAP.put("while", WHILE);
