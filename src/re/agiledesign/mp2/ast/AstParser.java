@@ -11,6 +11,7 @@ import static re.agiledesign.mp2.lexer.OperatorType.BIT_OR;
 import static re.agiledesign.mp2.lexer.OperatorType.BIT_XOR;
 import static re.agiledesign.mp2.lexer.OperatorType.DECREMENT;
 import static re.agiledesign.mp2.lexer.OperatorType.DIVIDE;
+import static re.agiledesign.mp2.lexer.OperatorType.DIVIDE_EQ;
 import static re.agiledesign.mp2.lexer.OperatorType.INCREMENT;
 import static re.agiledesign.mp2.lexer.OperatorType.IS_EQUAL;
 import static re.agiledesign.mp2.lexer.OperatorType.IS_GREATER;
@@ -34,31 +35,26 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import re.agiledesign.mp2.ast.node.Node;
-import re.agiledesign.mp2.collection.ConsList;
-import re.agiledesign.mp2.collection.SequentialList;
+import re.agiledesign.mp2.ast.node.Node.DSL.Type.ChildOrAttribute;
 import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.lexer.Keyword;
+import re.agiledesign.mp2.lexer.Lexer;
 import re.agiledesign.mp2.lexer.OperatorType;
+import re.agiledesign.mp2.lexer.SimpleLexer;
 import re.agiledesign.mp2.lexer.SourcePosition;
 import re.agiledesign.mp2.lexer.SyntaxToken;
 import re.agiledesign.mp2.lexer.Token;
 import re.agiledesign.mp2.lexer.TokenConstants;
-import re.agiledesign.mp2.lexer.TokenIterator;
 import re.agiledesign.mp2.lexer.TokenType;
-import re.agiledesign.mp2.lexer.Tokenizer;
-import re.agiledesign.mp2.lexer.TokensBuffer;
 import re.agiledesign.mp2.util.AssertUtil;
 import re.agiledesign.mp2.util.Pair;
 import re.agiledesign.mp2.util.StringUtil;
 
 public class AstParser {
-	private final String mSource;
-	private TokenIterator mTokens;
-	private SequentialList<TokenIterator> mSavePoints;
+	private final Lexer mLexer;
 
 	private static final Node NULL = asNode(TokenConstants.getKeywordToken("null", SourcePosition.UNKNOWN));
 
@@ -87,17 +83,16 @@ public class AstParser {
 		TOKEN_NODE_TYPE_MAP.put(TokenType.CONSTANT, "Literal");
 		TOKEN_NODE_TYPE_MAP.put(TokenType.OPERATOR, "Operator");
 		TOKEN_NODE_TYPE_MAP.put(TokenType.IDENTIFIER, "Identifier");
+		TOKEN_NODE_TYPE_MAP.put(TokenType.REG_EXP, "RegExpLiteral");
 	}
 
 	// private List<Error> mErrors = new ArrayList<Error>();
 
 	public AstParser(final String aSource) {
-		mSource = aSource;
+		mLexer = new SimpleLexer(aSource);
 	}
 
 	public Node parse() throws ParsingException {
-		mTokens = new TokensBuffer(new Tokenizer(mSource)).tokenIterator();
-
 		return parseProgram();
 	}
 
@@ -105,11 +100,11 @@ public class AstParser {
 		final SourcePosition start = position();
 		final List<Node> body = new ArrayList<Node>();
 
-		while (!mTokens.atEnd()) {
+		while (!mLexer.atEnd()) {
 			body.add(parseStatement());
 		}
 
-		AssertUtil.runtimeAssert(mSavePoints == null);
+		AssertUtil.runtimeAssert(!mLexer.hasSavePonts());
 		return Node("Program", position(start), Child("body", body));
 	}
 
@@ -153,10 +148,10 @@ public class AstParser {
 	}
 
 	private Node parseKeywordStatement() throws ParsingException {
-		AssertUtil.runtimeAssert(mTokens.current().getType() == TokenType.KEYWORD);
+		AssertUtil.runtimeAssert(mLexer.look().getType() == TokenType.KEYWORD);
 
 		final Node retval;
-		switch (mTokens.current().<Keyword> getValue()) {
+		switch (mLexer.look().<Keyword> getValue()) {
 		case IF:
 			retval = parseIfElse();
 			break;
@@ -184,7 +179,7 @@ public class AstParser {
 			retval = parseVarDeclaration();
 			break;
 		default:
-			throw new ParsingException("Keyword not yet implemented: " + mTokens.current());
+			throw new ParsingException("Keyword not yet implemented: " + mLexer.look());
 		}
 
 		return retval;
@@ -336,18 +331,16 @@ public class AstParser {
 
 		consume(SyntaxToken.O_BLOCK);
 
-		while (!mTokens.atEnd() && !is(SyntaxToken.C_BLOCK)) {
+		while (!tryConsume(SyntaxToken.C_BLOCK)) {
 			body.add(parseStatement());
 		}
-
-		consume(SyntaxToken.C_BLOCK);
 
 		return Node("Block", position(start), Child("body", body));
 	}
 
 	private Node tryParseDefinition(boolean aExpression) throws ParsingException {
 		if (is(TokenType.KEYWORD)) {
-			switch (mTokens.current().<Keyword> getValue()) {
+			switch (mLexer.look().<Keyword> getValue()) {
 			case FUNCTION:
 				return parseFunction(aExpression);
 			case CLASS:
@@ -426,7 +419,7 @@ public class AstParser {
 	private Node parseAssignment() throws ParsingException {
 		final Node expr = parseTernaryConditional();
 
-		final Token operator = mTokens.current();
+		final Token operator = mLexer.look();
 		if (!tryConsume(TokenType.OPERATOR)) {
 			return expr;
 		}
@@ -485,7 +478,7 @@ public class AstParser {
 
 		Node retval = parsePrecedence(aPrecendece + 1);
 		while (true) {
-			final Token operator = mTokens.current();
+			final Token operator = mLexer.look();
 
 			if (!tryConsumeAny(PRECEDENCES[aPrecendece])) {
 				break;
@@ -506,10 +499,10 @@ public class AstParser {
 	private Node parseCast() throws ParsingException {
 		final SourcePosition start = position();
 
-		save();
+		mLexer.save();
 		try {
 			if (tryConsume(SyntaxToken.O_BRACK)) {
-				final Token type = mTokens.current();
+				final Token type = mLexer.look();
 
 				if (tryConsume(TokenType.TYPE)) {
 					consume(SyntaxToken.C_BRACK);
@@ -519,15 +512,15 @@ public class AstParser {
 				}
 			}
 
-			reload();
+			mLexer.reload();
 			return parseUnaryOrPrefix();
 		} finally {
-			release();
+			mLexer.release();
 		}
 	}
 
 	private Node parseUnaryOrPrefix() throws ParsingException {
-		final Token operator = mTokens.current();
+		final Token operator = mLexer.look();
 
 		if (tryConsumeAny(UNARY)) {
 			final Node body = parseUnaryOrPrefix();
@@ -554,7 +547,7 @@ public class AstParser {
 
 	private Node parsePostfix() throws ParsingException {
 		final Node expr = parseIndexCallMember();
-		final Token operator = mTokens.current();
+		final Token operator = mLexer.look();
 
 		if (!tryConsumeAny(INC_DEC)) {
 			return expr;
@@ -638,11 +631,22 @@ public class AstParser {
 	}
 
 	private Node parsePrimaryExpression() throws ParsingException {
-		switch (mTokens.current().getType()) {
+		final Token current = mLexer.look();
+		mLexer.advance();
+
+		switch (current.getType()) {
 		case CONSTANT:
-			return asNode(mTokens.current());
+			return asNode(mLexer.look());
 		case IDENTIFIER:
-			return asNode(mTokens.current());
+			return asNode(mLexer.look());
+		case OPERATOR:
+			if (is(DIVIDE) || is(DIVIDE_EQ)) {
+				mLexer.parseRegExp();
+
+				return asNode(mLexer.look());
+			}
+
+			//$FALL-THROUGH$
 		case SYNTAX_TOKEN:
 			if (is(SyntaxToken.O_BRACK)) {
 				return parseImmutableCollectionOrExpression();
@@ -654,7 +658,7 @@ public class AstParser {
 
 			//$FALL-THROUGH$
 		default:
-			throw throwUnexpected(mTokens.current());
+			throw throwUnexpected(current);
 
 		}
 	}
@@ -664,18 +668,18 @@ public class AstParser {
 
 		// lots of ambiguity here
 		try {
-			save();
+			mLexer.save();
 			consume(SyntaxToken.O_BRACK);
 
 			if (tryConsume(SyntaxToken.C_BRACK)) {
-				reload();
+				mLexer.reload();
 				return parseLambda();
 			}
 
 			final Node first = parseExpression();
 			if (tryConsume(SyntaxToken.C_BRACK)) {
 				if (tryConsume(SyntaxToken.LAMBDA)) {
-					reload();
+					mLexer.reload();
 					return parseLambda();
 				}
 
@@ -683,11 +687,11 @@ public class AstParser {
 			}
 
 			if (tryConsume(SyntaxToken.COMMA)) {
-				reload();
+				mLexer.reload();
 				final Node array = parseArray();
 
 				if (tryConsume(SyntaxToken.LAMBDA)) {
-					reload();
+					mLexer.reload();
 					return parseLambda();
 				}
 
@@ -696,37 +700,37 @@ public class AstParser {
 
 			if (tryConsume(SyntaxToken.ARROW)) {
 				if (tryConsume(SyntaxToken.C_BRACK) || tryConsume(SyntaxToken.COMMA)) {
-					reload();
+					mLexer.reload();
 					return parseSet();
 				}
 
-				reload();
+				mLexer.reload();
 				return parseMap();
 			}
 
 			if (tryConsume(SyntaxToken.COLON)) {
-				reload();
+				mLexer.reload();
 				return parseConsList();
 			}
 
 			if (tryConsume(SyntaxToken.RANGE)) {
-				reload();
+				mLexer.reload();
 				return parseRange();
 			}
 
-			throw throwUnexpected(mTokens.current());
+			throw throwUnexpected(mLexer.look());
 		} finally {
-			release();
+			mLexer.release();
 		}
 	}
 
 	private Node parseMutableCollection() throws ParsingException {
 		try {
-			save();
+			mLexer.save();
 			consume(SyntaxToken.O_INDEX);
 
 			if (tryConsume(SyntaxToken.C_INDEX)) {
-				reload();
+				mLexer.reload();
 				return parseArray();
 			}
 
@@ -734,23 +738,23 @@ public class AstParser {
 			final Node first = parseExpression();
 
 			if (tryConsume(SyntaxToken.C_INDEX) || tryConsume(SyntaxToken.COMMA)) {
-				reload();
+				mLexer.reload();
 				return parseArray();
 			}
 
 			if (tryConsume(SyntaxToken.ARROW)) {
 				if (tryConsume(SyntaxToken.C_BRACK) || tryConsume(SyntaxToken.COMMA)) {
-					reload();
+					mLexer.reload();
 					return parseSet();
 				}
 
-				reload();
+				mLexer.reload();
 				return parseMap();
 			}
 
-			throw throwUnexpected(mTokens.current());
+			throw throwUnexpected(mLexer.look());
 		} finally {
-			release();
+			mLexer.release();
 		}
 	}
 
@@ -868,33 +872,23 @@ public class AstParser {
 		return Node("RangeLiteral", position(start), Child("from", from), Child("to", to));
 	}
 
-	private void recoverStatement() {
-		// TODO
-	}
-
-	private void recoverBlock() {
-		// TODO
-	}
-
 	private Node parseIdentifier() throws ParsingException {
-		final Token token = mTokens.current();
+		final Token token = mLexer.look();
 
-		consume(TokenType.KEYWORD);
+		consume(TokenType.IDENTIFIER);
 		return Node("Identifier", token.getPosition(), Child("value", token.getValue()));
 	}
 
 	private String parseVisibility() throws ParsingException {
-		final Token token = mTokens.current();
-
-		consume(TokenType.KEYWORD);
-		switch (token.<Keyword> getValue()) {
-		case VAR:
+		if (tryConsume(Keyword.VAR)) {
 			return "var";
-		case LOCAL:
-			return "local";
-		default:
-			throw throwUnexpected(token);
 		}
+
+		if (tryConsume(Keyword.LOCAL)) {
+			return "local";
+		}
+
+		throw throwUnexpected(mLexer.look());
 	}
 
 	private static Node asNode(final Token aToken) {
@@ -904,87 +898,90 @@ public class AstParser {
 		return Node("Identifier", aToken.getPosition(), Child("value", aToken.getValue()));
 	}
 
-	private void save() {
-		mSavePoints = new ConsList<TokenIterator>(mTokens.diverge(), mSavePoints);
+	/*
+	private void recoverStatement() {
+		// TODO
 	}
 
-	private void reload() {
-		mTokens = mSavePoints.first();
+	private void recoverBlock() {
+		// TODO
 	}
+	*/
 
-	private void release() {
-		mSavePoints = mSavePoints.rest();
+	/*private Node node(final String aName, final SourcePosition aPosition, final ChildOrAttribute<?, ?>... aValues) {
+		// TODO
 	}
+	*/
 
-	private SourcePosition position() {
-		if (mTokens.atEnd()) {
+	private SourcePosition position() throws ParsingException {
+		if (mLexer.atEnd()) {
 			try {
-				return mTokens.last().getPosition();
-			} catch (final NoSuchElementException e) {
+				return mLexer.last().getPosition();
+			} catch (final IllegalStateException e) {
 				return SourcePosition.BEGINING;
 			}
 		}
 
-		return mTokens.current().getPosition();
+		return mLexer.look().getPosition();
 	}
 
-	private SourcePosition position(final SourcePosition aStart) {
+	private SourcePosition position(final SourcePosition aStart) throws ParsingException {
 		return new SourcePosition(aStart.getStart(), position().getEnd(), aStart.getLine(), aStart.getChar());
 	}
 
-	private boolean is(final TokenType aExpected) {
-		return mTokens.current().getType() == aExpected;
+	private boolean is(final TokenType aExpected) throws ParsingException {
+		return mLexer.look().getType() == aExpected;
 	}
 
-	private boolean is(final OperatorType aExpected) {
-		return mTokens.current().getValue() == aExpected;
+	private boolean is(final OperatorType aExpected) throws ParsingException {
+		return mLexer.look().getValue() == aExpected;
 	}
 
-	private boolean is(final SyntaxToken aExpected) {
-		return mTokens.current().getValue() == aExpected;
+	private boolean is(final SyntaxToken aExpected) throws ParsingException {
+		return mLexer.look().getValue() == aExpected;
 	}
 
-	private boolean is(final Keyword aExpected) {
-		return mTokens.current().getValue() == aExpected;
+	private boolean is(final Keyword aExpected) throws ParsingException {
+		return mLexer.look().getValue() == aExpected;
 	}
 
-	private boolean tryConsume(final TokenType aExpected) {
+	private boolean tryConsume(final TokenType aExpected) throws ParsingException {
 		if (!is(aExpected)) {
 			return false;
 		}
 
-		mTokens.advance();
+		mLexer.advance();
 		return true;
 	}
 
-	private boolean tryConsume(final OperatorType aExpected) {
+	private boolean tryConsume(final OperatorType aExpected) throws ParsingException {
 		if (!is(aExpected)) {
 			return false;
 		}
 
-		mTokens.advance();
+		mLexer.advance();
 		return true;
 	}
 
-	private boolean tryConsume(final SyntaxToken aExpected) {
+	private boolean tryConsume(final SyntaxToken aExpected) throws ParsingException {
 		if (!is(aExpected)) {
 			return false;
 		}
 
-		mTokens.advance();
+		mLexer.advance();
 		return true;
 	}
 
-	private boolean tryConsume(final Keyword aExpected) {
+	private boolean tryConsume(final Keyword aExpected) throws ParsingException {
 		if (!is(aExpected)) {
 			return false;
 		}
 
-		mTokens.advance();
+		mLexer.advance();
 		return true;
 	}
 
-	private boolean tryConsumeAny(final OperatorType[] aTypes) {
+	private boolean tryConsumeAny(final OperatorType[] aTypes) throws ParsingException {
 		for (final OperatorType type : aTypes) {
 			if (tryConsume(type)) {
 				return true;
@@ -1005,7 +1002,7 @@ public class AstParser {
 			throwExpected(aExpected);
 		}
 
-		mTokens.advance();
+		mLexer.advance();
 	}
 
 	private void consume(final Keyword aExpected) throws ParsingException {
@@ -1013,7 +1010,7 @@ public class AstParser {
 			throwExpected(aExpected);
 		}
 
-		mTokens.advance();
+		mLexer.advance();
 	}
 
 	private String msg(final String aFormat, final Object... aArgs) {
@@ -1021,11 +1018,11 @@ public class AstParser {
 	}
 
 	private ParsingException error(final String aMessage) throws ParsingException {
-		throw new ParsingException(msg("{}: {}", mTokens.current().getPosition(), aMessage));
+		throw new ParsingException(msg("{}: {}", mLexer.look().getPosition(), aMessage));
 	}
 
 	private void throwExpected(final Object aExpected) throws ParsingException {
-		final Token t = mTokens.current();
+		final Token t = mLexer.look();
 		final String msg = msg("{}: Expected token: {}, found {}", t.getPosition(), aExpected, t);
 
 		throw new ParsingException(msg);

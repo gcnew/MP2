@@ -7,4 +7,7 @@ public enum TokenType {
 	KEYWORD, // a keyword (do, while, for, etc)
 	TYPE, // a type (string, int, double, etc)
 	SYNTAX_TOKEN, // one of the syntactic/punctuation tokens ('.', ',', ':', etc) 
+	SL_COMMENT, // a single line comment (i.e. // comment)
+	ML_COMMENT, // a multiline comment (i.e. /* comment */)
+	REG_EXP, // a regular expression (i.e. /test/)
 }

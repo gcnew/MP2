@@ -2,9 +2,12 @@ package re.agiledesign.mp2.lexer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.PatternSyntaxException;
 
 import re.agiledesign.mp2.exception.ParsingException;
+import re.agiledesign.mp2.lexer.RegExpInfo.Flag;
 import re.agiledesign.mp2.util.ArrayUtil;
+import re.agiledesign.mp2.util.AssertUtil;
 import re.agiledesign.mp2.util.StringUtil;
 
 public class Tokenizer {
@@ -43,6 +46,10 @@ public class Tokenizer {
 	}
 
 	public Token next() throws ParsingException {
+		if (!hasNext()) {
+			throw new ParsingException("EOF reached");
+		}
+
 		final char c = mSource.charAt(mIndex);
 		tokenStart();
 
@@ -73,7 +80,8 @@ public class Tokenizer {
 
 				return TokenConstants.getSyntaxToken(tokenString(), tokenPosition());
 			}
-			//$FALL-THROUGH$
+
+			return parseOneOrEqual();
 		case '+':
 			// handle ++ and --
 			if (isCharAtOffset(1, c)) {
@@ -81,16 +89,33 @@ public class Tokenizer {
 
 				return TokenConstants.getOperationToken(tokenString(), tokenPosition());
 			}
-			//$FALL-THROUGH$
+
+			return parseOneOrEqual();
 		case '/':
+			if (isCharAtOffset(1, '/')) {
+				return parseSingleLineComment();
+			}
+
+			if (isCharAtOffset(1, '*')) {
+				return parseMultiLineComment();
+			}
+
+			return parseOneOrEqual();
 		case '*':
 		case '%':
 		case '^':
 		case '~':
 			return parseOneOrEqual();
 		case '!':
+			return parseRefEqual();
 		case '=':
-			return parseRefEqualOrLambda();
+			if (isCharAtOffset(1, '>')) {
+				advance(2);
+
+				return TokenConstants.getSyntaxToken(tokenString(), tokenPosition());
+			}
+
+			return parseRefEqual();
 		case '&':
 		case '|':
 		case '>':
@@ -103,6 +128,68 @@ public class Tokenizer {
 		}
 
 		return parseIdentifier();
+	}
+
+	public void revert(final Token aToken) {
+		mIndex = aToken.getPosition().getStart();
+		mLine = aToken.getPosition().getLine();
+		mChar = aToken.getPosition().getChar();
+	}
+
+	public Token parseRegExp() throws ParsingException {
+		AssertUtil.runtimeAssert(nextChar() == '/');
+
+		while (true) {
+			if (isAtEnd()) {
+				throw $("EOF reached before closing RegExp");
+			}
+
+			final char c = nextChar();
+
+			if (c == '/') {
+				break;
+			}
+
+			if (c == '\n') {
+				throw $("New line reached before closing RegExp");
+			}
+
+			if (c == '\\') {
+				if (!isAtEnd()) {
+					// skip the escape
+					if (nextChar() == '\n') {
+						throw $("New line reached before closing RegExp");
+					}
+				}
+			}
+		}
+
+		final String body = mSource.substring(mTokenIndex + 1, mIndex);
+
+		int flags = 0;
+		while (!isAtEnd()) {
+			final char c = nextChar();
+
+			if (!Character.isLetterOrDigit(c)) {
+				break;
+			}
+
+			final Flag flag = Flag.find(c);
+			if (flag == null) {
+				throw $("Invalid RegExp flag: '{}'", Character.valueOf(c));
+			}
+
+			flags |= flag.bitValue();
+		}
+
+		final RegExpInfo rxi;
+		try {
+			rxi = new RegExpInfo(body, flags);
+		} catch (final PatternSyntaxException e) {
+			throw $("Inavlid pattern syntax");
+		}
+
+		return new Token(TokenType.REG_EXP, rxi, tokenPosition());
 	}
 
 	private Token parseString() throws ParsingException {
@@ -127,14 +214,24 @@ public class Tokenizer {
 				// if at end will fail on the next iteration
 				if (!isAtEnd()) {
 					lastIndex = mIndex;
-					nextChar();
-					// TODO: hande different escapes here
+
+					final char e = nextChar();
+					if ((e == '$') || (e == '(')) {
+						// TODO: interpolation
+						// "\(expr)" && "\$identifier"
+					}
+
+					// TODO: handle different escapes here
 				}
 			}
 		} while (true);
 
 		retval.append(mSource.substring(lastIndex, mIndex - 1));
 		return new Token(TokenType.CONSTANT, retval.toString(), tokenPosition());
+	}
+
+	public Token parseInterpolationPart() throws ParsingException {
+		return null;
 	}
 
 	private Token parseNumber() throws ParsingException {
@@ -226,10 +323,19 @@ public class Tokenizer {
 	}
 
 	private char nextChar() {
-		final char retval = mSource.charAt(mIndex);
+		char retval = mSource.charAt(mIndex);
 
 		++mIndex;
 		++mChar;
+
+		if (retval == '\r') {
+			if (isCharAtOffset(1, '\n')) {
+				++mIndex;
+			}
+
+			retval = '\n';
+		}
+
 		if (retval == '\n') {
 			++mLine;
 			mChar = 0;
@@ -268,13 +374,7 @@ public class Tokenizer {
 		return parseOneOrEqual();
 	}
 
-	private Token parseRefEqualOrLambda() {
-		if (isCharAtOffset(0, '=') && isCharAtOffset(1, '>')) {
-			advance(2);
-
-			return TokenConstants.getSyntaxToken(tokenString(), tokenPosition());
-		}
-
+	private Token parseRefEqual() {
 		if (isCharAtOffset(2, '=') && isCharAtOffset(1, '=')) {
 			advance(3);
 
@@ -282,6 +382,40 @@ public class Tokenizer {
 		}
 
 		return parseOneOrEqual();
+	}
+
+	private Token parseSingleLineComment() {
+		AssertUtil.runtimeAssert(nextChar() == '/');
+		AssertUtil.runtimeAssert(nextChar() == '/');
+
+		while (!isAtEnd()) {
+			final char c = nextChar();
+
+			if (c == '\n') {
+				break;
+			}
+		}
+
+		return new Token(TokenType.SL_COMMENT, tokenString(), tokenPosition());
+	}
+
+	private Token parseMultiLineComment() throws ParsingException {
+		AssertUtil.runtimeAssert(nextChar() == '/');
+		AssertUtil.runtimeAssert(nextChar() == '*');
+
+		while (true) {
+			if (isAtEnd()) {
+				throw $("EOF reached before closing multiline comment");
+			}
+
+			final char c = nextChar();
+			if ((c == '*') && isCharAtOffset(1, '/')) {
+				nextChar();
+				break;
+			}
+		}
+
+		return new Token(TokenType.ML_COMMENT, tokenString(), tokenPosition());
 	}
 
 	private void tokenStart() {
