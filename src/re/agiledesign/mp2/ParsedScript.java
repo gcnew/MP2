@@ -8,16 +8,18 @@ import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.statements.Statement;
 
 public class ParsedScript {
+	private final int mLocalCount;
 	private final Statement mStartingStatement;
 	private final Map<String, ? extends Object> mGlobals;
 
-	/* package */ParsedScript(final Statement aStartingStatement, final Map<String, ?> aGlobals) {
+	/* package */ParsedScript(final Statement aStartingStatement, final Map<String, ?> aGlobals, final int aLocalCount) {
 		mGlobals = aGlobals;
+		mLocalCount = aLocalCount;
 		mStartingStatement = aStartingStatement;
 	}
 
 	/* package */Interpreter createInterpreter(final Map<String, ?> aGlobalVars) {
-		final NameScope scope = new NameScope(null, null, mGlobals, 0);
+		final NameScope scope = new NameScope(null, null, mGlobals, mLocalCount);
 
 		if (aGlobalVars != null) {
 			scope.putAll(aGlobalVars);

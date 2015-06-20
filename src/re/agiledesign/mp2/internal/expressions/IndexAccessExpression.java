@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import re.agiledesign.mp2.exception.ScriptException;
+import re.agiledesign.mp2.internal.AssignmentVisitor;
 import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.util.ArrayUtil;
 
@@ -18,8 +19,8 @@ public class IndexAccessExpression extends AccessExpression {
 		mIndex = aIndex;
 	}
 
-	public IndexAssignmentExpression asAssignment(final Expression aRight) {
-		return new IndexAssignmentExpression(mThis, mIndex, aRight);
+	public void visit(final AssignmentVisitor aVisitor) {
+		aVisitor.visitIndexAssignment(mThis, mIndex);
 	}
 
 	public Object execute(final Scope aScope) throws Exception {

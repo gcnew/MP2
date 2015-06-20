@@ -16,6 +16,8 @@ public class LexicalScope {
 	private final int mIndices[] = new int[Visibility.values().length];
 	private final Map<String, VarInfo> mVariables = new HashMap<String, VarInfo>();
 
+	private int mUniqueId;
+
 	private static VarInfo DUMMY_VAR = new VarInfo(null, null, null, -1);
 
 	public LexicalScope(final LexicalScope aParentScope) {
@@ -50,15 +52,10 @@ public class LexicalScope {
 		return mIndices[aVisibility.ordinal()]++;
 	}
 
-	public VarInfo getOrAddSpecialVariable(final String aVarName) {
-		final String varName = '!' + aVarName;
-		final VarInfo existingVar = mVariables.get(varName);
-
-		if (existingVar != null) {
-			return existingVar;
-		}
-
+	public VarInfo getUniqueVariable() {
+		final String varName = "!tmp" + mUniqueId++;
 		final VarInfo retval = new VarInfo(varName, Visibility.LOCAL, this, getNextIndex(Visibility.LOCAL));
+
 		mVariables.put(varName, retval);
 
 		return retval;

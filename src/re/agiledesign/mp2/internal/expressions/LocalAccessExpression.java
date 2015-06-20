@@ -1,5 +1,6 @@
 package re.agiledesign.mp2.internal.expressions;
 
+import re.agiledesign.mp2.internal.AssignmentVisitor;
 import re.agiledesign.mp2.internal.Scope;
 
 public class LocalAccessExpression extends AccessExpression {
@@ -9,8 +10,8 @@ public class LocalAccessExpression extends AccessExpression {
 		mIndex = aIndex;
 	}
 
-	public Expression asAssignment(final Expression aRight) {
-		return new LocalAssignmentExpression(mIndex, aRight);
+	public void visit(final AssignmentVisitor aVisitor) {
+		aVisitor.visitLocalAssignment(mIndex);
 	}
 
 	public Object execute(final Scope aScope) throws Exception {

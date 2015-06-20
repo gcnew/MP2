@@ -1,5 +1,6 @@
 package re.agiledesign.mp2.internal.expressions;
 
+import re.agiledesign.mp2.internal.AssignmentVisitor;
 import re.agiledesign.mp2.internal.Scope;
 
 public class GlobalAccessExpression extends AccessExpression {
@@ -9,8 +10,8 @@ public class GlobalAccessExpression extends AccessExpression {
 		mVariableName = aVariableName;
 	}
 
-	public Expression asAssignment(final Expression aRight) {
-		return new GlobalAssignmentExpression(mVariableName, aRight);
+	public void visit(final AssignmentVisitor aVisitor) {
+		aVisitor.visitGlobalAssignment(mVariableName);
 	}
 
 	public Object execute(final Scope aScope) throws Exception {
