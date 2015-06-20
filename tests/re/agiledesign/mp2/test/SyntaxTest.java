@@ -139,7 +139,7 @@ public class SyntaxTest extends MP2Test {
 		final Map<String, Integer> a = new HashMap<String, Integer>();
 		a.put("a", NINE);
 
-		assertEval("return a--", NINE);
+		assertEval("return a--", a, NINE);
 	}
 
 	public void testPrimitiveArrayAssignment() {
@@ -224,11 +224,11 @@ public class SyntaxTest extends MP2Test {
 	}
 
 	public void testMapAssignment3() {
-		assertEval("l = [ 'a' -> 'b'  ]; l['a'] = 'a'; return l", Collections.singletonMap("a", "a"));
+		assertEval("l = [ 'a' -> 'b' ]; l['a'] = 'a'; return l", Collections.singletonMap("a", "a"));
 	}
 
 	public void testMapAssignment4() {
-		assertException("l = ( 'a' -> 'b'  ); l['a'] = 'a'; return l", UnsupportedOperationException.class);
+		assertException("l = ( 'a' -> 'b' ); l['a'] = 'a'; return l", UnsupportedOperationException.class);
 	}
 
 	public void testMapComplexEquals() {
