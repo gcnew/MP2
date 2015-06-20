@@ -128,6 +128,10 @@ public class SyntaxTest extends MP2Test {
 		assertException("'Say \\", ParsingException.class);
 	}
 
+	public void testComplexIncrement() {
+		assertEval("local i = 0; local a = [[1]]; return a[i++][--i] += i + 8;", NINE);
+	}
+
 	public void testVarPreIncrement() {
 		final Map<String, Integer> a = new HashMap<String, Integer>();
 		a.put("a", Integer.valueOf(8));
