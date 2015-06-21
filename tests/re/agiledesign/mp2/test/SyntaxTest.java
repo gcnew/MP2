@@ -274,6 +274,34 @@ public class SyntaxTest extends MP2Test {
 		assertEquals(Integer.valueOf(3), l.get(0));
 	}
 
+	public void testVarAssignment() {
+		assertEval("var i = 9; return i;", NINE);
+	}
+
+	public void testVarAssignment2() {
+		assertEval("local l = 9; var v = 10; return l;", NINE);
+	}
+
+	public void testLocalAssignment() {
+		assertEval("local i = 9; return i;", NINE);
+	}
+
+	public void testArgumentAssignment() {
+		assertEval("return (i) => { i = 9; return i; }()", NINE);
+	}
+
+	public void testArgumentAssignment2() {
+		final String script = //
+		/**/"function test(aInteger) {\n" +
+		/**/"	aInteger = 6\n;" +
+		/**/"	return aInteger;\n" +
+		/**/"}\n" +
+		/**/"\n" +
+		/**/"return test() + ((x) => return x = 3;)(8)";
+
+		assertEval(script, NINE);
+	}
+
 	@SuppressWarnings("boxing")
 	public void testAssignmentOrder() {
 		assertEval("i = 0; a = [ 3, 6 ]; a[i] = i = 9; return [ i, a[0], a[1] ]", Arrays.asList(9, 9, 6));

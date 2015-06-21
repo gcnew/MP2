@@ -44,18 +44,6 @@ public class ScopeTest extends MP2Test {
 		assertEval(script, EXPECTED);
 	}
 
-	public void testArgumentAssignment() {
-		final String script = //
-		/**/"function test(aInteger) {\n" +
-		/**/"	aInteger = 3\n;" +
-		/**/"	return aInteger;\n" +
-		/**/"}\n" +
-		/**/"\n" +
-		/**/"return test() + ((x) => return x = 3;)(8)";
-
-		assertEval(script, EXPECTED);
-	}
-
 	public void testLocalSameAsClosed() {
 		final String script = //
 		/**/"function test() {\n" +
@@ -77,6 +65,15 @@ public class ScopeTest extends MP2Test {
 		/**/"}";
 
 		// argument names should not collide with closed variables names
+		assertException(script, ParsingException.class);
+	}
+
+	public void testVarSameAsLocal() {
+		final String script = //
+		/**/"local i = 5;\n" +
+		/**/"var   i = 3;";
+
+		// var names should not collide with local variables names
 		assertException(script, ParsingException.class);
 	}
 
