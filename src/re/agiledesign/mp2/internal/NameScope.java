@@ -9,10 +9,6 @@ public class NameScope implements Scope {
 	private ControlFlow mControlFlow = null;
 	private final Map<String, Object> mNamedVars;
 
-	public NameScope(final NameScope aPrev, final Object[] aArgs) {
-		this(aPrev, aArgs, null, 0);
-	}
-
 	public NameScope(final NameScope aPrev,
 			final Object[] aArgs,
 			final Map<String, ?> aNamedVars,

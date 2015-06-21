@@ -1,5 +1,6 @@
 package re.agiledesign.mp2;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Map.Entry;
 import re.agiledesign.mp2.VarInfo.Visibility;
 import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.exception.VariableAlreadyDeclared;
+import re.agiledesign.mp2.exception.VariableNotClosable;
 import re.agiledesign.mp2.util.AssertUtil;
 
 public class LexicalScope {
@@ -20,25 +22,50 @@ public class LexicalScope {
 
 	private static VarInfo DUMMY_VAR = new VarInfo(null, null, null, -1);
 
+	public static class CaptureMapping {
+		public final int localIndex;
+		public final int captureIndex;
+		public final Visibility visibility;
+
+		public CaptureMapping(final VarInfo aVariable) {
+			localIndex = aVariable.getIndex();
+			captureIndex = aVariable.getCaptured().getIndex();
+			visibility = aVariable.getCaptured().getVisibility();
+		}
+	}
+
 	public LexicalScope(final LexicalScope aParentScope) {
 		mParentScope = aParentScope;
 	}
 
-	public VarInfo getVariable(final String aVarName) {
+	public VarInfo getVariable(final String aVarName) throws ParsingException {
 		final VarInfo retval = getVar(aVarName, null);
 		return (retval != DUMMY_VAR) ? retval : null;
 	}
 
-	public VarInfo getVariable(final String aVarName, final Visibility aVisibility) {
+	public VarInfo getVariable(final String aVarName, final Visibility aVisibility) throws ParsingException {
 		final VarInfo retval = getVar(aVarName, aVisibility);
 		return (retval != DUMMY_VAR) ? retval : null;
 	}
 
-	private VarInfo getVar(final String aVarName, final Visibility aVisibility) {
+	private VarInfo getVar(final String aVarName, final Visibility aVisibility) throws ParsingException {
 		final VarInfo var = mVariables.get(aVarName);
 
 		if (var == null) {
-			return DUMMY_VAR;
+			if (mParentScope == null) {
+				return DUMMY_VAR;
+			}
+
+			final VarInfo closed = mParentScope.getVar(aVarName, aVisibility);
+			if (closed == DUMMY_VAR) {
+				return DUMMY_VAR;
+			}
+
+			if ((closed.getVisibility() != Visibility.VAR) && (closed.getVisibility() != Visibility.ARGUMENT)) {
+				throw new VariableNotClosable(closed);
+			}
+
+			return addVariable0(aVarName, Visibility.CAPTURE, closed);
 		}
 
 		if (aVisibility != null) {
@@ -62,12 +89,21 @@ public class LexicalScope {
 	}
 
 	public VarInfo addVariable(final String aVarName, final Visibility aVisibility) throws ParsingException {
-		final VarInfo existingVar = mVariables.get(aVarName);
-		if (existingVar != null) {
+		final VarInfo existingVar = getVariable(aVarName);
+		if (getVariable(aVarName) != null) {
 			throw new VariableAlreadyDeclared(existingVar);
 		}
 
-		final VarInfo retval = new VarInfo(aVarName, aVisibility, this, getNextIndex(aVisibility));
+		return addVariable0(aVarName, aVisibility, null);
+	}
+
+	private VarInfo addVariable0(final String aVarName, final Visibility aVisibility, final VarInfo aCaptured) {
+		final Visibility store = aVisibility.getStore();
+		if (store != aVisibility) {
+			getNextIndex(aVisibility);
+		}
+
+		final VarInfo retval = new VarInfo(aVarName, aVisibility, this, getNextIndex(store), aCaptured);
 		mVariables.put(aVarName, retval);
 
 		return retval;
@@ -77,11 +113,11 @@ public class LexicalScope {
 		return mIndices[aVisibility.ordinal()];
 	}
 
-	public int getIndexOf(final String aVarName) {
+	public int getIndexOf(final String aVarName) throws ParsingException {
 		return getVar(aVarName, null).getIndex();
 	}
 
-	public Visibility getVisibilityOf(final String aVarName) {
+	public Visibility getVisibilityOf(final String aVarName) throws ParsingException {
 		return getVar(aVarName, null).getVisibility();
 	}
 
@@ -95,6 +131,18 @@ public class LexicalScope {
 		}
 
 		return Arrays.asList(argumentNames);
+	}
+
+	public List<CaptureMapping> getCaptureMappings() {
+		final List<CaptureMapping> mappings = new ArrayList<CaptureMapping>();
+
+		for (final VarInfo v : mVariables.values()) {
+			if (v.isCapture()) {
+				mappings.add(new CaptureMapping(v));
+			}
+		}
+
+		return mappings;
 	}
 
 	public LexicalScope getParentScope() {

@@ -290,6 +290,34 @@ public class SyntaxTest extends MP2Test {
 		assertEval("return (i) => { i = 9; return i; }()", NINE);
 	}
 
+	public void testClosureAssignment() {
+		// TODO: should we allow closure assignment or disable it altogether?
+		assertEval("var i = 0; (() => return i = 9)(); return i;", NINE);
+	}
+
+	public void testFunctionClosure() {
+		final String script = //
+		/**/"var n = 5;\n" +
+		/**/"function test() {\n" +
+		/**/"	return n + 4;\n" +
+		/**/"}\n" +
+		/**/"\n" +
+		/**/"return test()";
+
+		assertEval(script, NINE);
+	}
+
+	public void testClosureUpdate() {
+		final String script = //
+		/**/"var n = 4;\n" +
+		/**/"local test = () => return n + 4;\n" +
+		/**/"n = 5;\n" +
+		/**/"\n" +
+		/**/"return test()";
+
+		assertEval(script, NINE);
+	}
+
 	public void testArgumentAssignment2() {
 		final String script = //
 		/**/"function test(aInteger) {\n" +

@@ -56,6 +56,18 @@ public class ScopeTest extends MP2Test {
 		assertException(script, ParsingException.class);
 	}
 
+	public void testNameOverlap() {
+		final String script = //
+		/**/"function test() {\n" +
+		/**/"	local i = 3;\n" +
+		/**/"\n" +
+		/**/"	return () => { local i = 5; return i; }\n" +
+		/**/"}";
+
+		// variable names should not overlap
+		assertException(script, ParsingException.class);
+	}
+
 	public void testArgumentSameAsClosed() {
 		final String script = //
 		/**/"function test() {\n" +

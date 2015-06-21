@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import re.agiledesign.mp2.exception.ParsingException;
+
 public class FunctionTest extends MP2Test {
 	public void testLambda0() {
 		assertEval("x = (x) => return 1 + x return x(9)", Integer.valueOf(10));
@@ -37,13 +39,20 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Integer.valueOf(2));
 	}
 
-	public void testLambda() {
+	public void testClosure() {
 		final String script = //
 		/**/"x = 2\n" +
-		/**/"addLambda = (x, y) => return () => return x + y + 1\n" +
-		/**/"return addLambda(4, 5)()";
+		/**/"addClosure = (x, y) => {\n" +
+		/**/"	var z = 2;\n" +
+		/**/"	return () => return z + x + y + 1\n" +
+		/**/"}\n" +
+		/**/"return addClosure(3, 4)()";
 
 		assertEval(script, Integer.valueOf(10));
+	}
+
+	public void testLocalClosure() {
+		assertException("local l = 4; return () => return l + 5;", ParsingException.class);
 	}
 
 	public void testHigherOrder() {

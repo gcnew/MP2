@@ -2,7 +2,21 @@ package re.agiledesign.mp2;
 
 public class VarInfo {
 	public enum Visibility {
-		LOCAL, GLOBAL, VAR, CLOSED, ARGUMENT
+		LOCAL, GLOBAL, VAR(LOCAL), CAPTURE(LOCAL), ARGUMENT;
+
+		private final Visibility mStore;
+
+		private Visibility(final Visibility aStore) {
+			mStore = aStore;
+		}
+
+		private Visibility() {
+			this(null);
+		}
+
+		public Visibility getStore() {
+			return (mStore != null) ? mStore : this;
+		}
 	}
 
 	private final int mIndex;
@@ -10,13 +24,26 @@ public class VarInfo {
 	private final Visibility mVisibility;
 	private final LexicalScope mScope;
 
+	private final VarInfo mCaptured;
+
 	private boolean mAssigned;
 
 	public VarInfo(final String aVarName, final Visibility aVisibility, final LexicalScope aScope, final int aIndex) {
+		this(aVarName, aVisibility, aScope, aIndex, null);
+	} 
+
+	public VarInfo(
+		final String aVarName,
+		final Visibility aVisibility,
+		final LexicalScope aScope,
+		final int aIndex,
+		final VarInfo aCapture
+	) { 
 		mVarName = aVarName;
 		mVisibility = aVisibility;
 		mScope = aScope;
 		mIndex = aIndex;
+		mCaptured = aCapture;
 
 		if (aVisibility == Visibility.ARGUMENT) {
 			assign();
@@ -27,8 +54,8 @@ public class VarInfo {
 		return mVarName;
 	}
 
-	public boolean isClosed() {
-		return mVisibility == Visibility.CLOSED;
+	public boolean isCapture() {
+		return mVisibility == Visibility.CAPTURE;
 	}
 
 	public boolean isLocal() {
@@ -65,5 +92,9 @@ public class VarInfo {
 
 	public int getIndex() {
 		return mIndex;
+	}
+
+	public VarInfo getCaptured() {
+		return mCaptured;
 	}
 }

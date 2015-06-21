@@ -28,10 +28,9 @@ import static re.agiledesign.mp2.lexer.OperatorType.SUBSTRACT;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import re.agiledesign.mp2.LexicalScope.CaptureMapping;
 import re.agiledesign.mp2.VarInfo.Visibility;
 import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.internal.AssignmentVisitor;
@@ -39,11 +38,13 @@ import re.agiledesign.mp2.internal.ExpressionFactory;
 import re.agiledesign.mp2.internal.OperatorFactory;
 import re.agiledesign.mp2.internal.expressions.AccessExpression;
 import re.agiledesign.mp2.internal.expressions.CastExpression;
+import re.agiledesign.mp2.internal.expressions.ClosureExpression;
 import re.agiledesign.mp2.internal.expressions.ConstantExpression;
 import re.agiledesign.mp2.internal.expressions.Expression;
 import re.agiledesign.mp2.internal.expressions.FunctionCallExpression;
 import re.agiledesign.mp2.internal.expressions.FunctionExpression;
 import re.agiledesign.mp2.internal.expressions.GlobalAccessExpression;
+import re.agiledesign.mp2.internal.expressions.GlobalAssignmentExpression;
 import re.agiledesign.mp2.internal.expressions.IndexAccessExpression;
 import re.agiledesign.mp2.internal.expressions.InlineListExpression;
 import re.agiledesign.mp2.internal.expressions.InlineMapExpression;
@@ -80,7 +81,7 @@ import re.agiledesign.mp2.util.Util;
 public class MP2Parser {
 	private final TokensBuffer mTokenizer;
 	private/*   */LexicalScope mLexicalScope = new LexicalScope(null);
-	private final Map<String, FunctionExpression> mFunctions = new HashMap<String, FunctionExpression>();
+	private final List<Expression> mInitialisers = new ArrayList<Expression>();
 
 	private static final Statement EMPTY_STATEMENT = new EmptyStatement();
 	private static final Statement BREAK_STATEMENT = new BreakStatement();
@@ -109,7 +110,7 @@ public class MP2Parser {
 	}
 
 	public ParsedScript parse() throws ParsingException {
-		return new ParsedScript(parseBlock(), mFunctions, mLexicalScope.getCountOf(Visibility.LOCAL));
+		return new ParsedScript(parseBlock(), mLexicalScope.getCountOf(Visibility.LOCAL));
 	}
 
 	private Block parseBlock() throws ParsingException {
@@ -124,6 +125,10 @@ public class MP2Parser {
 			if (statement != EMPTY_STATEMENT) {
 				statements.add(statement);
 			}
+		}
+
+		if (!mInitialisers.isEmpty()) {
+			statements.add(0, new SequenceStatement(mInitialisers));
 		}
 
 		return new Block(Util.immutableList(statements));
@@ -357,7 +362,7 @@ public class MP2Parser {
 		}
 
 		if (isLambda()) {
-			return new ConstantExpression(parseFunctionDefinition0(true));
+			return parseFunctionDefinition0(true);
 		}
 
 		final int position = mTokenizer.getPostion();
@@ -594,6 +599,14 @@ public class MP2Parser {
 
 				return ExpressionFactory.getLocalAccessExpression(var.getIndex());
 			}
+
+			if (var.isCapture()) {
+				// TODO: assignment tracking for closed variables needs elaborate control flow
+				// analysis that is not currently implemented thus we trust the programmer
+				return ExpressionFactory.getLocalAccessExpression(var.getIndex());
+			}
+
+			throw new ParsingException("Unexpected variable type: " + var.getVisibility());
 		}
 
 		return new GlobalAccessExpression(aVarName);
@@ -676,11 +689,12 @@ public class MP2Parser {
 		}
 
 		checkAndAdvance(SyntaxToken.O_BRACK);
-		final FunctionExpression function = parseFunctionDefinition0(false);
-		mFunctions.put(nameToken.getStringValue(), function);
+
+		final Expression function = parseFunctionDefinition0(false);
+		mInitialisers.add(new GlobalAssignmentExpression(nameToken.getStringValue(), function));
 	}
 
-	private FunctionExpression parseFunctionDefinition0(final boolean aLambda) throws ParsingException {
+	private Expression parseFunctionDefinition0(final boolean aLambda) throws ParsingException {
 		newLexicalScope();
 		if (!advanceIfNext(SyntaxToken.C_BRACK)) {
 			while (true) {
@@ -704,10 +718,17 @@ public class MP2Parser {
 
 		final Statement body = parseStatementOrBlock();
 		final int localsCount = mLexicalScope.getCountOf(Visibility.LOCAL);
-		final List<String> argsArray = mLexicalScope.getArgumentsArray();
+		final List<String> argsArray = Util.immutableList(mLexicalScope.getArgumentsArray());
+
+		if (mLexicalScope.getCountOf(Visibility.CAPTURE) != 0) {
+			final List<CaptureMapping> captures = Util.immutableList(mLexicalScope.getCaptureMappings());
+
+			restoreLexicalScope();
+			return new ClosureExpression(body, localsCount, argsArray, captures);
+		}
 
 		restoreLexicalScope();
-		return new FunctionExpression(body, localsCount, Util.immutableList(argsArray));
+		return new ConstantExpression(new FunctionExpression(body, localsCount, argsArray));
 	}
 
 	private Statement parseStatement() throws ParsingException {
