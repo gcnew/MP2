@@ -313,12 +313,7 @@ public class MP2Parser {
 			retval = ExpressionFactory.getConstantExpression(token);
 			break;
 		case IDENTIFIER:
-			if (mTokenizer.hasNext() && advanceIfNext(SyntaxToken.O_BRACK)) {
-				retval = parseFunctionCall(token.getStringValue());
-			} else {
-				retval = parseAccessExpression(token.getStringValue());
-			}
-
+			retval = parseAccessExpression(token.getStringValue());
 			break;
 		}
 
@@ -592,9 +587,9 @@ public class MP2Parser {
 				return ExpressionFactory.getArgumentAccessExpression(var.getIndex());
 			}
 
-			if (var.isLocal()) {
+			if (var.isLocal() || var.isVar()) {
 				if (!var.isAssigned()) {
-					throw new ParsingException("Local variable '" + aVarName + "' is used without being initialized");
+					throw new ParsingException("Variable '" + aVarName + "' is used without being initialized");
 				}
 
 				return ExpressionFactory.getLocalAccessExpression(var.getIndex());
@@ -628,13 +623,6 @@ public class MP2Parser {
 
 		checkAndAdvance(SyntaxToken.C_INDEX);
 		return new IndexAccessExpression(aThis, index);
-	}
-
-	private Expression parseFunctionCall(final String aFunctionName) throws ParsingException {
-		final List<Expression> args = parseFunctionArgs();
-		final Expression functionAccessor = parseAccessExpression(aFunctionName);
-
-		return new FunctionCallExpression(functionAccessor, args);
 	}
 
 	private List<Expression> parseFunctionArgs() throws ParsingException {
