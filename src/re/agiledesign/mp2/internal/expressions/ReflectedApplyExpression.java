@@ -17,16 +17,6 @@ public class ReflectedApplyExpression extends Expression {
 		final Object _this = mThis.execute(aScope);
 		final Object[] args = ((FunctionScope) aScope).getArguments();
 
-		boolean noNull = true;
-		final Class<?>[] types = new Class[args.length];
-		for (int i = 0; i < args.length; ++i) {
-			if (args[i] == null) {
-				noNull = false;
-			} else {
-				types[i] = args[i].getClass();
-			}
-		}
-
-		return ReflectionUtil.invokeMethod(_this, mMethodName, args, types, noNull);
+		return ReflectionUtil.invokeMethod(_this, mMethodName, args);
 	}
 }

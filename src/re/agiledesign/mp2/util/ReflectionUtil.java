@@ -67,6 +67,22 @@ public class ReflectionUtil {
 		throw new NoSuchMethodException("Method " + getSignature(_class, aInternedName, aTypes) + " not found");
 	}
 
+	public static Object invokeMethod(final Object aThis, final String aInternedName, final Object aArgs[])
+			throws Exception {
+		boolean noNull = true;
+		final Class<?>[] types = new Class[aArgs.length];
+
+		for (int i = 0; i < aArgs.length; ++i) {
+			if (aArgs[i] == null) {
+				noNull = false;
+			} else {
+				types[i] = aArgs[i].getClass();
+			}
+		}
+
+		return invokeMethod(aThis, aInternedName, aArgs, types, noNull);
+	}
+
 	private static Method getExactMethod(final String aInternedName, final Method[] aMethods, final Class<?> aTypes[]) {
 		for (final Method m : aMethods) {
 			if (m.getName() == aInternedName) {
