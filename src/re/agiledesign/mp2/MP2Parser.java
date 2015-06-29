@@ -529,7 +529,7 @@ public class MP2Parser {
 			return new RangeListExpression(aFrom);
 		}
 
-		final Expression to = parseExpression();
+		final Expression to = parseAssignment();
 		checkAndAdvance(expected);
 
 		return new RangeListExpression(aFrom, to, aConsList);
