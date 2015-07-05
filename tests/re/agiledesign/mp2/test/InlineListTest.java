@@ -21,12 +21,12 @@ public class InlineListTest extends MP2Test {
 	}
 
 	public void testInlineList4() {
-		assertEval("return (1, ).first()", Integer.valueOf(1));
+		assertEval("return (1 : []).first()", Integer.valueOf(1));
 	}
 
 	@SuppressWarnings("boxing")
 	public void testInlineList5() {
-		assertEval("return (1, 2, 3).rest()", Arrays.asList(2, 3));
+		assertEval("return (1 : 2 : 3 : null).rest()", Arrays.asList(2, 3));
 	}
 
 	public void testInlineEvalOrder() {

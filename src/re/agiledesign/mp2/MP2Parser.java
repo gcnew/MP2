@@ -39,6 +39,7 @@ import re.agiledesign.mp2.internal.OperatorFactory;
 import re.agiledesign.mp2.internal.expressions.AccessExpression;
 import re.agiledesign.mp2.internal.expressions.CastExpression;
 import re.agiledesign.mp2.internal.expressions.ClosureExpression;
+import re.agiledesign.mp2.internal.expressions.ConsListExpression;
 import re.agiledesign.mp2.internal.expressions.ConstantExpression;
 import re.agiledesign.mp2.internal.expressions.Expression;
 import re.agiledesign.mp2.internal.expressions.FunctionCallExpression;
@@ -464,11 +465,10 @@ public class MP2Parser {
 				mTokenizer.restorePosition(position);
 				final List<Expression> temp;
 				if (is(separator, SyntaxToken.COLON)) {
-					temp = parseConsList(first);
-				} else {
-					temp = parseInlineList0(first, aImmutable, false);
+					return parseConsList(first);
 				}
 
+				temp = parseInlineList0(first, aImmutable, false);
 				elements = Util.immutableList(temp);
 			}
 		}
@@ -500,15 +500,10 @@ public class MP2Parser {
 			}
 		}
 
-		if (aImmutable && !aSet) {
-			// add a null to reuse cons list methods
-			retval.add(ExpressionFactory.getNull());
-		}
-
 		return retval;
 	}
 
-	private List<Expression> parseConsList(final Expression aFirst) throws ParsingException {
+	private Expression parseConsList(final Expression aFirst) throws ParsingException {
 		final ArrayList<Expression> retval = new ArrayList<Expression>();
 		retval.add(aFirst);
 
@@ -517,7 +512,7 @@ public class MP2Parser {
 			retval.add(parseAssignment());
 		} while (!advanceIfNext(SyntaxToken.C_BRACK));
 
-		return retval;
+		return new ConsListExpression(Util.immutableList(retval));
 	}
 
 	private Expression parseRangeList(final Expression aFrom, final boolean aConsList) throws ParsingException {
