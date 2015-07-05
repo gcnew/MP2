@@ -19,6 +19,7 @@ public class LexicalScope {
 	private final Map<String, VarInfo> mVariables = new HashMap<String, VarInfo>();
 
 	private int mUniqueId;
+	private int mLoopNesting;
 
 	private static VarInfo DUMMY_VAR = new VarInfo(null, null, null, -1);
 
@@ -147,5 +148,18 @@ public class LexicalScope {
 
 	public LexicalScope getParentScope() {
 		return mParentScope;
+	}
+
+	public void enterLoop() {
+		++mLoopNesting;
+	}
+
+	public void leaveLoop() {
+		AssertUtil.runtimeAssert(isInLoop());
+		--mLoopNesting;
+	}
+
+	public boolean isInLoop() {
+		return mLoopNesting > 0;
 	}
 }

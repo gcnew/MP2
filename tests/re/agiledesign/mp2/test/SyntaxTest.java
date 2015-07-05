@@ -339,6 +339,7 @@ public class SyntaxTest extends MP2Test {
 		assertException("break", ParsingException.class);
 		assertException("continue", ParsingException.class);
 		assertException("while (false); break", ParsingException.class);
+		assertException("do () => break; while (false);", ParsingException.class);
 	}
 
 	public void testBreakContinue() {

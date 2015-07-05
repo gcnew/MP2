@@ -756,9 +756,17 @@ public class MP2Parser {
 				retval = parseDo();
 				break;
 			case BREAK:
+				if (!mLexicalScope.isInLoop()) {
+					throw new ParsingException(token + " found outside of loop");
+				}
+
 				retval = BREAK_STATEMENT;
 				break;
 			case CONTINUE:
+				if (!mLexicalScope.isInLoop()) {
+					throw new ParsingException(token + " found outside of loop");
+				}
+
 				retval = CONTINUE_STATEMENT;
 				break;
 			case RETURN:
@@ -840,7 +848,9 @@ public class MP2Parser {
 			checkAndAdvance(SyntaxToken.C_BRACK);
 		}
 
+		mLexicalScope.enterLoop();
 		final Statement body = parseStatementOrBlock();
+		mLexicalScope.leaveLoop();
 
 		return new ForStatement(expr1, expr2, expr3, body);
 	}
@@ -850,12 +860,17 @@ public class MP2Parser {
 		final Expression condition = parseAssignment();
 		checkAndAdvance(SyntaxToken.C_BRACK);
 
+		mLexicalScope.enterLoop();
 		final Statement body = parseStatementOrBlock();
+		mLexicalScope.leaveLoop();
+
 		return new WhileStatement(condition, body);
 	}
 
 	private Statement parseDo() throws ParsingException {
+		mLexicalScope.enterLoop();
 		final Statement body = parseStatementOrBlock();
+		mLexicalScope.leaveLoop();
 
 		checkAndAdvance(Keyword.WHILE);
 		checkAndAdvance(SyntaxToken.O_BRACK);
