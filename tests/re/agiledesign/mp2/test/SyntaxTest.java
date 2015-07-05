@@ -357,4 +357,15 @@ public class SyntaxTest extends MP2Test {
 
 		assertEval(script, NINE);
 	}
+
+	public void testVarAssignBeforeUse() {
+		assertEval("var a = 4, b = a + 5; return b;", NINE);
+		assertException("var a = 5, b += a", ParsingException.class);
+		assertException("var a = 5, b; b += a", ParsingException.class);
+		assertException("var a; return ++a;", ParsingException.class);
+		assertException("var a; return a.toString();", ParsingException.class);
+
+		// TODO: depends on closure implementation
+		// assertException("var a; return () => return ++a;()", ParsingException.class);
+	}
 }
