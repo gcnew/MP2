@@ -26,7 +26,6 @@ public class DoStatement extends Statement {
 					aScope.setControlFlow(null);
 					break;
 				case RETURN:
-					aScope.setControlFlow(null);
 					return;
 				}
 			}

@@ -26,7 +26,6 @@ public class WhileStatement extends Statement {
 					aScope.setControlFlow(null);
 					break;
 				case RETURN:
-					aScope.setControlFlow(null);
 					return;
 				}
 			}
