@@ -52,6 +52,7 @@ import re.agiledesign.mp2.internal.expressions.InlineSetExpression;
 import re.agiledesign.mp2.internal.expressions.LocalAssignmentExpression;
 import re.agiledesign.mp2.internal.expressions.RangeListExpression;
 import re.agiledesign.mp2.internal.expressions.ReflectedThisExpression;
+import re.agiledesign.mp2.internal.expressions.SequenceExpression;
 import re.agiledesign.mp2.internal.expressions.SublistExpression;
 import re.agiledesign.mp2.internal.expressions.TernaryExpression;
 import re.agiledesign.mp2.internal.statements.Block;
@@ -739,7 +740,7 @@ public class MP2Parser {
 		final int position = mTokenizer.getPostion();
 		final Token token = mTokenizer.next();
 
-		Statement retval = null;
+		final Statement retval;
 		if (token.getType() == TokenType.KEYWORD) {
 			switch (token.<Keyword> getValue()) {
 			case IF:
@@ -802,16 +803,30 @@ public class MP2Parser {
 		checkAndAdvance(SyntaxToken.O_BRACK);
 
 		final Expression expr1;
-		if (advanceIfNext(SyntaxToken.SEMICOL)) {
-			expr1 = ExpressionFactory.getNull();
+		final Visibility visibility;
+		if (advanceIfNext(Keyword.LOCAL)) {
+			visibility = Visibility.LOCAL;
+		} else if (advanceIfNext(Keyword.VAR)) {
+			visibility = Visibility.VAR;
 		} else {
-			expr1 = parseAssignment();
+			visibility = null;
+		}
+
+		if (visibility != null) {
+			expr1 = parseVarExpression(visibility);
 			checkAndAdvance(SyntaxToken.SEMICOL);
+		} else {
+			if (advanceIfNext(SyntaxToken.SEMICOL)) {
+				expr1 = ExpressionFactory.getNull();
+			} else {
+				expr1 = parseAssignment();
+				checkAndAdvance(SyntaxToken.SEMICOL);
+			}
 		}
 
 		final Expression expr2;
 		if (advanceIfNext(SyntaxToken.SEMICOL)) {
-			expr2 = ExpressionFactory.getNull();
+			expr2 = ExpressionFactory.getOne();
 		} else {
 			expr2 = parseAssignment();
 			checkAndAdvance(SyntaxToken.SEMICOL);
@@ -860,6 +875,16 @@ public class MP2Parser {
 	}
 
 	private Statement parseVarStatement(final Visibility aVisibility) throws ParsingException {
+		final Expression expr = parseVarExpression(aVisibility);
+
+		if (expr == ExpressionFactory.getNull()) {
+			return EMPTY_STATEMENT;
+		}
+
+		return new ExpressionStatement(expr);
+	}
+
+	private Expression parseVarExpression(final Visibility aVisibility) throws ParsingException {
 		AssertUtil.runtimeAssert(aVisibility == Visibility.LOCAL || aVisibility == Visibility.VAR);
 
 		final ArrayList<Expression> expressions = new ArrayList<Expression>(4);
@@ -886,11 +911,11 @@ public class MP2Parser {
 
 		switch (expressions.size()) {
 		case 0:
-			return EMPTY_STATEMENT;
+			return ExpressionFactory.getNull();
 		case 1:
-			return new ExpressionStatement(expressions.get(0));
+			return expressions.get(0);
 		default:
-			return new SequenceStatement(Util.immutableList(expressions));
+			return new SequenceExpression(Util.immutableList(expressions));
 		}
 	}
 
