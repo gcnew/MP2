@@ -123,7 +123,7 @@ public class MP2Parser {
 				continue;
 			}
 
-			final Statement statement = parseStatement();
+			final Statement statement = parseStatementOrBlock();
 			if (statement != EMPTY_STATEMENT) {
 				statements.add(statement);
 			}
@@ -936,7 +936,7 @@ public class MP2Parser {
 			final ArrayList<Statement> statements = new ArrayList<Statement>();
 
 			while (!advanceIfNext(SyntaxToken.C_BLOCK)) {
-				final Statement statement = parseStatement();
+				final Statement statement = parseStatementOrBlock();
 
 				if (statement != EMPTY_STATEMENT) {
 					statements.add(statement);

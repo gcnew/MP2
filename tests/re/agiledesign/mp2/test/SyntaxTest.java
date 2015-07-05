@@ -368,4 +368,9 @@ public class SyntaxTest extends MP2Test {
 		// TODO: depends on closure implementation
 		// assertException("var a; return () => return ++a;()", ParsingException.class);
 	}
+
+	public void testNestedBlocks() {
+		//assertEval("{{ return 9 }}", NINE);
+		assertEval("while (true) {{ return 9 }}", NINE);
+	}
 }
