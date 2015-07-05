@@ -334,4 +334,26 @@ public class SyntaxTest extends MP2Test {
 	public void testAssignmentOrder() {
 		assertEval("i = 0; a = [ 3, 6 ]; a[i] = i = 9; return [ i, a[0], a[1] ]", Arrays.asList(9, 9, 6));
 	}
+
+	public void testBreakContinueOutsideOfContext() {
+		assertException("break", ParsingException.class);
+		assertException("continue", ParsingException.class);
+		assertException("while (false); break", ParsingException.class);
+	}
+
+	public void testBreakContinue() {
+		final String script = //
+		/**/"local result = 0;\n" +
+		/**/"for (local i = 0; i < 3; ++i) {\n" +
+		/**/"	for (var j = 0; ;) {\n;" +
+		/**/"		++result;\n" +
+		/**/"		if (++j != 3) continue;\n" +
+		/**/"		break;\n" +
+		/**/"	}\n" +
+		/**/"}\n" +
+		/**/"\n" +
+		/**/"return result";
+
+		assertEval(script, NINE);
+	}
 }
