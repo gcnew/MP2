@@ -28,4 +28,15 @@ public class InlineListTest extends MP2Test {
 	public void testInlineList5() {
 		assertEval("return (1, 2, 3).rest()", Arrays.asList(2, 3));
 	}
+
+	public void testInlineEvalOrder() {
+		final List<Integer> expected = Arrays.asList(1, 2, 3);
+
+		assertEval("local i = 0; return ( ++i, ++i, ++i )", expected);
+		assertEval("local i = 0; return [ ++i, ++i, ++i ]", expected);
+		assertEval("local i = 3; return ( i-- : i-- : i-- : null )", expected);
+		assertEval("local i = 3; return ( i-- : ( i-- : ( i-- : null)))", expected);
+		assertEval("local i = 0; return ( ++i .. i + 2 )", expected);
+		assertEval("local i = 0; return [ ++i .. i + 2 ]", expected);
+	}
 }
