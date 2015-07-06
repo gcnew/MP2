@@ -373,4 +373,9 @@ public class SyntaxTest extends MP2Test {
 		//assertEval("{{ return 9 }}", NINE);
 		assertEval("while (true) {{ return 9 }}", NINE);
 	}
+
+	public void testBooleanCoersion() {
+		assertEval("local a = null; a ||= 9; return a", NINE);
+		assertEval("local a = true; return a &&= 9;", NINE);
+	}
 }

@@ -80,8 +80,10 @@ public class TokenConstants {
 	private static final Token BIT_NOT = new Token(OPERATOR, OperatorType.BIT_NOT, UNKNOWN);
 	private static final Token BIT_AND = new Token(OPERATOR, OperatorType.BIT_AND, UNKNOWN);
 	private static final Token BIT_AND_EQ = new Token(OPERATOR, OperatorType.BIT_AND_EQ, UNKNOWN);
+	private static final Token AND_EQ = new Token(OPERATOR, OperatorType.AND_EQ, UNKNOWN);
 	private static final Token BIT_OR = new Token(OPERATOR, OperatorType.BIT_OR, UNKNOWN);
 	private static final Token BIT_OR_EQ = new Token(OPERATOR, OperatorType.BIT_OR_EQ, UNKNOWN);
+	private static final Token OR_EQ = new Token(OPERATOR, OperatorType.OR_EQ, UNKNOWN);
 	private static final Token BIT_XOR = new Token(OPERATOR, OperatorType.BIT_XOR, UNKNOWN);
 	private static final Token BIT_XOR_EQ = new Token(OPERATOR, OperatorType.BIT_XOR_EQ, UNKNOWN);
 	private static final Token IS_GREATER = new Token(OPERATOR, OperatorType.IS_GREATER, UNKNOWN);
@@ -124,8 +126,10 @@ public class TokenConstants {
 		OPERATOR_TOKEN_MAP.put("~", BIT_NOT);
 		OPERATOR_TOKEN_MAP.put("&", BIT_AND);
 		OPERATOR_TOKEN_MAP.put("&=", BIT_AND_EQ);
+		OPERATOR_TOKEN_MAP.put("&&=", AND_EQ);
 		OPERATOR_TOKEN_MAP.put("|", BIT_OR);
 		OPERATOR_TOKEN_MAP.put("|=", BIT_OR_EQ);
+		OPERATOR_TOKEN_MAP.put("||=", OR_EQ);
 		OPERATOR_TOKEN_MAP.put("^", BIT_XOR);
 		OPERATOR_TOKEN_MAP.put("^=", BIT_XOR_EQ);
 		OPERATOR_TOKEN_MAP.put(">", IS_GREATER);
