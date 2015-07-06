@@ -370,7 +370,7 @@ public class SyntaxTest extends MP2Test {
 	}
 
 	public void testNestedBlocks() {
-		//assertEval("{{ return 9 }}", NINE);
+		assertEval("{{ return 9 }}", NINE);
 		assertEval("while (true) {{ return 9 }}", NINE);
 	}
 
