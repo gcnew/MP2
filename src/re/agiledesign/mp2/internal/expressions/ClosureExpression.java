@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import re.agiledesign.mp2.LexicalScope.CaptureMapping;
-import re.agiledesign.mp2.VarInfo.Visibility;
 import re.agiledesign.mp2.internal.ExpressionFactory;
 import re.agiledesign.mp2.internal.FunctionScope;
 import re.agiledesign.mp2.internal.Scope;
 import re.agiledesign.mp2.internal.statements.Block;
 import re.agiledesign.mp2.internal.statements.SequenceStatement;
 import re.agiledesign.mp2.internal.statements.Statement;
+import re.agiledesign.mp2.parser.LexicalScope.CaptureMapping;
+import re.agiledesign.mp2.parser.VarInfo.Visibility;
 
 public class ClosureExpression extends Expression {
 	private final Statement mBody;

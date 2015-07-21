@@ -1,7 +1,7 @@
 package re.agiledesign.mp2.internal;
 
 public interface Scope {
-	public NameScope getPrevious();
+	public Context getPrevious();
 
 	public void setVariable(final String aName, final Object aValue);
 

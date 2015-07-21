@@ -5,7 +5,7 @@ import java.util.List;
 import re.agiledesign.mp2.exception.FunctionNotFound;
 import re.agiledesign.mp2.exception.NotAFunction;
 import re.agiledesign.mp2.internal.FunctionScope;
-import re.agiledesign.mp2.internal.NameScope;
+import re.agiledesign.mp2.internal.Context;
 import re.agiledesign.mp2.internal.Scope;
 
 public class FunctionCallExpression extends Expression {
@@ -35,7 +35,7 @@ public class FunctionCallExpression extends Expression {
 			args[i++] = e.execute(aScope);
 		}
 
-		final NameScope parent = (aScope instanceof FunctionScope) ? aScope.getPrevious() : (NameScope) aScope;
+		final Context parent = (aScope instanceof FunctionScope) ? aScope.getPrevious() : (Context) aScope;
 		final FunctionScope scope = new FunctionScope(parent, args, function.getLocalsCount());
 
 		return function.execute(scope);

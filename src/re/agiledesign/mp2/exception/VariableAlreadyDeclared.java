@@ -1,6 +1,6 @@
 package re.agiledesign.mp2.exception;
 
-import re.agiledesign.mp2.VarInfo;
+import re.agiledesign.mp2.parser.VarInfo;
 import re.agiledesign.mp2.util.StringUtil;
 
 public class VariableAlreadyDeclared extends ParsingException {

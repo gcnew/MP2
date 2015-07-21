@@ -1,4 +1,4 @@
-package re.agiledesign.mp2;
+package re.agiledesign.mp2.parser;
 
 import static re.agiledesign.mp2.lexer.OperatorType.ADD;
 import static re.agiledesign.mp2.lexer.OperatorType.AND;
@@ -30,8 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import re.agiledesign.mp2.LexicalScope.CaptureMapping;
-import re.agiledesign.mp2.VarInfo.Visibility;
+import re.agiledesign.mp2.ParsedScript;
 import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.internal.AssignmentVisitor;
 import re.agiledesign.mp2.internal.ExpressionFactory;
@@ -75,6 +74,8 @@ import re.agiledesign.mp2.lexer.Token;
 import re.agiledesign.mp2.lexer.TokenType;
 import re.agiledesign.mp2.lexer.Tokenizer;
 import re.agiledesign.mp2.lexer.TokensBuffer;
+import re.agiledesign.mp2.parser.LexicalScope.CaptureMapping;
+import re.agiledesign.mp2.parser.VarInfo.Visibility;
 import re.agiledesign.mp2.util.AssertUtil;
 import re.agiledesign.mp2.util.AssocEntry;
 import re.agiledesign.mp2.util.CoercionUtil.CoercionType;

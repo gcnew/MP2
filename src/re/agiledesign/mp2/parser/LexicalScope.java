@@ -1,4 +1,4 @@
-package re.agiledesign.mp2;
+package re.agiledesign.mp2.parser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import re.agiledesign.mp2.VarInfo.Visibility;
 import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.exception.VariableAlreadyDeclared;
 import re.agiledesign.mp2.exception.VariableNotClosable;
+import re.agiledesign.mp2.parser.VarInfo.Visibility;
 import re.agiledesign.mp2.util.AssertUtil;
 
 public class LexicalScope {

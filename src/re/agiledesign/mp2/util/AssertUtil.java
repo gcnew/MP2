@@ -24,4 +24,8 @@ public class AssertUtil {
 			throw new AssertionError();
 		}
 	}
+
+	public static void never() {
+		runtimeAssert(false);
+	}
 }

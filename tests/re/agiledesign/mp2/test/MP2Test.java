@@ -9,22 +9,13 @@ import re.agiledesign.mp2.util.ArrayUtil;
 import re.agiledesign.mp2.util.Util;
 
 public abstract class MP2Test extends TestCase {
-	protected static Interpreter interpreter(final String aScript) throws Exception {
-		return interpreter(aScript, null);
-	}
-
-	protected static Interpreter interpreter(final String aScript, final Map<String, ? extends Object> aArgs)
-			throws Exception {
-		return InterpreterFactory.createInterpreter(aScript, aArgs);
-	}
-
 	protected static Object eval(final String aScript) {
 		return eval(aScript, null);
 	}
 
 	protected static Object eval(final String aScript, final Map<String, ? extends Object> aArgs) {
 		try {
-			final Object retval = interpreter(aScript, aArgs).eval();
+			final Object retval = InterpreterFactory.eval(aScript, aArgs);
 			return retval;
 		} catch (final Exception aException) {
 			throw Util.rethrowUnchecked(aException);
@@ -60,9 +51,9 @@ public abstract class MP2Test extends TestCase {
 			final Map<String, ? extends Object> aArgs,
 			final Object aExpected) {
 		try {
-			final Interpreter interpreter = interpreter(aScript, aArgs);
+			final Interpreter interpreter = InterpreterFactory.createInterpreter(aArgs);
 
-			interpreter.eval();
+			interpreter.eval(aScript);
 			assertEquals(aExpected, interpreter.getGlobal(aScript));
 		} catch (final Exception e) {
 			throw Util.rethrowUnchecked(e);

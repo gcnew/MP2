@@ -1,4 +1,4 @@
-package re.agiledesign.mp2;
+package re.agiledesign.mp2.parser;
 
 public class VarInfo {
 	public enum Visibility {
@@ -30,7 +30,7 @@ public class VarInfo {
 
 	public VarInfo(final String aVarName, final Visibility aVisibility, final LexicalScope aScope, final int aIndex) {
 		this(aVarName, aVisibility, aScope, aIndex, null);
-	} 
+	}
 
 	public VarInfo(
 		final String aVarName,
@@ -38,7 +38,7 @@ public class VarInfo {
 		final LexicalScope aScope,
 		final int aIndex,
 		final VarInfo aCapture
-	) { 
+	) {
 		mVarName = aVarName;
 		mVisibility = aVisibility;
 		mScope = aScope;

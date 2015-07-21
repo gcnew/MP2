@@ -66,11 +66,11 @@ public class Main {
 			// final Interpreter interpreter = InterpreterFactory.createInterpreter("a.doop(3, (Long) null)", vars);
 			// final Interpreter interpreter = InterpreterFactory.createInterpreter("function add3(a) { return a + 3; } function ex(f, a) { return f(a); } a.print(ex(add3, 4))",  vars);
 			// final Interpreter interpreter = InterpreterFactory.createInterpreter("function q() { (() => a.print('lambda'))(); } q()", vars);
-			final Interpreter interpreter = InterpreterFactory.createInterpreter("return 'hello'[1 -> 3]", vars);
+			//final Interpreter interpreter = InterpreterFactory.createInterpreter("return 'hello'[1 -> 3]", vars);
 			// final Interpreter interpreter = InterpreterFactory.createInterpreter("return a.array()[1]", vars);
-			final Object retval = interpreter.eval();
+			//final Object retval = interpreter.eval();
 
-			String.valueOf(retval);
+			//String.valueOf(retval);
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}

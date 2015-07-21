@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import re.agiledesign.mp2.LexicalScope;
 import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.internal.expressions.AccessExpression;
 import re.agiledesign.mp2.internal.expressions.ArgumentAssignmentExpression;
@@ -15,6 +14,7 @@ import re.agiledesign.mp2.internal.expressions.IndexAssignmentExpression;
 import re.agiledesign.mp2.internal.expressions.LocalAssignmentExpression;
 import re.agiledesign.mp2.internal.expressions.SequenceExpression;
 import re.agiledesign.mp2.lexer.OperatorType;
+import re.agiledesign.mp2.parser.LexicalScope;
 import re.agiledesign.mp2.util.Util;
 
 public class AssignmentVisitor {
@@ -28,11 +28,12 @@ public class AssignmentVisitor {
 	private Expression mAssignment;
 
 	private AssignmentVisitor(
-			final AccessExpression aLeft,
-			final Expression aRight,
-			final OperatorType aOperator,
-			final boolean aPost,
-			final LexicalScope aScope) {
+		final AccessExpression aLeft,
+		final Expression aRight,
+		final OperatorType aOperator,
+		final boolean aPost,
+		final LexicalScope aScope
+	) {
 		mRight = aRight;
 		mAccessor = aLeft;
 

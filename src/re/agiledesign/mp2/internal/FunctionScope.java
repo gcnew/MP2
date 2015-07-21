@@ -1,22 +1,18 @@
 package re.agiledesign.mp2.internal;
 
 public class FunctionScope implements Scope {
-	private final NameScope mPrev;
+	private final Context mPrev;
 	private final Object[] mArgs;
 	private final Object[] mLocalVars;
 	private ControlFlow mControlFlow = null;
 
-	public FunctionScope(final NameScope aPrev, final Object[] aArgs) {
-		this(aPrev, aArgs, 0);
-	}
-
-	public FunctionScope(final NameScope aPrev, final Object[] aArgs, final int aLocalVarsCount) {
+	public FunctionScope(final Context aPrev, final Object[] aArgs, final int aLocalVarsCount) {
 		mPrev = aPrev;
 		mArgs = aArgs;
 		mLocalVars = new Object[aLocalVarsCount];
 	}
 
-	public NameScope getPrevious() {
+	public Context getPrevious() {
 		return mPrev;
 	}
 
