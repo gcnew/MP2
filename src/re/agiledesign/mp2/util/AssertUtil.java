@@ -25,7 +25,9 @@ public class AssertUtil {
 		}
 	}
 
-	public static void never() {
+	public static <T extends Exception> T never() {
 		runtimeAssert(false);
+
+		return null;
 	}
 }

@@ -1,5 +1,6 @@
 package re.agiledesign.mp2;
 
+import java.util.Collections;
 import java.util.Map;
 
 import re.agiledesign.mp2.internal.Context;
@@ -9,13 +10,11 @@ import re.agiledesign.mp2.internal.sourceprovider.SourceProvider;
 
 public class Interpreter {
 	private final Context mContext;
+	private final SourceProvider mProvider;
 
 	/* package */Interpreter(final SourceProvider aProvider, final Map<String, ?> aGlobals) {
-		if (aGlobals == null) {
-			mContext = new Context(aProvider);
-		} else {
-			mContext = new Context(aProvider, aGlobals);
-		}
+		mProvider = aProvider;
+		mContext = new Context(aProvider, aGlobals == null ? Collections.<String, Object> emptyMap() : aGlobals);
 	}
 
 	// Debugger getDebugger();
@@ -28,6 +27,13 @@ public class Interpreter {
 		final Scope scope = new FunctionScope(mContext, null, aScript.getLocalCount());
 
 		return aScript.execute(scope);
+	}
+
+	public Object evalProvided(final String aPath) throws Exception {
+		final String resolved = mProvider.resolve(aPath);
+		final String source = mProvider.getSource(resolved);
+
+		return eval(InterpreterFactory.parseScript(source));
 	}
 
 	public Object getGlobal(final String aName) {

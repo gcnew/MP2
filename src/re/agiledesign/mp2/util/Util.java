@@ -33,4 +33,22 @@ public class Util {
 	public static <T> T cast(final Object aObject) {
 		return (T) aObject;
 	}
+
+	public static Class<?> getCaller(final Class<?> aSelf) {
+		try {
+			final String selfName = aSelf.getName();
+			final StackTraceElement[] elements = new Exception().getStackTrace();
+
+			int i;
+			for (i = 0; i < elements.length; ++i) {
+				if (elements[i].getClassName().equals(selfName)) {
+					break;
+				}
+			}
+
+			return Class.forName(elements[i + 1].getClassName());
+		} catch (final ClassNotFoundException e) {
+			throw AssertUtil.<RuntimeException> never();
+		}
+	}
 }

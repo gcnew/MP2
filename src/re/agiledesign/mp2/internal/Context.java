@@ -5,26 +5,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 import re.agiledesign.mp2.InterpreterFactory;
+import re.agiledesign.mp2.ParsedScript;
 import re.agiledesign.mp2.exception.ParsingException;
 import re.agiledesign.mp2.internal.sourceprovider.SourceProvider;
 import re.agiledesign.mp2.util.AssertUtil;
 
 public class Context implements Scope {
+	private static final ParsedScript.Friend PSF = new ParsedScript.Friend();
+
 	private ControlFlow mControlFlow = null;
 
 	private final Map<String, Object> mNamedVars;
 
 	private final SourceProvider mProvider;
-	private final Map<String, Context> mModuleCache = new HashMap<String, Context>();
-
-	public Context(final SourceProvider aProvider) {
-		mProvider = aProvider;
-		mNamedVars = new HashMap<String, Object>();
-	}
+	private final Map<String, Context> mModuleCache;
 
 	public Context(final SourceProvider aProvider, final Map<String, ?> aNamedVars) {
+		this(aProvider, new HashMap<String, Object>(aNamedVars), new HashMap<String, Context>());
+	}
+
+	private Context(final SourceProvider aProvider, final Map<String, ?> aNamedVars, final Map<String, Context> aModules) {
 		mProvider = aProvider;
 		mNamedVars = new HashMap<String, Object>(aNamedVars);
+		mModuleCache = aModules;
 	}
 
 	public Context getPrevious() {
@@ -83,11 +86,12 @@ public class Context implements Scope {
 		}
 
 		final String source = mProvider.getSource(resolvedPath);
+		final ParsedScript script = InterpreterFactory.parseScript(source);
 
-		final Context context = new Context(mProvider);
+		final Context context = new Context(mProvider, Collections.<String, Object> emptyMap(), mModuleCache);
 		mModuleCache.put(resolvedPath, context);
 
-		InterpreterFactory.parseScript(source).execute(context);
+		PSF.execute(script, context);
 
 		return context;
 	}

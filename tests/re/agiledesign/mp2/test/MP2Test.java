@@ -5,6 +5,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 import re.agiledesign.mp2.Interpreter;
 import re.agiledesign.mp2.InterpreterFactory;
+import re.agiledesign.mp2.internal.sourceprovider.NullProvider;
 import re.agiledesign.mp2.util.ArrayUtil;
 import re.agiledesign.mp2.util.Util;
 
@@ -51,7 +52,7 @@ public abstract class MP2Test extends TestCase {
 			final Map<String, ? extends Object> aArgs,
 			final Object aExpected) {
 		try {
-			final Interpreter interpreter = InterpreterFactory.createInterpreter(aArgs);
+			final Interpreter interpreter = InterpreterFactory.getInstance(NullProvider.instance(), aArgs);
 
 			interpreter.eval(aScript);
 			assertEquals(aExpected, interpreter.getGlobal(aScript));
