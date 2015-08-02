@@ -68,6 +68,22 @@ public class ScopeTest extends MP2Test {
 		assertException(script, ParsingException.class);
 	}
 
+	public void testFunctionSameAsLocal() {
+		final String script = //
+		/**/"local test = true;\n" +
+		/**/"function test() { return true; };";
+
+		assertException(script, ParsingException.class);
+	}
+
+	public void testFunctionSameAsLocal2() {
+		final String script = //
+		/**/"function test() { return true; };\n" +
+		/**/"var test = true;\n";
+
+		assertException(script, ParsingException.class);
+	}
+
 	public void testArgumentSameAsClosed() {
 		final String script = //
 		/**/"function test() {\n" +

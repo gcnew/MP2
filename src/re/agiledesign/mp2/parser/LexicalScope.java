@@ -62,7 +62,13 @@ public class LexicalScope {
 				return DUMMY_VAR;
 			}
 
-			if ((closed.getVisibility() != Visibility.VAR) && (closed.getVisibility() != Visibility.ARGUMENT)) {
+			// globals should not be captured
+			// TODO: revise this if "updatable" captures are implemented
+			if (closed.isGlobal()) {
+				return DUMMY_VAR;
+			}
+
+			if (!(closed.isVar() || closed.isArgument() || closed.isCapture())) {
 				throw new VariableNotClosable(closed);
 			}
 
@@ -105,6 +111,10 @@ public class LexicalScope {
 		}
 
 		final VarInfo retval = new VarInfo(aVarName, aVisibility, this, getNextIndex(store), aCaptured);
+		if (aVisibility == Visibility.ARGUMENT || aVisibility == Visibility.GLOBAL || aVisibility == Visibility.CAPTURE) {
+			retval.assign();
+		}
+
 		mVariables.put(aVarName, retval);
 
 		return retval;

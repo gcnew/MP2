@@ -9,7 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import re.agiledesign.mp2.Interpreter;
+import re.agiledesign.mp2.InterpreterFactory;
 import re.agiledesign.mp2.exception.ParsingException;
+import re.agiledesign.mp2.internal.expressions.FunctionExpression;
+import re.agiledesign.mp2.internal.sourceprovider.NullProvider;
 
 public class SyntaxTest extends MP2Test {
 	private static final Integer NINE = Integer.valueOf(9);
@@ -274,6 +278,18 @@ public class SyntaxTest extends MP2Test {
 		assertEquals(Integer.valueOf(3), l.get(0));
 	}
 
+	public void testGlobalAssignment() throws Exception {
+		final Interpreter interpreter = InterpreterFactory.getInstance(NullProvider.instance(), null);
+
+		interpreter.eval("function f() { }");
+		interpreter.eval("g = () => { }");
+		interpreter.eval("x = 9");
+
+		assertTrue(interpreter.getGlobal("f") instanceof FunctionExpression);
+		assertTrue(interpreter.getGlobal("g") instanceof FunctionExpression);
+		assertEquals(interpreter.getGlobal("x"), NINE);
+	}
+
 	public void testVarAssignment() {
 		assertEval("var i = 9; return i;", NINE);
 	}
@@ -307,12 +323,32 @@ public class SyntaxTest extends MP2Test {
 		assertEval(script, NINE);
 	}
 
+	public void testNestedClosure() {
+		final String script = //
+		/**/"var n = 5;\n" +
+		/**/"local test = (() => return () => return n + 4)();\n" +
+		/**/"\n" +
+		/**/"return test()";
+
+		assertEval(script, NINE);
+	}
+
 	public void testClosureUpdate() {
 		final String script = //
 		/**/"var n = 4;\n" +
 		/**/"local test = () => return n + 4;\n" +
 		/**/"n = 5;\n" +
 		/**/"\n" +
+		/**/"return test()";
+
+		assertEval(script, NINE);
+	}
+
+	public void testGlobalClosure() {
+		final String script = //
+		/**/"function f(x, y) { return x + y }\n" +
+		/**/"local test = () => return f(9, 1);\n" +
+		/**/"f = (x, y) => return x * y;\n" +
 		/**/"return test()";
 
 		assertEval(script, NINE);

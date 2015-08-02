@@ -585,15 +585,15 @@ public class MP2Parser {
 		final VarInfo var = mLexicalScope.getVariable(aVarName);
 
 		if (var != null) {
+			if (!var.isAssigned()) {
+				throw new ParsingException("Variable '" + aVarName + "' is used without being initialized");
+			}
+
 			if (var.isArgument()) {
 				return ExpressionFactory.getArgumentAccessExpression(var.getIndex());
 			}
 
 			if (var.isLocal() || var.isVar()) {
-				if (!var.isAssigned()) {
-					throw new ParsingException("Variable '" + aVarName + "' is used without being initialized");
-				}
-
 				return ExpressionFactory.getLocalAccessExpression(var.getIndex());
 			}
 
@@ -603,7 +603,11 @@ public class MP2Parser {
 				return ExpressionFactory.getLocalAccessExpression(var.getIndex());
 			}
 
-			throw new ParsingException("Unexpected variable type: " + var.getVisibility());
+			if (var.isGlobal()) {
+				// empty spaces
+			} else {
+				throw new ParsingException("Unexpected variable type: " + var.getVisibility());
+			}
 		}
 
 		return new GlobalAccessExpression(aVarName);
@@ -684,6 +688,8 @@ public class MP2Parser {
 		if (nameToken.getType() != TokenType.IDENTIFIER) {
 			throwExpectedFound(TokenType.IDENTIFIER, nameToken);
 		}
+
+		mLexicalScope.addVariable(nameToken.getStringValue(), Visibility.GLOBAL);
 
 		checkAndAdvance(SyntaxToken.O_BRACK);
 

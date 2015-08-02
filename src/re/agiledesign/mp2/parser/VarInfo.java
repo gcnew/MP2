@@ -44,10 +44,6 @@ public class VarInfo {
 		mScope = aScope;
 		mIndex = aIndex;
 		mCaptured = aCapture;
-
-		if (aVisibility == Visibility.ARGUMENT) {
-			assign();
-		}
 	}
 
 	public String getVarName() {

@@ -5,7 +5,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 import re.agiledesign.mp2.Interpreter;
 import re.agiledesign.mp2.InterpreterFactory;
-import re.agiledesign.mp2.internal.sourceprovider.NullProvider;
+import re.agiledesign.mp2.internal.sourceprovider.SourceProvider;
 import re.agiledesign.mp2.util.ArrayUtil;
 import re.agiledesign.mp2.util.Util;
 
@@ -14,9 +14,24 @@ public abstract class MP2Test extends TestCase {
 		return eval(aScript, null);
 	}
 
-	protected static Object eval(final String aScript, final Map<String, ? extends Object> aArgs) {
+	protected static Object eval(final String aScript, final Map<String, ?> aArgs) {
 		try {
 			final Object retval = InterpreterFactory.eval(aScript, aArgs);
+			return retval;
+		} catch (final Exception aException) {
+			throw Util.rethrowUnchecked(aException);
+		}
+	}
+
+	protected static Object eval(final SourceProvider aProvider, final String aPath) {
+		return eval(aProvider, aPath, null);
+	}
+
+	protected static Object eval(final SourceProvider aProvider, final String aPath, final Map<String, ?> aArgs) {
+		try {
+			final Interpreter interpreter = InterpreterFactory.getInstance(aProvider, aArgs);
+			final Object retval = interpreter.evalProvided(aPath);
+
 			return retval;
 		} catch (final Exception aException) {
 			throw Util.rethrowUnchecked(aException);
@@ -31,34 +46,26 @@ public abstract class MP2Test extends TestCase {
 		assertEval(aScript, null, aExpected, aEquals);
 	}
 
-	protected static void assertEval(final String aScript,
-			final Map<String, ? extends Object> aArgs,
-			final Object aExpected) {
+	protected static void assertEval(final String aScript, final Map<String, ?> aArgs, final Object aExpected) {
 		assertEquals(aExpected, eval(aScript, aArgs));
 	}
 
+	protected void assertEval(final SourceProvider aProvider, final String aPath, final String aExpected) {
+		assertEval(aProvider, aPath, null, aExpected);
+	}
+
+	protected void assertEval(final SourceProvider aProvider,
+			final String aPath,
+			final Map<String, ?> aArgs,
+			final String aExpected) {
+		assertEquals(aExpected, eval(aProvider, aPath, aArgs));
+	}
+
 	protected static void assertEval(final String aScript,
-			final Map<String, ? extends Object> aArgs,
+			final Map<String, ?> aArgs,
 			final Object aExpected,
 			final EqualsTest aEquals) {
 		assertTrue(aEquals.areEqual(aExpected, eval(aScript, aArgs)));
-	}
-
-	protected static void assertGlobal(final String aScript, final Object aExpected) {
-		assertGlobal(aScript, null, aExpected);
-	}
-
-	protected static void assertGlobal(final String aScript,
-			final Map<String, ? extends Object> aArgs,
-			final Object aExpected) {
-		try {
-			final Interpreter interpreter = InterpreterFactory.getInstance(NullProvider.instance(), aArgs);
-
-			interpreter.eval(aScript);
-			assertEquals(aExpected, interpreter.getGlobal(aScript));
-		} catch (final Exception e) {
-			throw Util.rethrowUnchecked(e);
-		}
 	}
 
 	protected static void assertException(final String aScript, final Class<? extends Throwable> aExpected) {
@@ -66,7 +73,7 @@ public abstract class MP2Test extends TestCase {
 	}
 
 	protected static void assertException(final String aScript,
-			final Map<String, ? extends Object> aArgs,
+			final Map<String, ?> aArgs,
 			final Class<? extends Throwable> aExpected) {
 		try {
 			eval(aScript, aArgs);
