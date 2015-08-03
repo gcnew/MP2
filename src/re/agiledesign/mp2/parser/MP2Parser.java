@@ -324,9 +324,7 @@ public class MP2Parser {
 		case IDENTIFIER:
 			retval = parseAccessExpression(token.getStringValue());
 			break;
-		}
-
-		if (retval == null) {
+		default:
 			throwUnexpected(token);
 		}
 
@@ -377,52 +375,6 @@ public class MP2Parser {
 
 		mTokenizer.restorePosition(position);
 		return parseInlineList(true);
-	}
-
-	private boolean isComprehension(final boolean aImmutable) throws ParsingException {
-		int brack = aImmutable ? 1 : 0;
-		int index = 1 - brack;
-		final int position = mTokenizer.getPostion();
-
-		// TODO: check for ( x ? 1 : 0; ...)
-		while (true) {
-			final Token token = mTokenizer.next();
-
-			if (token.getType() == TokenType.SYNTAX_TOKEN) {
-				switch (token.<SyntaxToken> getValue()) {
-				case O_BRACK:
-					++brack;
-					break;
-				case O_INDEX:
-					++index;
-					break;
-				case C_BRACK:
-					--brack;
-
-					if ((aImmutable ? brack : index) == 0) {
-						mTokenizer.restorePosition(position);
-						return false;
-					}
-					break;
-				case C_INDEX:
-					--index;
-
-					if ((aImmutable ? brack : index) == 0) {
-						mTokenizer.restorePosition(position);
-						return false;
-					}
-					break;
-				case COMMA:
-				case COLON:
-				case SEMICOL:
-					if (((aImmutable ? brack : index) == 1) && ((aImmutable ? index : brack) == 0)) {
-						mTokenizer.restorePosition(position);
-						return is(token, SyntaxToken.SEMICOL);
-					}
-					break;
-				}
-			}
-		}
 	}
 
 	private Expression parseInlineList(final boolean aImmutable) throws ParsingException {
@@ -669,6 +621,8 @@ public class MP2Parser {
 				return true;
 			case CLASS:
 				throw new ParsingException("Classes are not yet implemented");
+			default:
+				break;
 			}
 		}
 
