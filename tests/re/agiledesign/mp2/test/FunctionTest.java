@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import re.agiledesign.mp2.exception.ParsingException;
@@ -66,6 +67,7 @@ public class FunctionTest extends MP2Test {
 	}
 
 	@Test
+	@Ignore
 	public void functionClosure() {
 		final String script = //
 		/**/"var n = 5;\n" +
@@ -107,6 +109,7 @@ public class FunctionTest extends MP2Test {
 	}
 
 	@Test
+	@Ignore
 	public void lambdaImplicitReturnDeclaration() {
 		assertEval("return (() => local x = 4)()", null);
 	}

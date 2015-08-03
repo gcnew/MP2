@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import re.agiledesign.mp2.collection.ConsList;
@@ -80,6 +81,7 @@ public class CollectionTest extends MP2Test {
 	}
 
 	@Test
+	@Ignore
 	public void listContainingArrayEquals() {
 		final int arr[] = new int[] { 1, 2, 3 };
 
@@ -91,6 +93,7 @@ public class CollectionTest extends MP2Test {
 	}
 
 	@Test
+	@Ignore
 	public void listArrayEquals() {
 		@SuppressWarnings("boxing")
 		final List<?> a = Arrays.asList(1, 2, 3);

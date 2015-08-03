@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import re.agiledesign.mp2.Interpreter;
@@ -349,12 +350,14 @@ public class SyntaxTest extends MP2Test {
 	}
 
 	@Test
+	@Ignore
 	public void closureAssignment() {
 		// TODO: should we allow closure assignment or disable it altogether?
 		assertEval("var i = 0; (() => return i = 9)(); return i;", NINE);
 	}
 
 	@Test
+	@Ignore
 	public void closureUpdate() {
 		final String script = //
 		/**/"var n = 4;\n" +

@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class MapComprehensionTest extends MP2Test {
@@ -51,6 +52,7 @@ public class MapComprehensionTest extends MP2Test {
 	}
 
 	@Test
+	@Ignore
 	public void immutable6() {
 		final String script = "return ( 'found' -> x.getValue(); x = ( 1 -> 'a', 2 -> 'b', 3 -> 'c' ); x.getKey() == 1 )";
 		assertEval(script, Collections.singletonMap("found", "a"));
@@ -105,6 +107,7 @@ public class MapComprehensionTest extends MP2Test {
 	}
 
 	@Test
+	@Ignore
 	public void mutable6() {
 		final String script = "return [ 'found' -> x.getValue(); x = [ 1 -> 'a', 2 -> 'b', 3 -> 'c' ]; x.getKey() == 1 ]";
 		assertEval(script, Collections.singletonMap("found", "a"));
