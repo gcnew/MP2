@@ -48,6 +48,8 @@ public class TokenConstants {
 	private static final Token THIS = new Token(KEYWORD, Keyword.THIS, UNKNOWN);
 	private static final Token FUNCTION = new Token(KEYWORD, Keyword.FUNCTION, UNKNOWN);
 	private static final Token CLASS = new Token(KEYWORD, Keyword.CLASS, UNKNOWN);
+	private static final Token LOAD = new Token(KEYWORD, Keyword.LOAD, UNKNOWN);
+	private static final Token IMPORT = new Token(KEYWORD, Keyword.IMPORT, UNKNOWN);
 
 	public static final Token BOOLEAN = new Token(TYPE, getCoercionType(Boolean.class), UNKNOWN);
 	public static final Token BYTE = new Token(TYPE, getCoercionType(Byte.class), UNKNOWN);
@@ -173,6 +175,8 @@ public class TokenConstants {
 		KEYWORD_TOKEN_MAP.put("this", THIS);
 		KEYWORD_TOKEN_MAP.put("function", FUNCTION);
 		KEYWORD_TOKEN_MAP.put("class", CLASS);
+		KEYWORD_TOKEN_MAP.put("load", LOAD);
+		KEYWORD_TOKEN_MAP.put("import", IMPORT);
 
 		KEYWORD_TOKEN_MAP.put("boolean", BOOLEAN);
 		KEYWORD_TOKEN_MAP.put("byte", BYTE);

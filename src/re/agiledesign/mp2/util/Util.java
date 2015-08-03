@@ -1,7 +1,10 @@
 package re.agiledesign.mp2.util;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 import re.agiledesign.mp2.collection.ImmutableArrayList;
 
@@ -49,6 +52,20 @@ public class Util {
 			return Class.forName(elements[i + 1].getClassName());
 		} catch (final ClassNotFoundException e) {
 			throw AssertUtil.<RuntimeException> never();
+		}
+	}
+
+	public static String readStream(final InputStream aStream) {
+		final Scanner s = new Scanner(aStream).useDelimiter("\\A");
+		return s.hasNext() ? s.next() : "";
+	}
+
+	public static void closeQuietly(final InputStream aStream) {
+		try {
+			if (aStream != null) {
+				aStream.close();
+			}
+		} catch (final IOException ignored) {
 		}
 	}
 }

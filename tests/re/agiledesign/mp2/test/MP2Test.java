@@ -5,11 +5,20 @@ import java.util.Map;
 import junit.framework.TestCase;
 import re.agiledesign.mp2.Interpreter;
 import re.agiledesign.mp2.InterpreterFactory;
+import re.agiledesign.mp2.internal.sourceprovider.FSSourceProvider;
 import re.agiledesign.mp2.internal.sourceprovider.SourceProvider;
 import re.agiledesign.mp2.util.ArrayUtil;
 import re.agiledesign.mp2.util.Util;
 
 public abstract class MP2Test extends TestCase {
+	protected static final SourceProvider RESOURCE_PROVIDER;
+
+	static {
+		final String resourcesDir = MP2Test.class.getClassLoader().getResource("resources").getPath();
+
+		RESOURCE_PROVIDER = new FSSourceProvider(resourcesDir);
+	}
+
 	protected static Object eval(final String aScript) {
 		return eval(aScript, null);
 	}

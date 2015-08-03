@@ -63,6 +63,7 @@ import re.agiledesign.mp2.internal.statements.EmptyStatement;
 import re.agiledesign.mp2.internal.statements.ExpressionStatement;
 import re.agiledesign.mp2.internal.statements.ForStatement;
 import re.agiledesign.mp2.internal.statements.IfElseStatement;
+import re.agiledesign.mp2.internal.statements.LoadStatement;
 import re.agiledesign.mp2.internal.statements.ReturnStatement;
 import re.agiledesign.mp2.internal.statements.SequenceStatement;
 import re.agiledesign.mp2.internal.statements.Statement;
@@ -780,6 +781,9 @@ public class MP2Parser {
 			case VAR:
 				retval = parseVarStatement(Visibility.VAR);
 				break;
+			case LOAD:
+				retval = parseLoadStatement();
+				break;
 			default:
 				throw new ParsingException("Keyword not yet implemented: " + token);
 			}
@@ -934,6 +938,17 @@ public class MP2Parser {
 		default:
 			return new SequenceExpression(Util.immutableList(expressions));
 		}
+	}
+
+	private Statement parseLoadStatement() throws ParsingException {
+		// TODO: imports should not be a string literal
+		final Token token = mTokenizer.next();
+
+		if ((token.getType() != TokenType.CONSTANT) || !(token.getValue() instanceof String)) {
+			throw new ParsingException("Import path must be a string literal");
+		}
+
+		return new LoadStatement(token.getStringValue());
 	}
 
 	private Statement parseStatementOrBlock() throws ParsingException {

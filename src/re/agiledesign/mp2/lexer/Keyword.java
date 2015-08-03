@@ -19,5 +19,7 @@ public enum Keyword {
 	GLOBAL, // shortcut to the global scope
 	THIS, // this
 	FUNCTION, // function
-	CLASS; // class
+	CLASS, // class
+	LOAD, // load
+	IMPORT // import
 }
