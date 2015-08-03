@@ -1,36 +1,40 @@
 package re.agiledesign.mp2.test;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
 import re.agiledesign.mp2.util.StringUtil;
 
 @SuppressWarnings("boxing")
-public class StringFormatTest extends TestCase {
-	public void testFormat1() {
+public class StringFormatTest {
+	@Test
+	public void format1() {
 		assertEquals("Hello, World!", StringUtil.format("Hello, {}!", "World"));
 	}
 
-	public void testFormat2() {
+	@Test
+	public void format2() {
 		assertEquals("Hello, 1, 2, 1", StringUtil.format("Hello, {0}, {1}, {}", 1, 2));
 	}
 
-	public void testFormat3() {
+	@Test
+	public void format3() {
 		assertEquals("Hello, 1, 2, null", StringUtil.format("Hello, {}, {}, {4}", 1, 2));
 	}
 
-	public void testFormat4() {
+	@Test
+	public void format4() {
 		assertEquals("Hello, null, null, {-1}", StringUtil.format("Hello, {}, {0}, {-1}", null, null));
 	}
 
-	public void testFormat5() {
+	@Test
+	public void format5() {
 		assertEquals("", StringUtil.format(""));
 	}
 
-	public void testFormat6() {
-		try {
-			assertEquals(null, StringUtil.format(null));
-			fail("NPE expected");
-		} catch (final NullPointerException e) {
-			// expected result
-		}
+	@Test(expected = NullPointerException.class)
+	public void format6() {
+		assertEquals(null, StringUtil.format(null));
 	}
 }

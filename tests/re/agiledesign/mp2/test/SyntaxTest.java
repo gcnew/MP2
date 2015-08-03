@@ -1,5 +1,8 @@
 package re.agiledesign.mp2.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -8,6 +11,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.Test;
 
 import re.agiledesign.mp2.Interpreter;
 import re.agiledesign.mp2.InterpreterFactory;
@@ -18,23 +23,28 @@ import re.agiledesign.mp2.internal.sourceprovider.NullProvider;
 public class SyntaxTest extends MP2Test {
 	private static final Integer NINE = Integer.valueOf(9);
 
-	public void testTernary0() {
+	@Test
+	public void ternary0() {
 		assertEval("return ((a = true) ? a : false) ? 4 : 5", Integer.valueOf(4));
 	}
 
-	public void testTernary1() {
+	@Test
+	public void ternary1() {
 		assertEval("return (a = true) ? a : false ? 4 : 5", Boolean.TRUE);
 	}
 
-	public void testTernary2() {
+	@Test
+	public void ternary2() {
 		assertEval("return a = false ? a : false ? 4 : 5", Integer.valueOf(5));
 	}
 
-	public void testTernaryPrecedence0() {
+	@Test
+	public void ternaryPrecedence0() {
 		assertEval("return a = false ? 1 : 2", Integer.valueOf(2));
 	}
 
-	public void testNumericLiterals() {
+	@Test
+	public void numericLiterals() {
 		final Integer i255 = Integer.valueOf(255);
 		assertEval("return 255", i255);
 		assertEval("return 0xFF", i255);
@@ -55,7 +65,8 @@ public class SyntaxTest extends MP2Test {
 		assertException("1F3.33", ParsingException.class);
 	}
 
-	public void testCasts() {
+	@Test
+	public void casts() {
 		assertEval("return (int) null", null);
 		assertEval("return (int) 123", Integer.valueOf(123));
 		assertEval("return (int) 123.1", Integer.valueOf(123));
@@ -117,14 +128,16 @@ public class SyntaxTest extends MP2Test {
 		assertEval("return (boolean) 'false'", Boolean.FALSE);
 	}
 
-	public void testCoercion() {
+	@Test
+	public void coercion() {
 		assertEval("return '' + null", "null");
 		assertEval("return '3' + 4", "34");
 		assertEval("return 3.5 + '4'", "3.54");
 		assertEval("return 3.5 + 4 + ''", "7.5");
 	}
 
-	public void testString() {
+	@Test
+	public void string() {
 		assertEval("return 'Say \\'Hello\\''", "Say 'Hello'");
 		assertEval("return \"Say 'Hello'\"", "Say 'Hello'");
 		assertEval("return 'Say \"Hello\"'", "Say \"Hello\"");
@@ -132,54 +145,64 @@ public class SyntaxTest extends MP2Test {
 		assertException("'Say \\", ParsingException.class);
 	}
 
-	public void testComplexIncrement() {
+	@Test
+	public void complexIncrement() {
 		assertEval("local i = 0; local a = [[1]]; return a[i++][--i] += i + 8;", NINE);
 	}
 
-	public void testVarPreIncrement() {
+	@Test
+	public void varPreIncrement() {
 		final Map<String, Integer> a = new HashMap<String, Integer>();
 		a.put("a", Integer.valueOf(8));
 
 		assertEval("return ++a", a, NINE);
 	}
 
-	public void testVarPostDecrement() {
+	@Test
+	public void varPostDecrement() {
 		final Map<String, Integer> a = new HashMap<String, Integer>();
 		a.put("a", NINE);
 
 		assertEval("return a--", a, NINE);
 	}
 
-	public void testPrimitiveArrayAssignment() {
+	@Test
+	public void primitiveArrayAssignment() {
 		assertEval("return a[0]= 3", Collections.singletonMap("a", new int[] { 0, 1, 2 }), Integer.valueOf(3));
 	}
 
-	public void testPrimitiveArrayAssignment2() {
+	@Test
+	public void primitiveArrayAssignment2() {
 		final int arr[] = { 0, 1, 2 };
 		final int expected[] = { 3, 1, 2 };
 
 		assertEval("a[0]= 3; return a", Collections.singletonMap("a", arr), expected, ArrayEquals);
 	}
 
-	public void testPrimitiveArrayAssignment3() {
+	@Test
+	public void primitiveArrayAssignment3() {
 		// TODO: should we do coercion or simply fail?
 		assertEval("return a[0]= 3.0", Collections.singletonMap("a", new int[] { 0, 1, 2 }), Integer.valueOf(3));
 	}
 
-	public void testPrimitiveArrayAssignment4() {
-		assertException("return a[0]= a",
-				Collections.singletonMap("a", new int[] { 0, 1, 2 }),
-				ClassCastException.class);
+	@Test
+	public void primitiveArrayAssignment4() {
+		assertException(
+			"return a[0]= a",
+			Collections.singletonMap("a", new int[] { 0, 1, 2 }),
+			ClassCastException.class);
 	}
 
-	public void testListAssignment() {
+	@Test
+	public void listAssignment() {
 		final List<String> list = new ArrayList<String>();
 		list.add("empty");
 
 		assertEval("l[0] = 'abcd'; return l", Collections.singletonMap("l", list), Collections.singletonList("abcd"));
 	}
 
-	public void testListAssignment2() {
+	@Test
+	public void listAssignment2() {
 		final List<String> list = new ArrayList<String>();
 		list.add("empty");
 
@@ -187,36 +210,42 @@ public class SyntaxTest extends MP2Test {
 	}
 
 	@SuppressWarnings("boxing")
-	public void testListAssignment3() {
+	@Test
+	public void listAssignment3() {
 		assertEval("l = [ 0, 1, 2 ]; l[0] = 3; return l", Arrays.asList(3, 1, 2));
 	}
 
-	public void testListAssignment4() {
+	@Test
+	public void listAssignment4() {
 		assertException("l = ( 0, 1, 2 ); l[0] = 3", UnsupportedOperationException.class);
 	}
 
-	public void testListComplexEquals() {
+	@Test
+	public void listComplexEquals() {
 		final List<Integer> a = Arrays.asList(Integer.valueOf(0));
 
 		assertEval("return a[0] += 9", Collections.singletonMap("a", a), NINE);
 		assertEquals(NINE, a.get(0));
 	}
 
-	public void testListPreDecrement() {
+	@Test
+	public void listPreDecrement() {
 		final List<Integer> a = Arrays.asList(Integer.valueOf(10));
 
 		assertEval("return --a[0]", Collections.singletonMap("a", a), NINE);
 		assertEquals(NINE, a.get(0));
 	}
 
-	public void testListPostDecrement() {
+	@Test
+	public void listPostDecrement() {
 		final List<Integer> a = Arrays.asList(NINE);
 
 		assertEval("return a[0]--", Collections.singletonMap("a", a), NINE);
 		assertEquals(Integer.valueOf(8), a.get(0));
 	}
 
-	public void testMapAssignment() {
+	@Test
+	public void mapAssignment() {
 		final Map<Integer, String> expected = Collections.singletonMap(Integer.valueOf(0), "abcd");
 		final Map<Integer, String> map = new HashMap<Integer, String>();
 		map.put(Integer.valueOf(0), "empty");
@@ -224,22 +253,26 @@ public class SyntaxTest extends MP2Test {
 		assertEval("m[0] = 'abcd'; return m", Collections.singletonMap("m", map), expected);
 	}
 
-	public void testMapAssignment2() {
+	@Test
+	public void mapAssignment2() {
 		final Map<Integer, String> map = new HashMap<Integer, String>();
 		map.put(Integer.valueOf(0), "empty");
 
 		assertEval("return m[0] = 'abcd'", Collections.singletonMap("m", map), "abcd");
 	}
 
-	public void testMapAssignment3() {
+	@Test
+	public void mapAssignment3() {
 		assertEval("l = [ 'a' -> 'b' ]; l['a'] = 'a'; return l", Collections.singletonMap("a", "a"));
 	}
 
-	public void testMapAssignment4() {
+	@Test
+	public void mapAssignment4() {
 		assertException("l = ( 'a' -> 'b' ); l['a'] = 'a'; return l", UnsupportedOperationException.class);
 	}
 
-	public void testMapComplexEquals() {
+	@Test
+	public void mapComplexEquals() {
 		final Map<String, Integer> a = new HashMap<String, Integer>();
 		a.put("i", Integer.valueOf(0));
 
@@ -247,7 +280,8 @@ public class SyntaxTest extends MP2Test {
 		assertEquals(NINE, a.get("i"));
 	}
 
-	public void testMapPreIncrement() {
+	@Test
+	public void mapPreIncrement() {
 		final Map<String, Integer> a = new HashMap<String, Integer>();
 		a.put("i", Integer.valueOf(8));
 
@@ -255,7 +289,8 @@ public class SyntaxTest extends MP2Test {
 		assertEquals(NINE, a.get("i"));
 	}
 
-	public void testMapPostIncrement() {
+	@Test
+	public void mapPostIncrement() {
 		final Map<String, Integer> a = new HashMap<String, Integer>();
 		a.put("i", NINE);
 
@@ -263,11 +298,13 @@ public class SyntaxTest extends MP2Test {
 		assertEquals(Integer.valueOf(10), a.get("i"));
 	}
 
-	public void testNestedAssignment() {
+	@Test
+	public void nestedAssignment() {
 		assertEval("return a[0][0] = 3", Collections.singletonMap("a", new int[][] { { 0 } }), Integer.valueOf(3));
 	}
 
-	public void testNestedAssignment2() {
+	@Test
+	public void nestedAssignment2() {
 		final Map<String, Object> m = new HashMap<String, Object>();
 		final List<Integer> l = new ArrayList<Integer>();
 
@@ -278,7 +315,8 @@ public class SyntaxTest extends MP2Test {
 		assertEquals(Integer.valueOf(3), l.get(0));
 	}
 
-	public void testGlobalAssignment() throws Exception {
+	@Test
+	public void globalAssignment() throws Exception {
 		final Interpreter interpreter = InterpreterFactory.getInstance(NullProvider.instance(), null);
 
 		interpreter.eval("function f() { }");
@@ -290,28 +328,34 @@ public class SyntaxTest extends MP2Test {
 		assertEquals(interpreter.getGlobal("x"), NINE);
 	}
 
-	public void testVarAssignment() {
+	@Test
+	public void varAssignment() {
 		assertEval("var i = 9; return i;", NINE);
 	}
 
-	public void testVarAssignment2() {
+	@Test
+	public void varAssignment2() {
 		assertEval("local l = 9; var v = 10; return l;", NINE);
 	}
 
-	public void testLocalAssignment() {
+	@Test
+	public void localAssignment() {
 		assertEval("local i = 9; return i;", NINE);
 	}
 
-	public void testArgumentAssignment() {
+	@Test
+	public void argumentAssignment() {
 		assertEval("return (i) => { i = 9; return i; }()", NINE);
 	}
 
-	public void testClosureAssignment() {
+	@Test
+	public void closureAssignment() {
 		// TODO: should we allow closure assignment or disable it altogether?
 		assertEval("var i = 0; (() => return i = 9)(); return i;", NINE);
 	}
 
-	public void testClosureUpdate() {
+	@Test
+	public void closureUpdate() {
 		final String script = //
 		/**/"var n = 4;\n" +
 		/**/"local test = () => return n + 4;\n" +
@@ -322,7 +366,8 @@ public class SyntaxTest extends MP2Test {
 		assertEval(script, NINE);
 	}
 
-	public void testArgumentAssignment2() {
+	@Test
+	public void argumentAssignment2() {
 		final String script = //
 		/**/"function test(aInteger) {\n" +
 		/**/"	aInteger = 6\n;" +
@@ -334,19 +379,22 @@ public class SyntaxTest extends MP2Test {
 		assertEval(script, NINE);
 	}
 
+	@Test
 	@SuppressWarnings("boxing")
-	public void testAssignmentOrder() {
+	public void assignmentOrder() {
 		assertEval("i = 0; a = [ 3, 6 ]; a[i] = i = 9; return [ i, a[0], a[1] ]", Arrays.asList(9, 9, 6));
 	}
 
-	public void testBreakContinueOutsideOfContext() {
+	@Test
+	public void breakContinueOutsideOfContext() {
 		assertException("break", ParsingException.class);
 		assertException("continue", ParsingException.class);
 		assertException("while (false); break", ParsingException.class);
 		assertException("do () => break; while (false);", ParsingException.class);
 	}
 
-	public void testBreakContinue() {
+	@Test
+	public void breakContinue() {
 		final String script = //
 		/**/"local result = 0;\n" +
 		/**/"for (local i = 0; i < 3; ++i) {\n" +
@@ -362,7 +410,8 @@ public class SyntaxTest extends MP2Test {
 		assertEval(script, NINE);
 	}
 
-	public void testVarAssignBeforeUse() {
+	@Test
+	public void varAssignBeforeUse() {
 		assertEval("var a = 4, b = a + 5; return b;", NINE);
 		assertException("var a = 5, b += a", ParsingException.class);
 		assertException("var a = 5, b; b += a", ParsingException.class);
@@ -373,12 +422,14 @@ public class SyntaxTest extends MP2Test {
 		// assertException("var a; return () => return ++a;()", ParsingException.class);
 	}
 
-	public void testNestedBlocks() {
+	@Test
+	public void nestedBlocks() {
 		assertEval("{{ return 9 }}", NINE);
 		assertEval("while (true) {{ return 9 }}", NINE);
 	}
 
-	public void testBooleanCoersion() {
+	@Test
+	public void booleanCoersion() {
 		assertEval("local a = null; a ||= 9; return a", NINE);
 		assertEval("local a = true; return a &&= 9;", NINE);
 	}

@@ -4,26 +4,33 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Test;
+
 import re.agiledesign.mp2.exception.ParsingException;
 
 public class FunctionTest extends MP2Test {
-	public void testLambda0() {
+	@Test
+	public void lambda0() {
 		assertEval("x = (x) => return 1 + x return x(9)", Integer.valueOf(10));
 	}
 
-	public void testLambda1() {
+	@Test
+	public void lambda1() {
 		assertEval("return !(x) => { return 1 + x }(9)", Boolean.FALSE);
 	}
 
-	public void testLambda2() {
+	@Test
+	public void lambda2() {
 		assertEval("return ((x) => return 1 + x)(9)", Integer.valueOf(10));
 	}
 
-	public void testLambda3() {
+	@Test
+	public void lambda3() {
 		assertEval("return (() => return 10)(1, 2, 3)", Integer.valueOf(10));
 	}
 
-	public void testImmediate() {
+	@Test
+	public void immediate() {
 		final String script = //
 		/**/"test = () => return [ () => return (1 .. 2) ]\n" +
 		/**/"return test()[0]().size()";
@@ -31,7 +38,8 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Integer.valueOf(2));
 	}
 
-	public void testNested() {
+	@Test
+	public void nested() {
 		final String script = //
 		/**/"test = () => return () => return (1 .. 2)\n" +
 		/**/"return test()().size()";
@@ -39,7 +47,8 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Integer.valueOf(2));
 	}
 
-	public void testClosure() {
+	@Test
+	public void closure() {
 		final String script = //
 		/**/"x = 2\n" +
 		/**/"addClosure = (x, y) => {\n" +
@@ -51,11 +60,13 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Integer.valueOf(10));
 	}
 
-	public void testLocalClosure() {
+	@Test
+	public void localClosure() {
 		assertException("local l = 4; return () => return l + 5;", ParsingException.class);
 	}
 
-	public void testFunctionClosure() {
+	@Test
+	public void functionClosure() {
 		final String script = //
 		/**/"var n = 5;\n" +
 		/**/"function test() {\n" +
@@ -67,7 +78,8 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Integer.valueOf(9));
 	}
 
-	public void testNestedClosure() {
+	@Test
+	public void nestedClosure() {
 		final String script = //
 		/**/"var n = 5;\n" +
 		/**/"local test = (() => return () => return n + 4)();\n" +
@@ -77,7 +89,8 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Integer.valueOf(9));
 	}
 
-	public void testGlobalClosure() {
+	@Test
+	public void globalClosure() {
 		final String script = //
 		/**/"function f(x, y) { return x + y }\n" +
 		/**/"local test = () => return f(9, 1);\n" +
@@ -87,16 +100,19 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Integer.valueOf(9));
 	}
 
-	public void testLambdaImplicitReturn() {
+	@Test
+	public void lambdaImplicitReturn() {
 		assertEval("return (() => 1 + 9)()", Integer.valueOf(10));
 		assertEval("return (() => for (local i = 0; false;) {})()", null);
 	}
 
-	public void testLambdaImplicitReturnDeclaration() {
+	@Test
+	public void lambdaImplicitReturnDeclaration() {
 		assertEval("return (() => local x = 4)()", null);
 	}
 
-	public void testHigherOrder() {
+	@Test
+	public void higherOrder() {
 		final String script = //
 		/**/"addOne = (x) => return 1 + x\n" +
 		/**/"higherOrder = (x, f) => return f(x)\n" +
@@ -105,8 +121,9 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Integer.valueOf(10));
 	}
 
+	@Test
 	@SuppressWarnings("boxing")
-	public void testRecursiveMap() {
+	public void recursiveMap() {
 		final String script = //
 		/**/"car = (l) => return !l || l.isEmpty() ? null : l[0]\n" +
 		/**/"cdr = (l) => return !l || (l.size() < 2) ? null : l[1 -> l.size()]\n" +
@@ -118,8 +135,9 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Arrays.asList(2, 4, 6));
 	}
 
+	@Test
 	@SuppressWarnings("boxing")
-	public void testRecursiveMap2() {
+	public void recursiveMap2() {
 		final String script = //
 		/**/"car = (l) => return l === null ? null : l.first()\n" +
 		/**/"cdr = (l) => return l === null ? null : l.rest()\n" +
@@ -132,8 +150,9 @@ public class FunctionTest extends MP2Test {
 		assertEval(script, Arrays.asList(2, 4, 6));
 	}
 
+	@Test
 	@SuppressWarnings({ "unchecked", "boxing" })
-	public void testFilter() {
+	public void filter() {
 		final String script = //
 		/**/"function filter(l, f) {\n" +
 		/**/"	local i, retval = []\n" +

@@ -2,7 +2,8 @@ package re.agiledesign.mp2.test;
 
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+
 import re.agiledesign.mp2.Interpreter;
 import re.agiledesign.mp2.InterpreterFactory;
 import re.agiledesign.mp2.internal.sourceprovider.FSSourceProvider;
@@ -10,7 +11,7 @@ import re.agiledesign.mp2.internal.sourceprovider.SourceProvider;
 import re.agiledesign.mp2.util.ArrayUtil;
 import re.agiledesign.mp2.util.Util;
 
-public abstract class MP2Test extends TestCase {
+public abstract class MP2Test {
 	protected static final SourceProvider RESOURCE_PROVIDER;
 
 	static {
@@ -56,7 +57,7 @@ public abstract class MP2Test extends TestCase {
 	}
 
 	protected static void assertEval(final String aScript, final Map<String, ?> aArgs, final Object aExpected) {
-		assertEquals(aExpected, eval(aScript, aArgs));
+		Assert.assertEquals(aExpected, eval(aScript, aArgs));
 	}
 
 	protected void assertEval(final SourceProvider aProvider, final String aPath, final String aExpected) {
@@ -67,14 +68,14 @@ public abstract class MP2Test extends TestCase {
 			final String aPath,
 			final Map<String, ?> aArgs,
 			final String aExpected) {
-		assertEquals(aExpected, eval(aProvider, aPath, aArgs));
+		Assert.assertEquals(aExpected, eval(aProvider, aPath, aArgs));
 	}
 
 	protected static void assertEval(final String aScript,
 			final Map<String, ?> aArgs,
 			final Object aExpected,
 			final EqualsTest aEquals) {
-		assertTrue(aEquals.areEqual(aExpected, eval(aScript, aArgs)));
+		Assert.assertTrue(aEquals.areEqual(aExpected, eval(aScript, aArgs)));
 	}
 
 	protected static void assertException(final String aScript, final Class<? extends Throwable> aExpected) {
@@ -94,7 +95,7 @@ public abstract class MP2Test extends TestCase {
 			return;
 		}
 
-		fail();
+		Assert.fail();
 	}
 
 	public static final EqualsTest ArrayEquals = new EqualsTest() {

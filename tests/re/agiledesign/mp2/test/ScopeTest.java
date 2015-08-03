@@ -1,11 +1,14 @@
 package re.agiledesign.mp2.test;
 
+import org.junit.Test;
+
 import re.agiledesign.mp2.exception.ParsingException;
 
 public class ScopeTest extends MP2Test {
 	private static final Integer EXPECTED = Integer.valueOf(6);
 
-	public void testRootLocal() {
+	@Test
+	public void rootLocal() {
 		final String script = //
 		/**/"local i = 5;\n" +
 		/**/"local f = () => return 1;\n" +
@@ -14,7 +17,8 @@ public class ScopeTest extends MP2Test {
 		assertEval(script, EXPECTED);
 	}
 
-	public void testMultipleLocals() {
+	@Test
+	public void multipleLocals() {
 		final String script = //
 		/**/"function test() {\n" +
 		/**/"	local i = 2, z, k = 1;\n" +
@@ -27,7 +31,8 @@ public class ScopeTest extends MP2Test {
 		assertEval(script, EXPECTED);
 	}
 
-	public void testLocalInLoop() {
+	@Test
+	public void localInLoop() {
 		final String script = //
 		/**/"function test() {\n" +
 		/**/"	local i = 0, sum = 0;\n" +
@@ -44,7 +49,8 @@ public class ScopeTest extends MP2Test {
 		assertEval(script, EXPECTED);
 	}
 
-	public void testLocalSameAsClosed() {
+	@Test
+	public void localSameAsClosed() {
 		final String script = //
 		/**/"function test() {\n" +
 		/**/"	var i = 3;\n" +
@@ -56,7 +62,8 @@ public class ScopeTest extends MP2Test {
 		assertException(script, ParsingException.class);
 	}
 
-	public void testNameOverlap() {
+	@Test
+	public void nameOverlap() {
 		final String script = //
 		/**/"function test() {\n" +
 		/**/"	local i = 3;\n" +
@@ -68,7 +75,8 @@ public class ScopeTest extends MP2Test {
 		assertException(script, ParsingException.class);
 	}
 
-	public void testFunctionSameAsLocal() {
+	@Test
+	public void functionSameAsLocal() {
 		final String script = //
 		/**/"local test = true;\n" +
 		/**/"function test() { return true; };";
@@ -76,7 +84,8 @@ public class ScopeTest extends MP2Test {
 		assertException(script, ParsingException.class);
 	}
 
-	public void testFunctionSameAsLocal2() {
+	@Test
+	public void functionSameAsLocal2() {
 		final String script = //
 		/**/"function test() { return true; };\n" +
 		/**/"var test = true;\n";
@@ -84,7 +93,8 @@ public class ScopeTest extends MP2Test {
 		assertException(script, ParsingException.class);
 	}
 
-	public void testArgumentSameAsClosed() {
+	@Test
+	public void argumentSameAsClosed() {
 		final String script = //
 		/**/"function test() {\n" +
 		/**/"	var i = 3;\n" +
@@ -96,7 +106,8 @@ public class ScopeTest extends MP2Test {
 		assertException(script, ParsingException.class);
 	}
 
-	public void testVarSameAsLocal() {
+	@Test
+	public void varSameAsLocal() {
 		final String script = //
 		/**/"local i = 5;\n" +
 		/**/"var   i = 3;";
@@ -105,7 +116,8 @@ public class ScopeTest extends MP2Test {
 		assertException(script, ParsingException.class);
 	}
 
-	public void testArgumentSameAsLocal() {
+	@Test
+	public void argumentSameAsLocal() {
 		final String script = //
 		/**/"function test(i) {\n" +
 		/**/"	local i = 3;\n" +

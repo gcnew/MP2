@@ -1,10 +1,15 @@
 package re.agiledesign.mp2.test;
 
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
 import re.agiledesign.mp2.internal.sourceprovider.SourceProvider;
 import re.agiledesign.mp2.internal.sourceprovider.StringSourceProvider;
 
 public class ModuleTest extends MP2Test {
-	public void testModules() {
+	@Test
+	public void modules() {
 		final SourceProvider provider = new StringSourceProvider(new String[][] {
 			{ "a.mp", "load 'b.mp'; return hello()" },
 			{ "b.mp", "function hello() { return 'Hello world'; }" } });
@@ -12,7 +17,8 @@ public class ModuleTest extends MP2Test {
 		assertEval(provider, "a.mp", "Hello world");
 	}
 
-	public void testFileModules() {
+	@Test
+	public void fileModules() {
 		assertEval(RESOURCE_PROVIDER, "tick.mp", "tick tock tick tock tick");
 	}
 
@@ -28,7 +34,8 @@ public class ModuleTest extends MP2Test {
 		}
 	}
 
-	public void testSingleLoad() {
+	@Test
+	public void singleLoad() {
 		final SourceProvider provider = new StringSourceProvider(
 			new String[][] {
 				{ "a.mp", "load 'inc.mp'; load 'b.mp'; return c();" },

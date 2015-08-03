@@ -1,5 +1,8 @@
 package re.agiledesign.mp2.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,10 +10,13 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import org.junit.Test;
+
 import re.agiledesign.mp2.collection.ConsList;
 
 public class CollectionTest extends MP2Test {
-	public void testConsBackward0() {
+	@Test
+	public void consBackward0() {
 		// highly inefficient.. but anyway
 		@SuppressWarnings("boxing")
 		final ListIterator<Integer> it = ConsList.<Integer> list(1, 2, 3, 4, 5).listIterator();
@@ -32,7 +38,8 @@ public class CollectionTest extends MP2Test {
 		assertTrue(it.next() == it.previous());
 	}
 
-	public void testConsBackward1() {
+	@Test
+	public void consBackward1() {
 		// highly inefficient.. but anyway
 		@SuppressWarnings("boxing")
 		final List<Integer> list = ConsList.<Integer> list(1, 2, 3, 4, 5);
@@ -54,7 +61,8 @@ public class CollectionTest extends MP2Test {
 		assertEval("return a == b", m, Boolean.TRUE);
 	}
 
-	public void testListEquals() {
+	@Test
+	public void listEquals() {
 		@SuppressWarnings("boxing")
 		final List<?> a = Arrays.asList(1, 2, 3);
 		final List<?> b = new ArrayList<Object>(a);
@@ -62,7 +70,8 @@ public class CollectionTest extends MP2Test {
 		executeEquals(a, b);
 	}
 
-	public void testNestedListEquals() {
+	@Test
+	public void nestedListEquals() {
 		@SuppressWarnings("boxing")
 		final List<?> a = Arrays.asList(1, 2, 3);
 		final List<?> b = new ArrayList<Object>(a);
@@ -70,7 +79,8 @@ public class CollectionTest extends MP2Test {
 		executeEquals(Arrays.<List<?>> asList(a), Arrays.<List<?>> asList(b));
 	}
 
-	public void testListContainingArrayEquals() {
+	@Test
+	public void listContainingArrayEquals() {
 		final int arr[] = new int[] { 1, 2, 3 };
 
 		final List<?> a = Arrays.asList(arr);
@@ -80,7 +90,8 @@ public class CollectionTest extends MP2Test {
 		executeEquals(a, b);
 	}
 
-	public void testListArrayEquals() {
+	@Test
+	public void listArrayEquals() {
 		@SuppressWarnings("boxing")
 		final List<?> a = Arrays.asList(1, 2, 3);
 		final int b[] = new int[] { 1, 2, 3 };
