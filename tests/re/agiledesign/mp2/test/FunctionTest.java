@@ -55,6 +55,47 @@ public class FunctionTest extends MP2Test {
 		assertException("local l = 4; return () => return l + 5;", ParsingException.class);
 	}
 
+	public void testFunctionClosure() {
+		final String script = //
+		/**/"var n = 5;\n" +
+		/**/"function test() {\n" +
+		/**/"	return n + 4;\n" +
+		/**/"}\n" +
+		/**/"\n" +
+		/**/"return test()";
+
+		assertEval(script, Integer.valueOf(9));
+	}
+
+	public void testNestedClosure() {
+		final String script = //
+		/**/"var n = 5;\n" +
+		/**/"local test = (() => return () => return n + 4)();\n" +
+		/**/"\n" +
+		/**/"return test()";
+
+		assertEval(script, Integer.valueOf(9));
+	}
+
+	public void testGlobalClosure() {
+		final String script = //
+		/**/"function f(x, y) { return x + y }\n" +
+		/**/"local test = () => return f(9, 1);\n" +
+		/**/"f = (x, y) => return x * y;\n" +
+		/**/"return test()";
+
+		assertEval(script, Integer.valueOf(9));
+	}
+
+	public void testLambdaImplicitReturn() {
+		assertEval("return (() => 1 + 9)()", Integer.valueOf(10));
+		assertEval("return (() => for (local i = 0; false;) {})()", null);
+	}
+
+	public void testLambdaImplicitReturnDeclaration() {
+		assertEval("return (() => local x = 4)()", null);
+	}
+
 	public void testHigherOrder() {
 		final String script = //
 		/**/"addOne = (x) => return 1 + x\n" +

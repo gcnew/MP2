@@ -13,4 +13,8 @@ public class ExpressionStatement extends Statement {
 	public void execute(final Scope aScope) throws Exception {
 		mExpression.execute(aScope);
 	}
+
+	public Expression getExpression() {
+		return mExpression;
+	}
 }

@@ -674,7 +674,11 @@ public class MP2Parser {
 			checkAndAdvance(SyntaxToken.LAMBDA);
 		}
 
-		final Statement body = parseStatementOrBlock();
+		Statement body = parseStatementOrBlock();
+		if (body instanceof ExpressionStatement) {
+			body = new ReturnStatement(((ExpressionStatement) body).getExpression());
+		}
+
 		final int localsCount = mLexicalScope.getCountOf(Visibility.LOCAL);
 		final List<String> argsArray = Util.immutableList(mLexicalScope.getArgumentsArray());
 
