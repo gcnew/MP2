@@ -1,5 +1,6 @@
 package re.agiledesign.mp2.util;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -52,6 +53,18 @@ public class Util {
 			return Class.forName(elements[i + 1].getClassName());
 		} catch (final ClassNotFoundException e) {
 			throw AssertUtil.<RuntimeException> never();
+		}
+	}
+
+	@SuppressWarnings("resource")
+	public static String readFile(final String aFileName) throws IOException {
+		InputStream fs = null;
+		try {
+			fs = new FileInputStream(aFileName);
+
+			return readStream(fs);
+		} finally {
+			closeQuietly(fs);
 		}
 	}
 
